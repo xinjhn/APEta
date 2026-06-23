@@ -72,6 +72,7 @@ RESULTS_FIELDNAMES = [
     "error_rate",
     "cpu_mean", "cpu_p95", "rss_mean_mb", "rss_p95_mb",
     "k6_iterations", "notes",
+    "impl_mode",  # Faktor implementasi: "passthrough" atau "typed"
 ]
 
 
@@ -384,6 +385,11 @@ def start_server(cfg: Config, protocol: str, log_path: Path) -> subprocess.Popen
         cmd = ["taskset", "-c", cfg.server_cores] + cmd
     env = os.environ.copy()
     env["APE_POOL_JSON"] = cfg.pool_json
+    # Faktor implementasi untuk desain faktorial 2x2 (Path B)
+    if protocol == "rest":
+        env["APE_REST_MODE"] = cfg.impl_mode_rest
+    else:
+        env["APE_GRAPHQL_MODE"] = cfg.impl_mode_graphql
     log_path.parent.mkdir(parents=True, exist_ok=True)
     log_f = open(log_path, "a", encoding="utf-8")
     proc = subprocess.Popen(cmd, cwd=PROJECT_ROOT, env=env, stdout=log_f, stderr=log_f, **popen_kwargs_for_group())
@@ -612,6 +618,7 @@ class Executor:
             "rss_p95_mb": rss_p95,
             "k6_iterations": metric(data, "iterations", "count"),
             "notes": notes,
+            "impl_mode": self.cfg.impl_mode_rest if block["protocol"] == "rest" else self.cfg.impl_mode_graphql,
         }
         append_result(self.results_path, result_row)
         self.run_durations.append(ts_end - ts_start)
@@ -821,7 +828,15 @@ def preflight(cfg: Config) -> int:
 
             governor = _read_cpu_governor()
             if governor is None:
-                check("cpu_governor", False, "tidak bisa membaca scaling_governor (sysfs tidak ada)")
+                sysfs_absent_ok = os.environ.get("APE_GOVERNOR_SYSFS_ABSENT_OK") == "1"
+                if sysfs_absent_ok:
+                    check(
+                        "cpu_governor", True,
+                        "sysfs tidak ada -- dilewati via APE_GOVERNOR_SYSFS_ABSENT_OK=1 "
+                        "(operator sudah konfirmasi manual clock CPU tetap, lihat VM_SETUP.md)",
+                    )
+                else:
+                    check("cpu_governor", False, "tidak bisa membaca scaling_governor (sysfs tidak ada)")
             elif governor != "performance":
                 check("cpu_governor", False, f"governor={governor} (disarankan 'performance', lihat VM_SETUP.md)")
             else:

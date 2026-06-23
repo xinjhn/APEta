@@ -26,9 +26,7 @@ cd "d:\TA\APE VM"
 python --version                 # harus 3.10+ (lokal: 3.13.14)
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-pip install httpx2                # dibutuhkan starlette.testclient untuk uji paritas (TIDAK ada di requirements.txt — catat ini saat pindah ke VM)
-pip install httpx                  # hanya untuk skrip liveness opsional di scratch/
+pip install -r requirements.txt   # httpx2 (TestClient) & httpx (scratch/ liveness) sudah terpin di sini
 ```
 Verifikasi versi terpasang cocok dengan `requirements.txt`:
 ```powershell
@@ -182,6 +180,5 @@ Get-NetTCPConnection -LocalPort 8000,8001 -State Listen |
 | Gejala | Sebab kemungkinan | Solusi |
 |---|---|---|
 | `ModuleNotFoundError: No module named 'core'` | File belum berada di `core/` (ter-flatten lagi) | Pastikan struktur folder seperti di bagian atas dokumen ini |
-| `tests/test_parity.py` minta paket `httpx2` | `starlette==1.3.1` butuh `httpx2` untuk `TestClient`, tidak tercantum di `requirements.txt` | `pip install httpx2` |
 | `Invoke-WebRequest`/`curl` connection refused | Server belum selesai start atau port salah | Cek log di Terminal #1/#2, pastikan `Uvicorn running on http://127.0.0.1:PORT` muncul |
 | Sampler `psutil.NoSuchProcess` langsung keluar | PID yang dipakai bukan PID asli pemegang port | Pakai `Get-NetTCPConnection -LocalPort <port> -State Listen` untuk PID yang benar |

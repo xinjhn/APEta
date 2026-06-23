@@ -11,8 +11,15 @@ Keputusan operasionalisasi (Keputusan 2, metrik sekunder):
 2. Proses TERPISAH yang di-`taskset` ke core cadangan (di luar core server & k6)
    -> meminimalkan observer effect sekaligus menghindari kontaminasi.
 3. Sampling 1 Hz; tiap baris ber-timestamp UNIX agar dapat di-JOIN ke jendela
-   STEADY-STATE tiap run (orchestrator mencatat awal/akhir steady-state).
-   Nilai per-run = ringkasan (mean/p95) hanya dari sampel di jendela steady-state.
+   waktu tiap run (orchestrator mencatat ts_start/ts_end di sekitar proses k6
+   penuh -- lihat `run_experiment.py::telemetry_stats()`). CATATAN AKURASI:
+   jendela ini adalah batas wall-clock proses k6 SECARA UTUH, BUKAN jendela
+   steady-state yang sudah ditrim dari transien startup (mis. pembukaan koneksi
+   serentak oleh puluhan VU di awal run). Pada interval sampling 1 Hz dan durasi
+   run 60s, transien ini mencakup ~1-2 sampel dari ~60 -- dampaknya kecil tapi
+   TIDAK NOL, terutama pada `cpu_p95`/`rss_p95_mb`. Bila ingin jendela
+   steady-state murni, tambahkan logam pencatatan ts_steady_start/end terpisah
+   di orchestrator sebelum mengandalkan klaim ini.
 
 Pemakaian (dipanggil orchestrator, idealnya dengan taskset):
     taskset -c 31 python telemetry/sampler.py --pid <PID_SERVER> \

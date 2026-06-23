@@ -5,8 +5,11 @@ Agregasi sisi server (pola S4 'Aggregation'). Modul BERSAMA.
 
 Spesifikasi terkunci (KONSTAN lintas tier): jumlah objek per kelas.
 Payload sengaja minimal -> pola ini praktis mengukur SERVER-SIDE PROCESSING TIME
-(header X-Process-Time) dan paling mungkin memunculkan overhead resolusi GraphQL
-(Cha et al., 2020; SLR 2026), bukan waktu transfer.
+(header X-Process-Time) dan paling mungkin memunculkan overhead resolusi GraphQL,
+bukan waktu transfer (lihat empiris: Seabra, Nazario & Pinto, "REST or GraphQL?:
+A Performance Comparative Study", SBCARS 2019, ACM, DOI 10.1145/3357141.3357149 --
+REST mengungguli GraphQL di atas ~3000 req/s, konsisten dengan hipotesis overhead
+resolusi mendominasi pada beban tinggi).
 
 Bentuk luaran distandarkan agar identik di kedua protokol: daftar terurut
 {class_name, count}, diurutkan menurun lalu alfabetis untuk determinisme.

@@ -76,7 +76,12 @@ def _compare(rest, gql):
             checks.append(("partial", r, g))
 
             # S3 filtered (predikat tetap car AND conf>=0.5)
-            r = rest.get(f"/filtered?density={density}&seed={seed}").json()
+            # KOREKSI (audit): /filtered REST default berubah jadi None (lihat
+            # rest_server.py) agar simetris dgn resolver GraphQL -- pemanggil
+            # WAJIB kirim filter eksplisit, sama seperti k6/load.js. Tanpa ini
+            # REST diam-diam TIDAK memfilter sementara GraphQL memfilter,
+            # menyebabkan mismatch palsu (ditemukan: 12/48 gagal di density=high).
+            r = rest.get(f"/filtered?density={density}&seed={seed}&class_label=car&min_confidence=0.5").json()
             g = _gql(gql, f'{{ image_detections(density:"{density}", '
                           f'class_label:"car", min_confidence:0.5, seed:{seed}) '
                           f'{{ image_id dimensions {{ width height }} '

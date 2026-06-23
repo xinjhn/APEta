@@ -15,11 +15,11 @@ Rujukan keputusan:
 DENSITY_TIERS = ("low", "medium", "high")
 
 # --- Ambang kuartil default (DARI OUTPUT MODEL, Tabel IV.1) ---------------------
-# CATATAN: angka ini WAJIB diverifikasi ulang dari distribusi jumlah deteksi
-# output model setelah inferensi final (lih. PANDUAN Bagian 9). Pool dapat
-# menghitung ulang Q1/Q3 langsung dari data via core.pool.compute_quartiles().
-DEFAULT_Q1 = 42  # batas atas tier 'low'   (low  = count < Q1, mis. 1-41)
-DEFAULT_Q3 = 96  # batas bawah tier 'high' (high = count > Q3, mis. >96)
+# Dikunci dari tools/profile_dataset.py pada inferensi_vcd.json final (548 citra,
+# YOLO26n, imgsz=1280, conf=0.25): Q1=31.0, Q3=71.0 -> tier_counts
+# {low: 129, medium: 287, high: 132}. Lihat results/density_profile.json.
+DEFAULT_Q1 = 31  # batas atas tier 'low'   (low  = count < Q1, mis. 1-30)
+DEFAULT_Q3 = 71  # batas bawah tier 'high' (high = count > Q3, mis. >71)
 
 # --- Field kanonik skema VCD (snake_case = sumber kebenaran tunggal) ------------
 # Kedua server memakai penamaan identik ini. GraphQL DINONAKTIFKAN auto-camelCase

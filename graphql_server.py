@@ -3,12 +3,30 @@ graphql_server.py
 =================
 Server GraphQL (Strawberry) -- dijalankan BERGANTIAN dengan REST (PANDUAN Bagian 3).
 
+FAKTORIAL DESAIN (Path B - Symmetric Baselines):
+- MODE_DEFAULT = "typed"      -> GraphQL dengan rekonstruksi objek Strawberry (baseline lambat)
+- MODE_DEFAULT = "passthrough" -> GraphQL mengembalikan dict mentah (simetris dengan REST passthrough)
+
+Mode dikontrol via env var APE_GRAPHQL_MODE=typed|passthrough untuk memungkinkan
+eksperimen 2x2: Protocol (REST/GraphQL) × Type Safety (yes/no).
+
 PERBAIKAN penting atas draf laporan (Increment 2-3): resolver TIDAK mengembalikan
 `dict` mentah. Ia membangun objek tipe Strawberry yang sesungguhnya sehingga biaya
 resolusi (AST parse + resolver traversal + perakitan objek per-request) yang
 menjadi HIPOTESIS MEKANISTIK penelitian benar-benar terjadi dan terukur. Bila
 GraphQL hanya mem-bulk-serialize dict, kedua protokol runtuh ke perilaku yang
 sama dan eksperimen tak dapat mendeteksi overhead yang ingin diuji.
+
+KOREKSI (audit lanjutan): mode "passthrough" SEMPAT mengembalikan `dict` Python
+mentah langsung dari resolver. Ini SALAH dan crash saat dijalankan -- Strawberry
+meresolusi field via `getattr(source, field_name)`, BUKAN `Mapping.get()` (tidak
+seperti default resolver graphql-core murni). Dibuktikan dengan
+`tools/verify_factorial_modes.py` (AttributeError sebelum perbaikan). Mode
+"passthrough" kini membangun `types.SimpleNamespace` bertingkat -- objek generik
+tanpa skema/anotasi tipe (analog `dict` REST passthrough: TANPA Pydantic), namun
+tetap mendukung resolusi atribut yang dibutuhkan Strawberry. Sisa biaya
+konstruksi atribut (`SimpleNamespace(**kwargs)`) sebanding dengan `dict` literal
+REST -- kontras dgn mode "typed" yang membangun dataclass Strawberry bertipe.
 
 FAIRNESS - auto_camel_case=False:
 Strawberry secara default mengubah class_label -> classLabel. Itu akan membuat
@@ -24,24 +42,34 @@ Pola kueri pada GraphQL = SATU endpoint fleksibel + selection set klien:
 
 Menjalankan (single worker):
     APE_POOL_JSON=/path/ke/inferensi.json \
+    APE_GRAPHQL_MODE=typed \  # atau "passthrough"
     uvicorn graphql_server:app --workers 1 --host 127.0.0.1 --port 8000
 """
 from __future__ import annotations
 
 import json
 import os
+from types import SimpleNamespace
 from typing import List, Optional
 
 import strawberry
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
 from strawberry.schema.config import StrawberryConfig
+from strawberry.types import Info
 
 from core import aggregate as core_aggregate
 from core import filters as core_filters
+from core import projection as core_projection
 from core.access import get_image
 from core.pool import InMemoryPool
 from core.timing import add_process_time_middleware
+
+
+# --- Kontrol mode implementasi (faktor Type Safety dalam desain faktorial) -----
+GRAPHQL_MODE = os.environ.get("APE_GRAPHQL_MODE", "typed").lower()
+if GRAPHQL_MODE not in ("typed", "passthrough"):
+    raise ValueError(f"APE_GRAPHQL_MODE must be 'typed' or 'passthrough', got '{GRAPHQL_MODE}'")
 
 
 # --- Paritas serialisasi (FAIRNESS payload_size) -------------------------------
@@ -90,6 +118,7 @@ class AggregateResult:
 
 # --- Perakitan objek tipe dari dict pool (INI biaya resolusi GraphQL nyata) -----
 def _build_image_detections(record: dict, detections: list) -> ImageDetections:
+    """Rekonstruksi objek typed (mode default, simetris dengan REST typed)."""
     return ImageDetections(
         image_id=record["image_id"],
         dimensions=Dimensions(
@@ -102,11 +131,76 @@ def _build_image_detections(record: dict, detections: list) -> ImageDetections:
             Detection(
                 class_label=d["class_label"],
                 confidence_score=d["confidence_score"],
-                bounding_box=list(d["bounding_box"]),
+                bounding_box=list(d.get("bounding_box", [])),
             )
             for d in detections
         ],
     )
+
+
+def _build_aggregate(record: dict, counts: list) -> AggregateResult:
+    """Rekonstruksi objek typed untuk agregasi."""
+    return AggregateResult(
+        image_id=record["image_id"],
+        class_counts=[
+            ClassCount(class_name=c["class_name"], count=c["count"])
+            for c in counts
+        ],
+    )
+
+
+# --- Helper untuk mode passthrough: SimpleNamespace generik (BUKAN dict) -------
+# Strawberry meresolusi field via getattr(), sehingga dict mentah TIDAK valid
+# (lihat catatan KOREKSI di docstring modul). SimpleNamespace mendukung getattr
+# tanpa skema/tipe -- analog `dict` REST passthrough yang juga tanpa Pydantic.
+def _ns_image_detections(record: dict, detections: list) -> SimpleNamespace:
+    """Versi passthrough: rakitan atribut generik tanpa tipe Strawberry."""
+    return SimpleNamespace(
+        image_id=record["image_id"],
+        dimensions=SimpleNamespace(
+            width=record["dimensions"]["width"],
+            height=record["dimensions"]["height"],
+        ),
+        detections=[
+            SimpleNamespace(
+                class_label=d["class_label"],
+                confidence_score=d["confidence_score"],
+                bounding_box=list(d.get("bounding_box", [])),
+            )
+            for d in detections
+        ],
+    )
+
+
+def _ns_aggregate(record: dict, counts: list) -> SimpleNamespace:
+    """Versi passthrough untuk agregasi."""
+    return SimpleNamespace(
+        image_id=record["image_id"],
+        class_counts=[
+            SimpleNamespace(class_name=c["class_name"], count=c["count"])
+            for c in counts
+        ],
+    )
+
+
+# --- Kesadaran selection-set (FAIRNESS pola "partial" S2) -----------------------
+# Tanpa ini, resolver membangun field `bounding_box` walau klien tak memintanya
+# (Strawberry hanya MEMFILTER saat serialisasi) -- padahal REST (core/projection.py)
+# men-strip field SEBELUM objek respons dibangun. Membiarkan resolver tetap
+# membangun field yang tak diminta membuat pola "partial" GraphQL membayar biaya
+# konstruksi yang SAMA dengan "baseline", sehingga klaim latency utk pola ini
+# tak bisa dibandingkan adil dengan REST (lihat audit). Di sini kita inspeksi
+# info.selected_fields dan strip bounding_box SEBELUM membangun objek -- simetris
+# dengan core.projection.project_detections yang dipakai REST.
+def _requested_detection_fields(info: Info) -> Optional[set]:
+    try:
+        for top in info.selected_fields:
+            for nested in top.selections:
+                if nested.name == "detections":
+                    return {f.name for f in nested.selections}
+    except Exception:
+        return None
+    return None
 
 
 # --- Query (resolver memanggil primitif core.* yang SAMA dengan REST) ----------
@@ -115,6 +209,7 @@ class Query:
     @strawberry.field
     def image_detections(
         self,
+        info: Info,
         density: str,
         class_label: Optional[str] = None,
         min_confidence: Optional[float] = None,
@@ -133,6 +228,18 @@ class Query:
             dets = core_filters.filter_detections(
                 dets, class_label=class_label, min_confidence=min_confidence
             )
+
+        # Strip field tak diminta SEBELUM membangun objek -- simetris dengan
+        # REST core/projection.py (lihat catatan di atas fungsi ini).
+        requested = _requested_detection_fields(info)
+        if requested is not None and "bounding_box" not in requested:
+            dets = core_projection.project_detections(dets, requested)
+
+        if GRAPHQL_MODE == "passthrough":
+            # Mode passthrough: objek generik tanpa tipe (simetris REST passthrough).
+            return _ns_image_detections(rec, dets)  # type: ignore[return-value]
+
+        # Mode typed: rekonstruksi objek penuh (baseline)
         return _build_image_detections(rec, dets)
 
     @strawberry.field
@@ -140,13 +247,11 @@ class Query:
         """Melayani S4. Memanggil core.aggregate.count_per_class (sama dgn REST)."""
         rec = get_image(density, seed=seed)
         counts = core_aggregate.count_per_class(rec.get("detections", []))
-        return AggregateResult(
-            image_id=rec["image_id"],
-            class_counts=[
-                ClassCount(class_name=c["class_name"], count=c["count"])
-                for c in counts
-            ],
-        )
+
+        if GRAPHQL_MODE == "passthrough":
+            return _ns_aggregate(rec, counts)  # type: ignore[return-value]
+
+        return _build_aggregate(rec, counts)
 
 
 schema = strawberry.Schema(
@@ -169,4 +274,4 @@ def _startup() -> None:
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "pool": InMemoryPool.instance().summary()}
+    return {"status": "ok", "pool": InMemoryPool.instance().summary(), "mode": GRAPHQL_MODE}

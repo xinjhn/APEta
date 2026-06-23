@@ -5,6 +5,13 @@ Knob terpusat untuk eksekusi eksperimen. Saat pindah ke VM, HANYA file/ENV ini
 yang perlu diubah (POOL_JSON asli, N_MEASURED/RUN_DURATION final, ENABLE_PINNING,
 SESSION_ID) -- skrip orchestrator lainnya tidak disentuh.
 
+FAKTORIAL DESAIN (Path B):
+- impl_mode_rest: "passthrough" | "typed" (kontrol via APE_IMPL_MODE_REST)
+- impl_mode_graphql: "passthrough" | "typed" (kontrol via APE_IMPL_MODE_GRAPHQL)
+
+Untuk replikasi hasil awal: rest=passthrough, graphql=typed
+Untuk desain faktorial 2x2: jalankan 4 kombinasi berbeda.
+
 Semua knob dibaca dari environment variable (prefix APE_) dengan default yang
 masuk akal untuk mode PILOT lokal. Lintas-platform: ENABLE_PINNING hanya
 berlaku di POSIX (taskset); di Windows selalu dilewati apa pun nilainya.
@@ -62,6 +69,9 @@ class Config:
     server_cores: Optional[str]
     k6_cores: Optional[str]
     sampler_core: Optional[str]
+    # Faktor implementasi untuk desain faktorial 2x2
+    impl_mode_rest: str = "passthrough"
+    impl_mode_graphql: str = "typed"
 
     @property
     def base_url(self) -> str:
@@ -105,7 +115,7 @@ def get_config() -> Config:
         n_warmup=int(os.environ.get("APE_N_WARMUP", "1" if pilot else "3")),
         n_measured=int(os.environ.get("APE_N_MEASURED", "3" if pilot else "30")),
         run_duration=os.environ.get("APE_RUN_DURATION", "10s" if pilot else "30s"),
-        concurrency_levels=_env_int_list("APE_CONCURRENCY_LEVELS", [10, 50, 100]),
+        concurrency_levels=_env_int_list("APE_CONCURRENCY_LEVELS", [1, 10, 50, 100]),
         densities=_env_list("APE_DENSITIES", ["low", "medium", "high"]),
         patterns=_env_list("APE_PATTERNS", ["baseline", "partial", "filtered", "aggregate"]),
         host=os.environ.get("APE_HOST", "127.0.0.1"),
@@ -115,9 +125,11 @@ def get_config() -> Config:
         pilot=pilot,
         pilot_patterns=_env_list("APE_PILOT_PATTERNS", ["baseline", "partial"]),
         pilot_densities=_env_list("APE_PILOT_DENSITIES", ["low", "high"]),
-        pilot_concurrency=_env_int_list("APE_PILOT_CONCURRENCY", [10]),
+        pilot_concurrency=_env_int_list("APE_PILOT_CONCURRENCY", [1]),
         enable_pinning=_env_bool("APE_ENABLE_PINNING", False),
         server_cores=os.environ.get("APE_SERVER_CORES"),
         k6_cores=os.environ.get("APE_K6_CORES"),
         sampler_core=os.environ.get("APE_SAMPLER_CORE"),
+        impl_mode_rest=os.environ.get("APE_IMPL_MODE_REST", "passthrough").lower(),
+        impl_mode_graphql=os.environ.get("APE_IMPL_MODE_GRAPHQL", "typed").lower(),
     )

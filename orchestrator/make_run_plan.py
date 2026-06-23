@@ -45,11 +45,12 @@ def _run_uid(protocol: str, pattern: str, density: str, concurrency: int, is_war
     return hashlib.sha256(key.encode("utf-8")).hexdigest()[:12]
 
 
-def build_blocks(patterns: List[str], densities: List[str], concurrency_levels: List[int]) -> List[dict]:
+def build_blocks(patterns: List[str], densities: List[str], concurrency_levels: List[int], protocol_filter: List[str] = None) -> List[dict]:
     """Enumerasi KANONIK (urutan stabil, sebelum diacak) -> block_id stabil."""
     blocks = []
+    protocols = protocol_filter if protocol_filter else list(PROTOCOLS)
     for idx, (protocol, pattern, density, concurrency) in enumerate(
-        itertools.product(PROTOCOLS, patterns, densities, concurrency_levels)
+        itertools.product(protocols, patterns, densities, concurrency_levels)
     ):
         blocks.append(
             {
@@ -104,13 +105,15 @@ def main() -> None:
     cfg = get_config()
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(cfg.run_plan_csv))
+    ap.add_argument("--protocol", nargs="+", default=None, help="Filter to specific protocol(s): rest, graphql")
     args = ap.parse_args()
 
     patterns = cfg.active_patterns()
     densities = cfg.active_densities()
     concurrency = cfg.active_concurrency()
+    protocol_filter = args.protocol
 
-    blocks = build_blocks(patterns, densities, concurrency)
+    blocks = build_blocks(patterns, densities, concurrency, protocol_filter)
     rows = build_plan_rows(blocks, cfg.n_warmup, cfg.n_measured, cfg.seed)
 
     out_path = Path(args.out)
@@ -119,8 +122,10 @@ def main() -> None:
     n_blocks = len(blocks)
     n_measured_rows = sum(1 for r in rows if not r["is_warmup"])
     n_warmup_rows = sum(1 for r in rows if r["is_warmup"])
+    protocols_str = ", ".join(protocol_filter) if protocol_filter else "all"
     print(f"Mode: {'PILOT' if cfg.pilot else 'FULL'}")
-    print(f"Blok: {n_blocks} (protocols={len(PROTOCOLS)} x patterns={len(patterns)} x "
+    print(f"Protocol filter: {protocols_str}")
+    print(f"Blok: {n_blocks} (protocols={len(protocol_filter or PROTOCOLS)} x patterns={len(patterns)} x "
           f"densities={len(densities)} x concurrency={len(concurrency)})")
     print(f"Baris warmup: {n_warmup_rows} | Baris terukur: {n_measured_rows} | Total: {len(rows)}")
     print(f"Seed: {cfg.seed}")
