@@ -1,277 +1,333 @@
 """
 graphql_server.py
-=================
-Server GraphQL (Strawberry) -- dijalankan BERGANTIAN dengan REST (PANDUAN Bagian 3).
+==================
+GraphQL (Strawberry) server for the Phase 1 REST-vs-GraphQL caching study.
+Run ALTERNATELY with rest_server.py (single worker at a time).
 
-FAKTORIAL DESAIN (Path B - Symmetric Baselines):
-- MODE_DEFAULT = "typed"      -> GraphQL dengan rekonstruksi objek Strawberry (baseline lambat)
-- MODE_DEFAULT = "passthrough" -> GraphQL mengembalikan dict mentah (simetris dengan REST passthrough)
+Both servers call core/dal.py's DetectionDAL identically (N2: same DB, same
+access path -- the API surface is the only systematic difference). Field
+names stay snake_case (auto_camel_case=False) and the JSON encoder is forced
+compact, matching REST's payload bytes (no naming/whitespace confound).
 
-Mode dikontrol via env var APE_GRAPHQL_MODE=typed|passthrough untuk memungkinkan
-eksperimen 2x2: Protocol (REST/GraphQL) × Type Safety (yes/no).
+Schema:
+    Query.image(id) -> Image { id frame_index width height density_tier
+                                sequence_name detections(class_id, min_confidence) }
+    Detection { id class_id confidence bbox_x bbox_y bbox_w bbox_h track }
+    Track { id class_id class_name first_frame last_frame
+            trajectory(window) -> [TrajectoryPoint] }
 
-PERBAIKAN penting atas draf laporan (Increment 2-3): resolver TIDAK mengembalikan
-`dict` mentah. Ia membangun objek tipe Strawberry yang sesungguhnya sehingga biaya
-resolusi (AST parse + resolver traversal + perakitan objek per-request) yang
-menjadi HIPOTESIS MEKANISTIK penelitian benar-benar terjadi dan terukur. Bila
-GraphQL hanya mem-bulk-serialize dict, kedua protokol runtuh ke perilaku yang
-sama dan eksperimen tak dapat mendeteksi overhead yang ingin diuji.
+Detection.track is resolved through a per-request DataLoader (N5: real
+batching, default ON) so multiple detections sharing a track in one query
+issue ONE IN-clause SQL call instead of one per detection. Set
+APE_GRAPHQL_BATCHING=off to run the deliberately non-batched (N+1) arm for
+the side study quantifying the N+1 penalty -- never use that as the headline
+comparison against REST.
 
-KOREKSI (audit lanjutan): mode "passthrough" SEMPAT mengembalikan `dict` Python
-mentah langsung dari resolver. Ini SALAH dan crash saat dijalankan -- Strawberry
-meresolusi field via `getattr(source, field_name)`, BUKAN `Mapping.get()` (tidak
-seperti default resolver graphql-core murni). Dibuktikan dengan
-`tools/verify_factorial_modes.py` (AttributeError sebelum perbaikan). Mode
-"passthrough" kini membangun `types.SimpleNamespace` bertingkat -- objek generik
-tanpa skema/anotasi tipe (analog `dict` REST passthrough: TANPA Pydantic), namun
-tetap mendukung resolusi atribut yang dibutuhkan Strawberry. Sisa biaya
-konstruksi atribut (`SimpleNamespace(**kwargs)`) sebanding dengan `dict` literal
-REST -- kontras dgn mode "typed" yang membangun dataclass Strawberry bertipe.
+Caching (N4): the POST /graphql route (Strawberry's default, used unchanged
+by the Phase 1 A1/A2 tests) is NOT cached -- POST isn't cacheable by HTTP
+semantics, and that's the whole reason GraphQL needs a separate mechanism.
+Caching is via Automatic Persisted Queries (APQ) over GET, implemented by
+hand below (Strawberry has no built-in APQ support -- checked
+strawberry.extensions and strawberry.http, neither mentions persisted
+queries). The GET /graphql route here is registered directly on `app`
+BEFORE the router is included, so Starlette's first-match routing picks it
+over the router's own internal GET handler for the exact "/graphql" path.
 
-FAIRNESS - auto_camel_case=False:
-Strawberry secara default mengubah class_label -> classLabel. Itu akan membuat
-nama field (dan UKURAN PAYLOAD) berbeda dari REST, membiaskan metrik payload_size.
-Maka auto-camelCase DINONAKTIFKAN -> nama field snake_case identik dengan REST,
-sehingga (a) payload byte-comparable dan (b) paritas data bersifat literal.
+APQ wire protocol (Apollo's, the de facto standard):
+    GET /graphql?extensions={"persistedQuery":{"version":1,"sha256Hash":"<h>"}}
+        -> hash known: execute stored query. hash unknown: PersistedQueryNotFound.
+    GET /graphql?query=<text>&extensions={"persistedQuery":{...,"sha256Hash":"<h>"}}
+        -> verify sha256(query)==h, store it, execute (the "registration" call).
+randomImage gets cacheable=False from core/caching.py for the same
+anti-cache-by-design reason as REST's /images/random.
 
-Pola kueri pada GraphQL = SATU endpoint fleksibel + selection set klien:
-- baseline : imageDetections(density){ image_id dimensions{...} detections{ semua } }
-- partial  : imageDetections(density){ ... detections{ class_label confidence_score } }
-- filtered : imageDetections(density, class_label:"car", min_confidence:0.5){ ... }
-- aggregate: aggregate(density){ image_id class_counts{ class_name count } }
-
-Menjalankan (single worker):
-    APE_POOL_JSON=/path/ke/inferensi.json \
-    APE_GRAPHQL_MODE=typed \  # atau "passthrough"
+Run:
+    APE_DB_PATH=/home/ubuntu/training/mot_detections.db \
     uvicorn graphql_server:app --workers 1 --host 127.0.0.1 --port 8000
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
-from types import SimpleNamespace
 from typing import List, Optional
 
 import strawberry
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import Response
+from strawberry.dataloader import DataLoader
 from strawberry.fastapi import GraphQLRouter
 from strawberry.schema.config import StrawberryConfig
 from strawberry.types import Info
 
-from core import aggregate as core_aggregate
-from core import filters as core_filters
-from core import projection as core_projection
-from core.access import get_image
-from core.pool import InMemoryPool
+from core.caching import cache_headers, is_fresh
+from core.config import DEFAULT_TRAJECTORY_WINDOW
+from core.dal import DetectionDAL
 from core.timing import add_process_time_middleware
 
-
-# --- Kontrol mode implementasi (faktor Type Safety dalam desain faktorial) -----
-GRAPHQL_MODE = os.environ.get("APE_GRAPHQL_MODE", "typed").lower()
-if GRAPHQL_MODE not in ("typed", "passthrough"):
-    raise ValueError(f"APE_GRAPHQL_MODE must be 'typed' or 'passthrough', got '{GRAPHQL_MODE}'")
+GRAPHQL_BATCHING = os.environ.get("APE_GRAPHQL_BATCHING", "on").lower() != "off"
 
 
-# --- Paritas serialisasi (FAIRNESS payload_size) -------------------------------
-# Strawberry default: json.dumps(data) -> menyisipkan spasi ("a": 1, "b": 2).
-# Starlette JSONResponse (REST): kompak ("a":1,"b":2). Selisih spasi ini akan
-# membiaskan payload_size. Maka encoder GraphQL disamakan ke format KOMPAK.
-# Yang TERSISA sebagai selisih (amplop {"data":{...}}) adalah overhead wire
-# format GraphQL yang SAH dan memang patut dilaporkan apa adanya.
 class CompactGraphQLRouter(GraphQLRouter):
+    """Matches Starlette JSONResponse's compact separators (no payload-size
+    confound from GraphQL's default `json.dumps` whitespace)."""
+
     def encode_json(self, data: object) -> str:
         return json.dumps(data, separators=(",", ":"))
 
 
-# --- Tipe GraphQL (nama field snake_case mengikuti skema VCD) -------------------
+# --- GraphQL types (snake_case fields mirror the DB columns 1:1) --------------
 @strawberry.type
-class Dimensions:
-    width: int
-    height: int
+class TrajectoryPoint:
+    id: int
+    image_id: int
+    frame_index: int
+    confidence: float
+    bbox_x: float
+    bbox_y: float
+    bbox_w: float
+    bbox_h: float
+
+
+@strawberry.type
+class Track:
+    id: int
+    local_track_id: int
+    class_id: int
+    class_name: str
+    first_frame: int
+    last_frame: int
+
+    @strawberry.field
+    def trajectory(self, window: int = DEFAULT_TRAJECTORY_WINDOW) -> List[TrajectoryPoint]:
+        dal = DetectionDAL.instance()
+        full = dal.get_track_trajectory(self.id, window=window)
+        points = full["trajectory"] if full else []
+        fields = ("id", "image_id", "frame_index", "confidence", "bbox_x", "bbox_y", "bbox_w", "bbox_h")
+        return [TrajectoryPoint(**{f: p[f] for f in fields}) for p in points]
 
 
 @strawberry.type
 class Detection:
-    class_label: str
-    confidence_score: float
-    bounding_box: List[float]
+    id: int
+    class_id: int
+    confidence: float
+    bbox_x: float
+    bbox_y: float
+    bbox_w: float
+    bbox_h: float
+    _track_id: strawberry.Private[Optional[int]]
+
+    @strawberry.field
+    async def track(self, info: Info) -> Optional[Track]:
+        if self._track_id is None:
+            return None
+        if GRAPHQL_BATCHING:
+            # DataLoader's load_fn already returns Track objects (see
+            # _batch_load_tracks below), not raw rows.
+            return await info.context["track_loader"].load(self._track_id)
+        row = DetectionDAL.instance().get_track(self._track_id)
+        return _row_to_track(row) if row else None
 
 
 @strawberry.type
-class ImageDetections:
-    image_id: str
-    dimensions: Dimensions
-    detections: List[Detection]
+class Image:
+    id: int
+    frame_index: int
+    width: int
+    height: int
+    density_tier: str
+    sequence_name: str
+    # Populated only by the batch `images(ids)` path (page/round-trip-vs-
+    # cacheability arm) so its single composite query doesn't turn into K
+    # separate DAL calls when the client selects `detections` on each item
+    # in the list -- that would defeat the whole point of measuring ONE
+    # HTTP round trip (real batching, N5's principle, applied here too).
+    # The singular `image(id)` path leaves this None and resolves lazily,
+    # unchanged from before.
+    _prefetched_detections: strawberry.Private[Optional[List[dict]]] = None
+
+    @strawberry.field
+    def detections(
+        self, class_id: Optional[int] = None, min_confidence: Optional[float] = None
+    ) -> List[Detection]:
+        if self._prefetched_detections is not None and class_id is None and min_confidence is None:
+            return [_row_to_detection(r) for r in self._prefetched_detections]
+        dal = DetectionDAL.instance()
+        full = dal.get_image_with_detections(
+            self.id, class_id=class_id, min_confidence=min_confidence
+        )
+        rows = full["detections"] if full else []
+        return [_row_to_detection(r) for r in rows]
 
 
-@strawberry.type
-class ClassCount:
-    class_name: str
-    count: int
-
-
-@strawberry.type
-class AggregateResult:
-    image_id: str
-    class_counts: List[ClassCount]
-
-
-# --- Perakitan objek tipe dari dict pool (INI biaya resolusi GraphQL nyata) -----
-def _build_image_detections(record: dict, detections: list) -> ImageDetections:
-    """Rekonstruksi objek typed (mode default, simetris dengan REST typed)."""
-    return ImageDetections(
-        image_id=record["image_id"],
-        dimensions=Dimensions(
-            width=record["dimensions"]["width"],
-            height=record["dimensions"]["height"],
-        ),
-        # Objek Detection dirakit penuh per-request; Strawberry lalu menserialisasi
-        # HANYA field yang ada di selection set klien (mekanisme seleksi native).
-        detections=[
-            Detection(
-                class_label=d["class_label"],
-                confidence_score=d["confidence_score"],
-                bounding_box=list(d.get("bounding_box", [])),
-            )
-            for d in detections
-        ],
+def _row_to_detection(row: dict) -> Detection:
+    return Detection(
+        id=row["id"],
+        class_id=row["class_id"],
+        confidence=row["confidence"],
+        bbox_x=row["bbox_x"],
+        bbox_y=row["bbox_y"],
+        bbox_w=row["bbox_w"],
+        bbox_h=row["bbox_h"],
+        _track_id=row["track_id"],
     )
 
 
-def _build_aggregate(record: dict, counts: list) -> AggregateResult:
-    """Rekonstruksi objek typed untuk agregasi."""
-    return AggregateResult(
-        image_id=record["image_id"],
-        class_counts=[
-            ClassCount(class_name=c["class_name"], count=c["count"])
-            for c in counts
-        ],
+def _row_to_track(row: dict) -> Track:
+    return Track(
+        id=row["id"],
+        local_track_id=row["local_track_id"],
+        class_id=row["class_id"],
+        class_name=row["class_name"],
+        first_frame=row["first_frame"],
+        last_frame=row["last_frame"],
     )
 
 
-# --- Helper untuk mode passthrough: SimpleNamespace generik (BUKAN dict) -------
-# Strawberry meresolusi field via getattr(), sehingga dict mentah TIDAK valid
-# (lihat catatan KOREKSI di docstring modul). SimpleNamespace mendukung getattr
-# tanpa skema/tipe -- analog `dict` REST passthrough yang juga tanpa Pydantic.
-def _ns_image_detections(record: dict, detections: list) -> SimpleNamespace:
-    """Versi passthrough: rakitan atribut generik tanpa tipe Strawberry."""
-    return SimpleNamespace(
-        image_id=record["image_id"],
-        dimensions=SimpleNamespace(
-            width=record["dimensions"]["width"],
-            height=record["dimensions"]["height"],
-        ),
-        detections=[
-            SimpleNamespace(
-                class_label=d["class_label"],
-                confidence_score=d["confidence_score"],
-                bounding_box=list(d.get("bounding_box", [])),
-            )
-            for d in detections
-        ],
+def _row_to_image(row: dict, prefetched_detections: Optional[List[dict]] = None) -> Image:
+    return Image(
+        id=row["id"],
+        frame_index=row["frame_index"],
+        width=row["width"],
+        height=row["height"],
+        density_tier=row["density_tier"],
+        sequence_name=row["sequence_name"],
+        _prefetched_detections=prefetched_detections,
     )
 
 
-def _ns_aggregate(record: dict, counts: list) -> SimpleNamespace:
-    """Versi passthrough untuk agregasi."""
-    return SimpleNamespace(
-        image_id=record["image_id"],
-        class_counts=[
-            SimpleNamespace(class_name=c["class_name"], count=c["count"])
-            for c in counts
-        ],
-    )
-
-
-# --- Kesadaran selection-set (FAIRNESS pola "partial" S2) -----------------------
-# Tanpa ini, resolver membangun field `bounding_box` walau klien tak memintanya
-# (Strawberry hanya MEMFILTER saat serialisasi) -- padahal REST (core/projection.py)
-# men-strip field SEBELUM objek respons dibangun. Membiarkan resolver tetap
-# membangun field yang tak diminta membuat pola "partial" GraphQL membayar biaya
-# konstruksi yang SAMA dengan "baseline", sehingga klaim latency utk pola ini
-# tak bisa dibandingkan adil dengan REST (lihat audit). Di sini kita inspeksi
-# info.selected_fields dan strip bounding_box SEBELUM membangun objek -- simetris
-# dengan core.projection.project_detections yang dipakai REST.
-def _requested_detection_fields(info: Info) -> Optional[set]:
-    try:
-        for top in info.selected_fields:
-            for nested in top.selections:
-                if nested.name == "detections":
-                    return {f.name for f in nested.selections}
-    except Exception:
-        return None
-    return None
-
-
-# --- Query (resolver memanggil primitif core.* yang SAMA dengan REST) ----------
 @strawberry.type
 class Query:
     @strawberry.field
-    def image_detections(
-        self,
-        info: Info,
-        density: str,
-        class_label: Optional[str] = None,
-        min_confidence: Optional[float] = None,
-        seed: Optional[int] = None,
-    ) -> ImageDetections:
-        """Melayani S1/S2/S3.
-
-        - S1 baseline & S2 partial : argumen filter None; klien mengatur field
-          via selection set (baseline pilih semua, partial pilih subset).
-        - S3 filtered : argumen class_label & min_confidence diisi -> resolver
-          memanggil core.filters.filter_detections (FUNGSI YANG SAMA dgn REST).
-        """
-        rec = get_image(density, seed=seed)
-        dets = rec.get("detections", [])
-        if class_label is not None or min_confidence is not None:
-            dets = core_filters.filter_detections(
-                dets, class_label=class_label, min_confidence=min_confidence
-            )
-
-        # Strip field tak diminta SEBELUM membangun objek -- simetris dengan
-        # REST core/projection.py (lihat catatan di atas fungsi ini).
-        requested = _requested_detection_fields(info)
-        if requested is not None and "bounding_box" not in requested:
-            dets = core_projection.project_detections(dets, requested)
-
-        if GRAPHQL_MODE == "passthrough":
-            # Mode passthrough: objek generik tanpa tipe (simetris REST passthrough).
-            return _ns_image_detections(rec, dets)  # type: ignore[return-value]
-
-        # Mode typed: rekonstruksi objek penuh (baseline)
-        return _build_image_detections(rec, dets)
+    def image(self, id: int) -> Optional[Image]:
+        row = DetectionDAL.instance().get_image(id)
+        return _row_to_image(row) if row else None
 
     @strawberry.field
-    def aggregate(self, density: str, seed: Optional[int] = None) -> AggregateResult:
-        """Melayani S4. Memanggil core.aggregate.count_per_class (sama dgn REST)."""
-        rec = get_image(density, seed=seed)
-        counts = core_aggregate.count_per_class(rec.get("detections", []))
+    def random_image(self, density_tier: str, seed: Optional[int] = None) -> Optional[Image]:
+        """Server-side selection (anti-cache), mirrors REST's /images/random."""
+        row = DetectionDAL.instance().pick_random_image(density_tier, seed=seed)
+        return _row_to_image(row) if row else None
 
-        if GRAPHQL_MODE == "passthrough":
-            return _ns_aggregate(rec, counts)  # type: ignore[return-value]
+    @strawberry.field
+    def images(self, ids: List[int]) -> List[Optional[Image]]:
+        """Batch fetch -- the round-trip-vs-cacheability arm's GraphQL side:
+        ONE HTTP round trip for a whole "page" of K ids, vs REST's K
+        separate /images/{id}/detections calls for the same page. Pre-fetches
+        detections in the SAME DB round trip (see Image._prefetched_detections)
+        so this stays a genuine single composite fetch end to end."""
+        rows = DetectionDAL.instance().get_images_with_detections(ids)
+        return [_row_to_image(r, prefetched_detections=r["detections"]) if r else None for r in rows]
 
-        return _build_aggregate(rec, counts)
+    @strawberry.field
+    def track(self, id: int) -> Optional[Track]:
+        row = DetectionDAL.instance().get_track(id)
+        return _row_to_track(row) if row else None
+
+
+async def _batch_load_tracks(track_ids: List[int]) -> List[Optional[Track]]:
+    rows = DetectionDAL.instance().get_tracks(track_ids)
+    return [_row_to_track(r) if r else None for r in rows]
+
+
+async def get_context() -> dict:
+    return {"track_loader": DataLoader(load_fn=_batch_load_tracks)}
 
 
 schema = strawberry.Schema(
     query=Query,
-    # snake_case dipertahankan demi paritas payload & data dengan REST.
     config=StrawberryConfig(auto_camel_case=False),
 )
 
 app = FastAPI(title="APE GraphQL", docs_url=None, redoc_url=None)
 add_process_time_middleware(app)
-app.include_router(CompactGraphQLRouter(schema), prefix="/graphql")
+
+# Process-local persisted-query store (hash -> query text). Fine for the
+# existing single-worker uvicorn convention; a multi-worker deployment would
+# need a shared store (e.g. the cache layer itself), out of scope here.
+_PERSISTED_QUERIES: dict = {}
+
+
+def _encode_compact(data: object) -> bytes:
+    return json.dumps(data, separators=(",", ":")).encode("utf-8")
+
+
+def _graphql_error_response(message: str, code: str) -> Response:
+    body = _encode_compact({"errors": [{"message": message, "extensions": {"code": code}}]})
+    # Never cache an error -- a client about to register/retry a query must
+    # not have a stale "not found" served back to it by the cache layer.
+    return Response(content=body, media_type="application/json",
+                     headers={"Cache-Control": "no-store"})
+
+
+@app.get("/graphql")
+async def graphql_get(request: Request):
+    """APQ-over-GET (N4) -- see module docstring for the wire protocol.
+    Registered before app.include_router below so it wins over the
+    Strawberry router's own internal GET handler at the same path.
+    """
+    query_param = request.query_params.get("query")
+    extensions_raw = request.query_params.get("extensions")
+    variables_raw = request.query_params.get("variables")
+    operation_name = request.query_params.get("operationName")
+
+    variables = json.loads(variables_raw) if variables_raw else None
+    extensions = json.loads(extensions_raw) if extensions_raw else None
+    persisted = (extensions or {}).get("persistedQuery") if extensions else None
+
+    if persisted is not None:
+        sha256_hash = persisted.get("sha256Hash")
+        if query_param is not None:
+            computed = hashlib.sha256(query_param.encode("utf-8")).hexdigest()
+            if computed != sha256_hash:
+                return _graphql_error_response(
+                    "provided sha does not match query", "PERSISTED_QUERY_HASH_MISMATCH"
+                )
+            _PERSISTED_QUERIES[sha256_hash] = query_param
+            query = query_param
+        else:
+            query = _PERSISTED_QUERIES.get(sha256_hash)
+            if query is None:
+                return _graphql_error_response(
+                    "PersistedQueryNotFound", "PERSISTED_QUERY_NOT_FOUND"
+                )
+    elif query_param is not None:
+        query = query_param
+    else:
+        return _graphql_error_response("no query or persisted query hash provided", "BAD_REQUEST")
+
+    context = await get_context()
+    result = await schema.execute(
+        query, variable_values=variables, operation_name=operation_name, context_value=context
+    )
+    if result.errors:
+        return _graphql_error_response(str(result.errors[0]), "GRAPHQL_EXECUTION_ERROR")
+
+    body = _encode_compact({"data": result.data})
+    # randomImage is anti-cache-by-design (mirrors REST's /images/random) --
+    # detect it from the query text itself, same shared-function semantics.
+    cacheable = "randomImage" not in query and "random_image" not in query
+    headers = cache_headers(body, cacheable=cacheable)
+    if cacheable and is_fresh(request.headers.get("if-none-match"), headers["ETag"]):
+        return Response(status_code=304, headers=headers)
+    return Response(content=body, media_type="application/json", headers=headers)
+
+
+app.include_router(
+    CompactGraphQLRouter(schema, context_getter=get_context), prefix="/graphql"
+)
 
 
 @app.on_event("startup")
 def _startup() -> None:
-    json_path = os.environ["APE_POOL_JSON"]
-    recompute = os.environ.get("APE_RECOMPUTE_Q", "0") == "1"
-    InMemoryPool.initialize(json_path, recompute_quartiles=recompute)
+    DetectionDAL.initialize(os.environ.get("APE_DB_PATH"))
 
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "pool": InMemoryPool.instance().summary(), "mode": GRAPHQL_MODE}
+    return {
+        "status": "ok",
+        "db": DetectionDAL.instance().summary(),
+        "batching": "on" if GRAPHQL_BATCHING else "off",
+    }
