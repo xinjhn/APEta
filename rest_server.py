@@ -38,6 +38,7 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import Response
 
+from core.aggregate import class_counts
 from core.caching import cache_headers, is_fresh
 from core.config import DEFAULT_TRAJECTORY_WINDOW, DETECTION_FIELDS
 from core.dal import DetectionDAL
@@ -109,9 +110,38 @@ def get_image_detections(
     return _respond(request, rec, cacheable=True)
 
 
+@app.get("/images/{image_id}/class_counts")
+def get_image_class_counts(image_id: int, request: Request):
+    """M4 aggregate: jumlah deteksi per class_id untuk satu citra. Agregasi
+    dihitung oleh core/aggregate.py.class_counts() -- fungsi BERSAMA yang
+    juga dipanggil GraphQL Image.class_counts, atas daftar deteksi dari DAL
+    yang sama (fairness by construction, padanan pola S4 lama)."""
+    rec = DetectionDAL.instance().get_image_with_detections(image_id)
+    if rec is None:
+        raise HTTPException(status_code=404, detail="image not found")
+    body = {"image_id": image_id, "class_counts": class_counts(rec["detections"])}
+    return _respond(request, body, cacheable=True)
+
+
 @app.get("/tracks/{track_id}")
-def get_track(track_id: int, request: Request):
-    rec = DetectionDAL.instance().get_track(track_id)
+def get_track(
+    track_id: int,
+    request: Request,
+    embed: Optional[str] = Query(None, description="'trajectory' embeds the bounded trajectory (M5-embed counterfactual arm)"),
+    center_frame: Optional[int] = Query(None),
+    window: int = Query(DEFAULT_TRAJECTORY_WINDOW),
+):
+    # embed=trajectory is the M5-embed counterfactual (approved Q6): the
+    # REST-optimized single-call flow, returning track + trajectory in ONE
+    # round trip via the same DAL call the 2-round-trip flow's second hop
+    # uses. Without embed, behavior is unchanged.
+    dal = DetectionDAL.instance()
+    if embed == "trajectory":
+        rec = dal.get_track_trajectory(track_id, center_frame=center_frame, window=window)
+    elif embed is None:
+        rec = dal.get_track(track_id)
+    else:
+        raise HTTPException(status_code=422, detail=f"unsupported embed value {embed!r}")
     if rec is None:
         raise HTTPException(status_code=404, detail="track not found")
     return _respond(request, rec, cacheable=True)

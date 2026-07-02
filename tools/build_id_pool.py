@@ -41,9 +41,27 @@ from __future__ import annotations
 import argparse
 import json
 import sqlite3
+import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from core.selection import TRAJECTORY_WINDOW_TIERS, eligible_point_count  # noqa: E402
+
 PAGE_SIZES = (1, 5, 10)
+
+# MOT scenario study (M5/M6) additions -- the same output file gains:
+#   "tracks_by_window": {"2": [{"id":.., "center":..}, ...], "8": [...], "23": [...]}
+#       eligibility per window W = tracks with >= 2W+1 detections (the SAME
+#       definition core/dal.py's list_eligible_track_ids uses -- imported
+#       from core/selection.py, not re-derived here), ordered by id;
+#       "center" = track midpoint frame (M5's center_frame, both protocols).
+#   "track_pages": {"1": [[id,...]], "5": [...], "10": [...]}
+#       fixed, non-overlapping consecutive-id pages drawn from the W=2
+#       eligibility pool (M6 samples from the W=2 pool per
+#       design/mot_profile.json), same page semantics as "pages" above.
+MOT_WINDOWS = tuple(sorted(TRAJECTORY_WINDOW_TIERS.values()))  # (2, 8, 23)
+MOT_PAGE_SIZES = (1, 5, 10)
 
 
 def _build_pages(ids: list, page_size: int) -> list:
@@ -74,12 +92,35 @@ def build(db_path: str, out_path: Path) -> None:
         for tier, ids in images.items()
     }
 
+    tracks_by_window = {}
+    for w in MOT_WINDOWS:
+        rows = conn.execute(
+            """SELECT track.id, track.first_frame, track.last_frame
+               FROM track
+               JOIN detection ON detection.track_id = track.id
+               GROUP BY track.id HAVING COUNT(*) >= ?
+               ORDER BY track.id""",
+            (eligible_point_count(w),),
+        ).fetchall()
+        tracks_by_window[str(w)] = [
+            {"id": r["id"], "center": (r["first_frame"] + r["last_frame"]) // 2}
+            for r in rows
+        ]
+
+    w2_ids = [t["id"] for t in tracks_by_window[str(MOT_WINDOWS[0])]]
+    track_pages = {str(k): _build_pages(w2_ids, k) for k in MOT_PAGE_SIZES}
+
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps({"images": images, "tracks": tracks, "pages": pages}))
+    out_path.write_text(json.dumps({
+        "images": images, "tracks": tracks, "pages": pages,
+        "tracks_by_window": tracks_by_window, "track_pages": track_pages,
+    }))
 
     print(f"[done] images: {{{', '.join(f'{k}={len(v)}' for k, v in images.items())}}}")
     print(f"[done] tracks (multi-frame): {len(tracks)}")
     print(f"[done] pages: {{{', '.join(f'{tier}={ {k: len(v) for k, v in ks.items()} }' for tier, ks in pages.items())}}}")
+    print(f"[done] tracks_by_window: {{{', '.join(f'W={k}: {len(v)}' for k, v in tracks_by_window.items())}}}")
+    print(f"[done] track_pages: { {k: len(v) for k, v in track_pages.items()} }")
     print(f"[done] wrote {out_path}")
 
 

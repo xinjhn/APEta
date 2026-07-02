@@ -69,6 +69,7 @@ RESULTS_FIELDNAMES = [
     "run_uid", "block_id",
     "protocol", "caching", "access_pattern", "entropy", "payload_weight",
     "network", "density", "concurrency", "page_size",
+    "scenario", "tier", "rate_label", "backend",
     "run_index", "session_id", "ts_start", "ts_end",
     "lat_p50", "lat_p95", "lat_p99",
     "throughput_rps",
@@ -94,6 +95,7 @@ RESULTS_FIELDNAMES = [
 _FACTOR_KEYS = (
     "protocol", "caching", "access_pattern", "entropy",
     "payload_weight", "network", "density", "concurrency", "page_size",
+    "scenario", "tier", "rate_label", "backend",
 )
 
 
@@ -115,6 +117,13 @@ def load_plan(path: Path) -> List[dict]:
         # explicit page_size=0 for the same case.
         if "page_size" not in r or r["page_size"] in (None, ""):
             r["page_size"] = "0"
+        # Same backward compatibility for the MOT scenario columns: plans
+        # written before grid=mot existed (core/full/batch sessions) don't
+        # have them -- default to "not a mot row" values.
+        for key, default in (("scenario", ""), ("tier", ""),
+                              ("rate_label", ""), ("backend", "sqlite")):
+            if r.get(key) in (None, ""):
+                r[key] = default
     return rows
 
 
@@ -395,12 +404,15 @@ def teardown_netns_topology(cfg: Config) -> None:
                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
-def start_server(cfg: Config, protocol: str, log_path: Path) -> subprocess.Popen:
+def start_server(cfg: Config, protocol: str, log_path: Path, backend: str = "sqlite") -> subprocess.Popen:
     """Runs inside cfg.netns_name, bound to 0.0.0.0 so it's reachable both
     directly (caching=off) and via Varnish's loopback-internal proxy
     (caching=on) -- see module-level comment above. Wrapped in systemd-run
     --user --scope for fixed CPU/memory caps (N6), IDENTICAL regardless of
     protocol so the resource ceiling is a constant control, not a confound.
+
+    backend: APE_DATA_BACKEND for core/dal.py's dispatch -- "sqlite"
+    (default, unchanged behavior) or "memory" (m1mem probe arm).
     """
     module = "rest_server:app" if protocol == "rest" else "graphql_server:app"
     inner_cmd = [sys.executable, "-m", "uvicorn", module, "--workers", "1",
@@ -413,6 +425,7 @@ def start_server(cfg: Config, protocol: str, log_path: Path) -> subprocess.Popen
         "-p", f"CPUQuota={cfg.cpu_quota_pct}%",
         "-p", f"MemoryMax={cfg.memory_max_mb}M",
         "--setenv", f"APE_DB_PATH={cfg.db_path}",
+        "--setenv", f"APE_DATA_BACKEND={backend}",
         "--",
     ] + inner_cmd
     cmd = netns_exec_prefix(cfg, with_systemd_user_env=True) + systemd_cmd
@@ -464,6 +477,7 @@ def start_sampler(cfg: Config, server_pid: int, block_id: str) -> subprocess.Pop
 # --- k6 + summary parsing --------------------------------------------------------
 
 def run_k6(cfg: Config, row: dict, base_url: str, summary_path: Path, entity_offset: int = 0) -> tuple:
+    is_mot = bool(row.get("scenario"))
     env = os.environ.copy()
     env.update({
         "PROTOCOL": row["protocol"],
@@ -479,7 +493,10 @@ def run_k6(cfg: Config, row: dict, base_url: str, summary_path: Path, entity_off
         "ENTITY_OFFSET": str(entity_offset),
         "PAGE_SIZE": str(row.get("page_size", 0)),
     })
-    cmd = ["k6", "run", str(PROJECT_ROOT / "k6" / "workload.js")]
+    if is_mot:
+        env.update({"SCENARIO": row["scenario"], "TIER": row["tier"]})
+    script = "workload_mot.js" if is_mot else "workload.js"
+    cmd = ["k6", "run", str(PROJECT_ROOT / "k6" / script)]
     if cfg.pinning_active() and cfg.k6_cores:
         cmd = ["taskset", "-c", cfg.k6_cores] + cmd
     summary_path.parent.mkdir(parents=True, exist_ok=True)
@@ -532,7 +549,11 @@ def _round_trip_count(block: dict, data: dict):
     real value reported by k6/workload.js's round_trip_count Trend -- K for
     REST's page mode (K separate calls), 1 for GraphQL's (one composite
     call). Reads the Trend's mean rather than hardcoding, since it's the
-    actual per-iteration value k6 recorded, not assumed."""
+    actual per-iteration value k6 recorded, not assumed. MOT scenario rows
+    (workload_mot.js) always emit the Trend -- 2 for REST M5, K for REST M6,
+    1 everywhere else -- so they read it unconditionally too."""
+    if block.get("scenario"):
+        return metric(data, "round_trip_count", "avg")
     if str(block.get("page_size", 0)) in ("0", ""):
         return 1
     return metric(data, "round_trip_count", "avg")
@@ -610,6 +631,7 @@ class Executor:
         self.server_proc: Optional[subprocess.Popen] = None
         self.server_pid: Optional[int] = None
         self.current_protocol: Optional[str] = None
+        self.current_backend: Optional[str] = None
         self.varnish_proc: Optional[subprocess.Popen] = None
         self.current_caching: Optional[str] = None
         self.current_network: Optional[str] = None
@@ -623,18 +645,23 @@ class Executor:
         # pool (density/payload_weight) and access_pattern are fixed.
         self.entity_offset = 0
 
-    def ensure_server(self, protocol: str) -> None:
-        if self.current_protocol == protocol and self.server_proc and self.server_proc.poll() is None:
+    def ensure_server(self, protocol: str, backend: str = "sqlite") -> None:
+        # Backend is part of the server identity: an m1mem block after a
+        # sqlite block (or vice versa) must get a RESTART, not a reuse --
+        # the DAL backend is chosen once at process startup.
+        if (self.current_protocol == protocol and self.current_backend == backend
+                and self.server_proc and self.server_proc.poll() is None):
             return
         self.stop_server()
         wait_port_free(self.cfg.netns_ns_ip, self.cfg.port)
-        print(f"  [server] start {protocol}")
+        print(f"  [server] start {protocol} (backend={backend})")
         log_path = self.cfg.results_dir / "logs" / f"server_{protocol}.log"
-        self.server_proc = start_server(self.cfg, protocol, log_path)
+        self.server_proc = start_server(self.cfg, protocol, log_path, backend=backend)
         wait_health(self.cfg.base_url_direct)
         module_marker = "rest_server:app" if protocol == "rest" else "graphql_server:app"
         self.server_pid = find_server_pid_in_tree(self.server_proc.pid, module_marker) or self.server_proc.pid
         self.current_protocol = protocol
+        self.current_backend = backend
 
     def stop_server(self) -> None:
         if self.server_proc is not None:
@@ -642,6 +669,7 @@ class Executor:
             kill_tree_privileged(self.server_proc.pid)
             self.server_proc = None
             self.current_protocol = None
+            self.current_backend = None
 
     def ensure_caching(self, caching: str) -> None:
         if self.current_caching == caching and (caching == "off" or (self.varnish_proc and self.varnish_proc.poll() is None)):
@@ -700,17 +728,23 @@ class Executor:
         return self.cfg.base_url_cached if block["caching"] == "on" else self.cfg.base_url_direct
 
     def run_block(self, block: dict, done_uids: set) -> None:
-        self.ensure_server(block["protocol"])
+        self.ensure_server(block["protocol"], block.get("backend") or "sqlite")
         self.ensure_caching(block["caching"])
         self.ensure_network(block["network"])
         self.start_block_sampler(block["block_id"])
         self.entity_offset = 0
 
-        print(f"  [block {block['block_id']}] {block['protocol']}/caching={block['caching']}/"
-              f"{block['access_pattern']}/entropy={block['entropy']}/{block['payload_weight']}/"
-              f"{block['network']}/density={block['density']}/vus={block['concurrency']}/"
-              f"page_size={block['page_size']} -- "
-              f"warmup x{len(block['warmup_rows'])}")
+        if block.get("scenario"):
+            print(f"  [block {block['block_id']}] {block['protocol']}/scenario={block['scenario']}/"
+                  f"tier={block['tier']}/rate={block['concurrency']}rps({block['rate_label']})/"
+                  f"caching={block['caching']}/{block['access_pattern']}/backend={block['backend']}/"
+                  f"{block['network']} -- warmup x{len(block['warmup_rows'])}")
+        else:
+            print(f"  [block {block['block_id']}] {block['protocol']}/caching={block['caching']}/"
+                  f"{block['access_pattern']}/entropy={block['entropy']}/{block['payload_weight']}/"
+                  f"{block['network']}/density={block['density']}/vus={block['concurrency']}/"
+                  f"page_size={block['page_size']} -- "
+                  f"warmup x{len(block['warmup_rows'])}")
         base_url = self.base_url_for(block)
         for row in block["warmup_rows"]:
             summary_path = self.cfg.k6_summary_dir / f"warmup_{row['run_uid']}.json"

@@ -60,6 +60,7 @@ from strawberry.fastapi import GraphQLRouter
 from strawberry.schema.config import StrawberryConfig
 from strawberry.types import Info
 
+from core import aggregate
 from core.caching import cache_headers, is_fresh
 from core.config import DEFAULT_TRAJECTORY_WINDOW
 from core.dal import DetectionDAL
@@ -90,19 +91,49 @@ class TrajectoryPoint:
 
 
 @strawberry.type
+class ClassCount:
+    class_id: int
+    count: int
+
+
+@strawberry.type
 class Track:
     id: int
+    sequence_id: int
     local_track_id: int
     class_id: int
     class_name: str
     first_frame: int
     last_frame: int
+    # Populated only by the batch `tracks(ids)` path (M6 track-page arm) so
+    # its single composite query stays ONE DAL batch when the client selects
+    # `trajectory` on each item -- same rationale (and same Private-field
+    # mechanism) as Image._prefetched_detections below. _prefetch_window
+    # records WHICH window was prefetched: the trajectory field only uses the
+    # prefetch when the requested (window, center_frame) matches what the
+    # batch actually fetched, otherwise it falls back to the lazy path --
+    # correctness never depends on the prefetch guess being right.
+    _prefetched_trajectory: strawberry.Private[Optional[List[dict]]] = None
+    _prefetch_window: strawberry.Private[Optional[int]] = None
 
     @strawberry.field
-    def trajectory(self, window: int = DEFAULT_TRAJECTORY_WINDOW) -> List[TrajectoryPoint]:
-        dal = DetectionDAL.instance()
-        full = dal.get_track_trajectory(self.id, window=window)
-        points = full["trajectory"] if full else []
+    def trajectory(
+        self, window: int = DEFAULT_TRAJECTORY_WINDOW, center_frame: Optional[int] = None
+    ) -> List[TrajectoryPoint]:
+        # center_frame mirrors REST's /tracks/{id}/trajectory?center_frame=
+        # (M5 uses the track midpoint on both protocols; default stays the
+        # track's first_frame, decided inside the shared DAL either way).
+        if (
+            self._prefetched_trajectory is not None
+            and center_frame is None
+            and window == self._prefetch_window
+        ):
+            points = self._prefetched_trajectory
+        else:
+            full = DetectionDAL.instance().get_track_trajectory(
+                self.id, center_frame=center_frame, window=window
+            )
+            points = full["trajectory"] if full else []
         fields = ("id", "image_id", "frame_index", "confidence", "bbox_x", "bbox_y", "bbox_w", "bbox_h")
         return [TrajectoryPoint(**{f: p[f] for f in fields}) for p in points]
 
@@ -160,6 +191,19 @@ class Image:
         rows = full["detections"] if full else []
         return [_row_to_detection(r) for r in rows]
 
+    @strawberry.field
+    def class_counts(self) -> List[ClassCount]:
+        """M4 aggregate -- calls core/aggregate.py's class_counts(), the SAME
+        shared function REST's /images/{id}/class_counts uses, over the same
+        DAL detection rows (fairness by construction; ordering: class_id
+        ascending, decided inside the shared function)."""
+        if self._prefetched_detections is not None:
+            rows = self._prefetched_detections
+        else:
+            full = DetectionDAL.instance().get_image_with_detections(self.id)
+            rows = full["detections"] if full else []
+        return [ClassCount(**c) for c in aggregate.class_counts(rows)]
+
 
 def _row_to_detection(row: dict) -> Detection:
     return Detection(
@@ -174,14 +218,21 @@ def _row_to_detection(row: dict) -> Detection:
     )
 
 
-def _row_to_track(row: dict) -> Track:
+def _row_to_track(
+    row: dict,
+    prefetched_trajectory: Optional[List[dict]] = None,
+    prefetch_window: Optional[int] = None,
+) -> Track:
     return Track(
         id=row["id"],
+        sequence_id=row["sequence_id"],
         local_track_id=row["local_track_id"],
         class_id=row["class_id"],
         class_name=row["class_name"],
         first_frame=row["first_frame"],
         last_frame=row["last_frame"],
+        _prefetched_trajectory=prefetched_trajectory,
+        _prefetch_window=prefetch_window,
     )
 
 
@@ -224,6 +275,58 @@ class Query:
     def track(self, id: int) -> Optional[Track]:
         row = DetectionDAL.instance().get_track(id)
         return _row_to_track(row) if row else None
+
+    @strawberry.field
+    def tracks(self, ids: List[int], info: Info) -> List[Optional[Track]]:
+        """Batch fetch -- M6's GraphQL side: ONE HTTP round trip for a whole
+        "page" of K track ids, vs REST's K separate /tracks/{id}/trajectory
+        calls for the same page. Mirrors images(ids)'s prefetch pattern: the
+        trajectory selection's `window` argument is read from the query via
+        info.selected_fields, and trajectories for ALL K tracks come back in
+        the SAME DAL batch (get_tracks_with_trajectories: two IN-clause
+        queries total regardless of K -- real batching, N5's principle), not
+        K lazy per-item resolutions. If trajectory isn't selected, or is
+        requested with a non-default center_frame, this falls back to a plain
+        track batch and the field resolves lazily -- prefetch is an
+        optimization contract, never a correctness dependency (verified by
+        tests/test_parity_mot.py's SQL-count assertion)."""
+        window = _selected_trajectory_window(info)
+        dal = DetectionDAL.instance()
+        if window is None:
+            rows = dal.get_tracks(ids)
+            return [_row_to_track(r) if r else None for r in rows]
+        rows = dal.get_tracks_with_trajectories(ids, window=window)
+        return [
+            _row_to_track(r, prefetched_trajectory=r["trajectory"], prefetch_window=window)
+            if r else None
+            for r in rows
+        ]
+
+
+def _selected_trajectory_window(info: Info) -> Optional[int]:
+    """Window argument of the `trajectory` selection under `tracks`, if that
+    selection exists and is prefetchable (no explicit center_frame -- the
+    batch DAL method centers on each track's own first_frame, which is only
+    equivalent to the lazy path when center_frame is unset). Strawberry
+    resolves variables into SelectedField.arguments, so literal and
+    variable-supplied windows both work."""
+    for field in info.selected_fields:
+        if getattr(field, "name", None) != "tracks":
+            continue
+        for sub in getattr(field, "selections", []):
+            if getattr(sub, "name", None) == "trajectory":
+                args = getattr(sub, "arguments", None) or {}
+                if args.get("center_frame") is not None:
+                    return None
+                window = args.get("window", DEFAULT_TRAJECTORY_WINDOW)
+                # Literal arguments arrive as raw AST strings ('2'), variable
+                # -supplied ones as Python ints -- coerce both; anything
+                # non-numeric falls back to the lazy path.
+                try:
+                    return int(window)
+                except (TypeError, ValueError):
+                    return None
+    return None
 
 
 async def _batch_load_tracks(track_ids: List[int]) -> List[Optional[Track]]:

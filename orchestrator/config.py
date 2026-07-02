@@ -60,6 +60,29 @@ PAYLOAD_WEIGHTS = ("light", "heavy")
 NETWORK_PROFILES = ("lan", "constrained")
 DENSITY_TIERS = ("low", "medium", "high")
 
+# --- MOT scenario study (APE_GRID=mot, design/SCENARIO_DESIGN.md) -------------
+# Tier axis is scenario-family-specific: image scenarios use the density
+# tiers above, M5/M5E use trajectory-window tiers, M6 uses page-size tiers.
+MOT_SCENARIOS = ("M1", "M2", "M3", "M4", "M5", "M6")
+MOT_WINDOW_TIERS = ("w2", "w8", "w23")
+MOT_PAGE_TIERS = ("k1", "k5", "k10")
+# Rate labels pair positionally with the 3 calibrated absolute rates per
+# family ({40%, 80%, 120%} of the lower protocol ceiling -- approved Q4).
+# The overload label is load-bearing: Stage-6 sanity checks and the analysis
+# must NEVER pool r120_overload rows with the sub-saturation ones.
+MOT_RATE_LABELS = ("r40", "r80", "r120_overload")
+MOT_ARMS = ("core", "m6cache", "m5embed", "m1mem")
+
+
+def mot_rates_for_scenario(cfg: "Config", scenario: str) -> List[int]:
+    """Calibrated absolute rates (req/s) for a scenario's family:
+    image family (M1-M4), track family (M5/M5E), page family (M6)."""
+    if scenario in ("M1", "M2", "M3", "M4"):
+        return cfg.mot_rates_image
+    if scenario in ("M5", "M5E"):
+        return cfg.mot_rates_track
+    return cfg.mot_rates_page
+
 
 @dataclass
 class Config:
@@ -80,6 +103,11 @@ class Config:
     densities: List[str]
     concurrency_levels: List[int]
     network_profiles: List[str]
+    # MOT scenario study (only consulted when grid == "mot"):
+    mot_arm: str                 # core | m6cache | m5embed | m1mem
+    mot_rates_image: List[int]   # [r40, r80, r120_overload] abs req/s, M1-M4
+    mot_rates_track: List[int]   # same, M5/M5E family
+    mot_rates_page: List[int]    # same, M6 family
     # Round-trip-vs-cacheability arm (only consulted when grid == "batch") --
     # page/batch size K: REST issues K separate cacheable round trips,
     # GraphQL issues 1 composite round trip for the same K-id page. See
@@ -159,6 +187,13 @@ def get_config() -> Config:
         densities=_env_list("APE_DENSITIES", list(DENSITY_TIERS)),
         concurrency_levels=_env_int_list("APE_CONCURRENCY_LEVELS", [1, 10, 50]),
         network_profiles=_env_list("APE_NETWORK_PROFILES", list(NETWORK_PROFILES)),
+        mot_arm=os.environ.get("APE_MOT_ARM", "core").lower(),
+        # No defaults that could silently run uncalibrated: rates MUST be set
+        # from design/CALIBRATION.md before generating a mot run plan --
+        # make_run_plan.py refuses empty rate lists for grid=mot.
+        mot_rates_image=_env_int_list("APE_MOT_RATES_IMAGE", []),
+        mot_rates_track=_env_int_list("APE_MOT_RATES_TRACK", []),
+        mot_rates_page=_env_int_list("APE_MOT_RATES_PAGE", []),
         page_sizes=_env_int_list("APE_PAGE_SIZES", [1, 5, 10]),
         host=os.environ.get("APE_HOST", "127.0.0.1"),
         port=int(os.environ.get("APE_PORT", "8000")),

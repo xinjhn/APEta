@@ -22,6 +22,20 @@ from typing import Dict, List
 Detection = Dict
 
 
+def class_counts(detections: List[Detection]) -> List[Dict]:
+    """Agregasi M4 (skema relasional MOT): jumlah deteksi per class_id.
+
+    Dipanggil oleh KEDUA server (REST /images/{id}/class_counts dan GraphQL
+    Image.class_counts) atas daftar deteksi yang sama dari core/dal.py --
+    fairness by construction, sama seperti count_per_class() pada skema lama.
+
+    Urutan deterministik: class_id menaik (parity criterion M4: "identical
+    class ordering, ORDER BY class_id").
+    """
+    counter = Counter(d["class_id"] for d in detections)
+    return [{"class_id": cid, "count": counter[cid]} for cid in sorted(counter)]
+
+
 def count_per_class(detections: List[Detection]) -> List[Dict]:
     """Menghitung jumlah objek per kelas.
 
