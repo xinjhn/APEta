@@ -1,0 +1,485 @@
+{
+  "calibrated_at": "2026-07-02T10:36:50",
+  "topology": "netns+veth, netem lan (5ms +/-1ms, 100mbit), CPUQuota 400%, MemoryMax 2048M, pinning server=0-7 k6=8-15",
+  "step_duration": "12s",
+  "saturation_rule": "dropped>0 or err>0.01 or p95>max(5.0x baseline, 150.0ms)",
+  "probes": [
+    {
+      "protocol": "rest",
+      "scenario": "M1",
+      "tier": "high",
+      "baseline_p95_ms": 11.744548,
+      "ceiling_rate": 100,
+      "first_saturated_rate": 200,
+      "curve": [
+        {
+          "rate": 25,
+          "p50_ms": 9.407088,
+          "p95_ms": 11.744548,
+          "http_rps": 25.063263749443124,
+          "iterations": 301,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        },
+        {
+          "rate": 50,
+          "p50_ms": 8.755418,
+          "p95_ms": 10.732078,
+          "http_rps": 50.042773598607965,
+          "iterations": 601,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        },
+        {
+          "rate": 100,
+          "p50_ms": 8.964417,
+          "p95_ms": 11.423027,
+          "http_rps": 99.98863303244289,
+          "iterations": 1201,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        },
+        {
+          "rate": 200,
+          "p50_ms": 23208.252166,
+          "p95_ms": 28309.856641799997,
+          "http_rps": 38.14085675162425,
+          "iterations": 1544,
+          "dropped_iterations": 857,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": true,
+          "saturation_reason": "dropped_iterations=857;p95=28309.9ms>knee=150.0ms"
+        },
+        {
+          "rate": 150,
+          "p50_ms": 6163.428329,
+          "p95_ms": 9777.242480600002,
+          "http_rps": 64.605599414472,
+          "iterations": 1417,
+          "dropped_iterations": 383,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": true,
+          "saturation_reason": "dropped_iterations=383;p95=9777.2ms>knee=150.0ms"
+        },
+        {
+          "rate": 125,
+          "p50_ms": 5107.381249,
+          "p95_ms": 7264.9364202,
+          "http_rps": 63.521970693452495,
+          "iterations": 1223,
+          "dropped_iterations": 278,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": true,
+          "saturation_reason": "dropped_iterations=278;p95=7264.9ms>knee=150.0ms"
+        }
+      ],
+      "family": "image"
+    },
+    {
+      "protocol": "graphql",
+      "scenario": "M1",
+      "tier": "high",
+      "baseline_p95_ms": 28.94112795000001,
+      "ceiling_rate": 62,
+      "first_saturated_rate": 100,
+      "curve": [
+        {
+          "rate": 25,
+          "p50_ms": 20.673916,
+          "p95_ms": 28.94112795000001,
+          "http_rps": 25.080325435273693,
+          "iterations": 300,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        },
+        {
+          "rate": 50,
+          "p50_ms": 21.171975,
+          "p95_ms": 32.222047,
+          "http_rps": 49.96192918038377,
+          "iterations": 601,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        },
+        {
+          "rate": 100,
+          "p50_ms": 4252.578627,
+          "p95_ms": 6763.2635875999995,
+          "http_rps": 60.721532765567275,
+          "iterations": 988,
+          "dropped_iterations": 212,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": true,
+          "saturation_reason": "dropped_iterations=212;p95=6763.3ms>knee=150.0ms"
+        },
+        {
+          "rate": 75,
+          "p50_ms": 2030.3793575,
+          "p95_ms": 2913.15119335,
+          "http_rps": 62.320479649817436,
+          "iterations": 862,
+          "dropped_iterations": 39,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": true,
+          "saturation_reason": "dropped_iterations=39;p95=2913.2ms>knee=150.0ms"
+        },
+        {
+          "rate": 62,
+          "p50_ms": 31.200642,
+          "p95_ms": 94.61850579999997,
+          "http_rps": 61.901261548466465,
+          "iterations": 745,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        }
+      ],
+      "family": "image"
+    },
+    {
+      "protocol": "rest",
+      "scenario": "M5",
+      "tier": "w23",
+      "baseline_p95_ms": 10.06018555,
+      "ceiling_rate": 100,
+      "first_saturated_rate": 200,
+      "curve": [
+        {
+          "rate": 25,
+          "p50_ms": 8.0023875,
+          "p95_ms": 10.06018555,
+          "http_rps": 50.08342788848106,
+          "iterations": 301,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        },
+        {
+          "rate": 50,
+          "p50_ms": 7.6205525000000005,
+          "p95_ms": 9.525574500000001,
+          "http_rps": 100.04494674876658,
+          "iterations": 601,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        },
+        {
+          "rate": 100,
+          "p50_ms": 8.0026515,
+          "p95_ms": 10.783867449999999,
+          "http_rps": 199.85259385205356,
+          "iterations": 1201,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        },
+        {
+          "rate": 200,
+          "p50_ms": 3675.9508395000003,
+          "p95_ms": 4705.545211250001,
+          "http_rps": 174.6740020713322,
+          "iterations": 1798,
+          "dropped_iterations": 603,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": true,
+          "saturation_reason": "dropped_iterations=603;p95=4705.5ms>knee=150.0ms"
+        },
+        {
+          "rate": 150,
+          "p50_ms": 2283.0808525,
+          "p95_ms": 3436.4291235,
+          "http_rps": 163.81463367615143,
+          "iterations": 1478,
+          "dropped_iterations": 323,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": true,
+          "saturation_reason": "dropped_iterations=323;p95=3436.4ms>knee=150.0ms"
+        },
+        {
+          "rate": 125,
+          "p50_ms": 9.9228035,
+          "p95_ms": 1277.52804905,
+          "http_rps": 212.25104100050248,
+          "iterations": 1501,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": true,
+          "saturation_reason": "p95=1277.5ms>knee=150.0ms"
+        }
+      ],
+      "family": "track"
+    },
+    {
+      "protocol": "graphql",
+      "scenario": "M5",
+      "tier": "w23",
+      "baseline_p95_ms": 23.222992100000003,
+      "ceiling_rate": 62,
+      "first_saturated_rate": 100,
+      "curve": [
+        {
+          "rate": 25,
+          "p50_ms": 20.128306000000002,
+          "p95_ms": 23.222992100000003,
+          "http_rps": 25.0810746822339,
+          "iterations": 300,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        },
+        {
+          "rate": 50,
+          "p50_ms": 20.432324,
+          "p95_ms": 24.708348,
+          "http_rps": 49.978334013833255,
+          "iterations": 601,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        },
+        {
+          "rate": 100,
+          "p50_ms": 3691.269121,
+          "p95_ms": 6126.967835799999,
+          "http_rps": 65.13430659343058,
+          "iterations": 1019,
+          "dropped_iterations": 182,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": true,
+          "saturation_reason": "dropped_iterations=182;p95=6127.0ms>knee=150.0ms"
+        },
+        {
+          "rate": 75,
+          "p50_ms": 1519.556497,
+          "p95_ms": 2290.3648009,
+          "http_rps": 65.83706554455877,
+          "iterations": 883,
+          "dropped_iterations": 17,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": true,
+          "saturation_reason": "dropped_iterations=17;p95=2290.4ms>knee=150.0ms"
+        },
+        {
+          "rate": 62,
+          "p50_ms": 21.249652,
+          "p95_ms": 68.42998879999998,
+          "http_rps": 61.95179950804528,
+          "iterations": 745,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        }
+      ],
+      "family": "track"
+    },
+    {
+      "protocol": "rest",
+      "scenario": "M6",
+      "tier": "k10",
+      "baseline_p95_ms": 10.4870025,
+      "ceiling_rate": 43,
+      "first_saturated_rate": 50,
+      "curve": [
+        {
+          "rate": 25,
+          "p50_ms": 7.674939,
+          "p95_ms": 10.4870025,
+          "http_rps": 248.65344025960843,
+          "iterations": 301,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        },
+        {
+          "rate": 50,
+          "p50_ms": 291.3030725,
+          "p95_ms": 448.36361915000003,
+          "http_rps": 379.1649577129544,
+          "iterations": 542,
+          "dropped_iterations": 58,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": true,
+          "saturation_reason": "dropped_iterations=58;p95=448.4ms>knee=150.0ms"
+        },
+        {
+          "rate": 37,
+          "p50_ms": 8.056889,
+          "p95_ms": 11.0605975,
+          "http_rps": 368.44709566632196,
+          "iterations": 445,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        },
+        {
+          "rate": 43,
+          "p50_ms": 8.705297999999999,
+          "p95_ms": 13.076813000000001,
+          "http_rps": 428.0285660439815,
+          "iterations": 517,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        }
+      ],
+      "family": "page"
+    },
+    {
+      "protocol": "graphql",
+      "scenario": "M6",
+      "tier": "k10",
+      "baseline_p95_ms": 24.054203,
+      "ceiling_rate": 62,
+      "first_saturated_rate": 100,
+      "curve": [
+        {
+          "rate": 25,
+          "p50_ms": 19.86833,
+          "p95_ms": 24.054203,
+          "http_rps": 25.118524667652267,
+          "iterations": 301,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        },
+        {
+          "rate": 50,
+          "p50_ms": 19.919794,
+          "p95_ms": 25.715564999999987,
+          "http_rps": 49.98782127131804,
+          "iterations": 600,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        },
+        {
+          "rate": 100,
+          "p50_ms": 3546.554499,
+          "p95_ms": 6023.099272999998,
+          "http_rps": 65.86670492210034,
+          "iterations": 1024,
+          "dropped_iterations": 177,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": true,
+          "saturation_reason": "dropped_iterations=177;p95=6023.1ms>knee=150.0ms"
+        },
+        {
+          "rate": 75,
+          "p50_ms": 1455.099733,
+          "p95_ms": 2276.2189335000003,
+          "http_rps": 66.3052717437476,
+          "iterations": 886,
+          "dropped_iterations": 14,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": true,
+          "saturation_reason": "dropped_iterations=14;p95=2276.2ms>knee=150.0ms"
+        },
+        {
+          "rate": 62,
+          "p50_ms": 20.372777499999998,
+          "p95_ms": 59.524743,
+          "http_rps": 61.72595244951607,
+          "iterations": 744,
+          "dropped_iterations": 0,
+          "error_rate": 0.0,
+          "checks_fail": 0,
+          "saturated": false,
+          "saturation_reason": ""
+        }
+      ],
+      "family": "page"
+    }
+  ],
+  "families": {
+    "image": {
+      "ceilings": {
+        "rest": 100,
+        "graphql": 62
+      },
+      "lower_ceiling": 62,
+      "rates": {
+        "r40": 25,
+        "r80": 50,
+        "r120_overload": 74
+      }
+    },
+    "track": {
+      "ceilings": {
+        "rest": 100,
+        "graphql": 62
+      },
+      "lower_ceiling": 62,
+      "rates": {
+        "r40": 25,
+        "r80": 50,
+        "r120_overload": 74
+      }
+    },
+    "page": {
+      "ceilings": {
+        "rest": 43,
+        "graphql": 62
+      },
+      "lower_ceiling": 43,
+      "rates": {
+        "r40": 17,
+        "r80": 34,
+        "r120_overload": 52
+      }
+    }
+  },
+  "elapsed_s": 512.8
+}

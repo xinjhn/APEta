@@ -1,0 +1,73 @@
+Grid: mot
+Blocks: 108
+Warmup rows: 108 | Measured rows: 3240 | Total: 3348
+Seed: 42
+Written to /home/ubuntu/APE/APEta/results/mot-scenarios-core/run_plan.csv
+=== PREFLIGHT (grid=mot) ===
+[PASS] db: images=2846 detections=104767 (/home/ubuntu/training/mot_detections.db)
+[PASS] id_pool_json: /home/ubuntu/APE/APEta/scratch/id_pool_mot.json
+[PASS] k6: k6 v2.0.0 (commit/8c3be52cc1, go1.26.3, linux/amd64)
+[PASS] varnishd: /usr/sbin/varnishd
+[PASS] sudo_netns: passwordless sudo for ip netns confirmed
+[PASS] netns_systemd_run_user_scope: confirmed working (netns + runuser + systemd-run --user --scope)
+[PASS] root_port_free: free
+
+PREFLIGHT PASS
+[done] topology up: root(10.200.0.1) <-> ape-origin(10.200.0.2)
+[done] applied 'lan' on veth-ape-h:
+qdisc netem 8002: root refcnt 33 limit 1000 delay 5ms  1ms rate 100Mbit
+[done] snapshot -> /home/ubuntu/APE/APEta/results/mot-scenarios-core/env_snapshot
+Total blocks: 108. Resuming from block index 0 (B0059). Measured runs already recorded: 0/3240
+  [netns] bringing up ape-origin (10.200.0.1 <-> 10.200.0.2)
+  [server] start graphql (backend=sqlite)
+  [network] apply lan
+  [block B0059] graphql/scenario=M1/tier=medium/rate=74rps(r120_overload)/caching=off/uniform/backend=sqlite/lan -- warmup x1
+  [block B0059] measured runs remaining: 30/30
+    run 0 uid=453c51efa2a0 lat_p95=33.230031 cache_hit_rate=None error_rate=0 (1/3240)
+    run 1 uid=8ba0fdfac79d lat_p95=50.86376499999998 cache_hit_rate=None error_rate=0 (2/3240)
+    run 2 uid=21929a1e5868 lat_p95=45.490531 cache_hit_rate=None error_rate=0 (3/3240)
+    run 3 uid=44dcaf366c1a lat_p95=41.16341499999992 cache_hit_rate=None error_rate=0 (4/3240)
+    run 4 uid=c927c3b25e62 lat_p95=43.954590999999745 cache_hit_rate=None error_rate=0 (5/3240)
+    run 5 uid=5eb35a9c6829 lat_p95=27.23922299999992 cache_hit_rate=None error_rate=0 (6/3240)
+    run 6 uid=c0c462749a53 lat_p95=64.63017999999997 cache_hit_rate=None error_rate=0 (7/3240)
+
+Interrupted -- stopping server/cache/sampler...
+  [server] stop graphql
+=== PREFLIGHT (grid=mot) ===
+[PASS] db: images=2846 detections=104767 (/home/ubuntu/training/mot_detections.db)
+[PASS] id_pool_json: /home/ubuntu/APE/APEta/scratch/id_pool_mot.json
+[PASS] k6: k6 v2.0.0 (commit/8c3be52cc1, go1.26.3, linux/amd64)
+[PASS] varnishd: /usr/sbin/varnishd
+[PASS] sudo_netns: passwordless sudo for ip netns confirmed
+[PASS] netns_systemd_run_user_scope: confirmed working (netns + runuser + systemd-run --user --scope)
+[PASS] root_port_free: free
+
+PREFLIGHT PASS
+[done] topology up: root(10.200.0.1) <-> ape-origin(10.200.0.2)
+[done] applied 'lan' on veth-ape-h:
+qdisc netem 8004: root refcnt 33 limit 1000 delay 5ms  1ms rate 100Mbit
+Total blocks: 108. Resuming from block index 0 (B0059). Measured runs already recorded: 7/3240
+  [netns] bringing up ape-origin (10.200.0.1 <-> 10.200.0.2)
+  [server] start graphql (backend=sqlite)
+  [network] apply lan
+  [block B0059] graphql/scenario=M1/tier=medium/rate=74rps(r120_overload)/caching=off/uniform/backend=sqlite/lan -- warmup x1
+  [block B0059] measured runs remaining: 23/30
+    run 7 uid=e7753dde16b3 lat_p95=42.75599749999993 cache_hit_rate=None error_rate=0 (8/3240)
+    run 8 uid=ca39ba9aa1ef lat_p95=39.678062 cache_hit_rate=None error_rate=0 (9/3240)
+    run 9 uid=7cc004acbe3d lat_p95=41.205331 cache_hit_rate=None error_rate=0 (10/3240)
+    run 10 uid=a8c1db8ba2e5 lat_p95=41.61677 cache_hit_rate=None error_rate=0 (11/3240)
+    run 11 uid=8cf5edda0e31 lat_p95=43.044135949999955 cache_hit_rate=None error_rate=0 (12/3240)
+    run 12 uid=4f0b8e3766bb lat_p95=35.250672 cache_hit_rate=None error_rate=0 (13/3240)
+    run 13 uid=60b1dcd56dfd lat_p95=43.09324 cache_hit_rate=None error_rate=0 (14/3240)
+    run 14 uid=49ea6935e7c1 lat_p95=28.538566 cache_hit_rate=None error_rate=0 (15/3240)
+    run 15 uid=d90e83c03b91 lat_p95=31.035877 cache_hit_rate=None error_rate=0 (16/3240)
+    run 16 uid=68082ae2cf1f lat_p95=61.67219159999994 cache_hit_rate=None error_rate=0 (17/3240)
+    run 17 uid=1f901c85ba0d lat_p95=56.724872499999904 cache_hit_rate=None error_rate=0 (18/3240)
+    run 18 uid=687df5c7f9df lat_p95=63.369551 cache_hit_rate=None error_rate=0 (19/3240)
+    run 19 uid=ad163acc1a33 lat_p95=52.304306 cache_hit_rate=None error_rate=0 (20/3240)
+    run 20 uid=097c446fd914 lat_p95=54.230946 cache_hit_rate=None error_rate=0 (21/3240)
+    run 21 uid=7a3477005c76 lat_p95=31.69668939999998 cache_hit_rate=None error_rate=0 (22/3240)
+    run 22 uid=5b578f06229a lat_p95=36.80867364999997 cache_hit_rate=None error_rate=0 (23/3240)
+    run 23 uid=4f281bed1b3a lat_p95=51.733026 cache_hit_rate=None error_rate=0 (24/3240)
+    run 24 uid=d1e39c7505d3 lat_p95=39.736235 cache_hit_rate=None error_rate=0 (25/3240)
+    run 25 uid=d9daef38d1f4 lat_p95=49.939822 cache_hit_rate=None error_rate=0 (26/3240)
