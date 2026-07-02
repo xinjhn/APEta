@@ -74,14 +74,31 @@ MOT_RATE_LABELS = ("r40", "r80", "r120_overload")
 MOT_ARMS = ("core", "m6cache", "m5embed", "m1mem")
 
 
-def mot_rates_for_scenario(cfg: "Config", scenario: str) -> List[int]:
-    """Calibrated absolute rates (req/s) for a scenario's family:
-    image family (M1-M4), track family (M5/M5E), page family (M6)."""
+def mot_family(scenario: str) -> str:
+    """image (M1-M4) | track (M5/M5E) | page (M6)."""
     if scenario in ("M1", "M2", "M3", "M4"):
-        return cfg.mot_rates_image
+        return "image"
     if scenario in ("M5", "M5E"):
-        return cfg.mot_rates_track
-    return cfg.mot_rates_page
+        return "track"
+    return "page"
+
+
+# Which protocol's ceiling DEFINED each family's overload rate (GO condition
+# 1, from design/CALIBRATION.md 2026-07-02: image/track lower ceiling was
+# GraphQL's 62 iter/s, page's was REST's 43). This labels r120_overload rows
+# so they are analyzed per-family and never pooled with sub-saturation
+# cells; it is a statement about the CALIBRATED ceiling, not a claim that a
+# given lighter-tier cell itself saturated (see CALIBRATION.md methods note).
+MOT_OVERLOAD_SATURATES = {"image": "graphql", "track": "graphql", "page": "rest"}
+
+
+def mot_rates_for_scenario(cfg: "Config", scenario: str) -> List[int]:
+    """Calibrated absolute rates (req/s) for a scenario's family."""
+    return {
+        "image": cfg.mot_rates_image,
+        "track": cfg.mot_rates_track,
+        "page": cfg.mot_rates_page,
+    }[mot_family(scenario)]
 
 
 @dataclass

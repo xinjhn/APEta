@@ -91,4 +91,24 @@ Env values for run-plan generation:
    0 dropped) — the earliest, most sensitive symptom of capacity; supports
    the knee rule rather than dropped-only detection.
 
-**Next: Stage-4 STOP. No measured runs until explicit go-ahead.**
+## Methods note (GO conditions, 2026-07-02)
+
+1. **Rates were calibrated on the HEAVIEST tier of each family** (M1-high,
+   M5-w23, M6-k10). Lighter tiers (density low/medium, w2/w8, k1/k5) run at
+   the same absolute per-family rates and therefore sit **deeper below their
+   own — higher — ceilings**. Consequently `r120_overload` guarantees
+   super-saturation only relative to the calibrated heaviest-tier ceiling;
+   a lighter-tier overload cell may not itself saturate. Analyze overload
+   rows per family, and never pool them with r40/r80 rows.
+2. **`overload_saturates` column** (results schema): on r120_overload rows
+   only, records which protocol's calibrated ceiling defined the family's
+   overload rate — `graphql` for image/track cells (rate 74), `rest` for
+   page cells (rate 52). Empty on all sub-saturation rows.
+3. **Strictly serial execution**: the orchestrator runs one cell at a time —
+   one server process (alternated on port 8000), one k6 process (blocking
+   `subprocess.run`), never co-resident, no parallel code path for any timed
+   run. k6's internal VUs are the open-loop arrival-rate mechanism within a
+   single run, not cross-cell parallelism.
+
+**GO received for Stage 5 (2026-07-02): arms core → m6cache → m5embed →
+m1mem, Stage-6/7 reporting after each arm.**

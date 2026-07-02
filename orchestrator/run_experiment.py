@@ -61,7 +61,12 @@ import psutil
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from orchestrator.config import Config, get_config  # noqa: E402
+from orchestrator.config import (  # noqa: E402
+    MOT_OVERLOAD_SATURATES,
+    Config,
+    get_config,
+    mot_family,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -69,7 +74,7 @@ RESULTS_FIELDNAMES = [
     "run_uid", "block_id",
     "protocol", "caching", "access_pattern", "entropy", "payload_weight",
     "network", "density", "concurrency", "page_size",
-    "scenario", "tier", "rate_label", "backend",
+    "scenario", "tier", "rate_label", "backend", "overload_saturates",
     "run_index", "session_id", "ts_start", "ts_end",
     "lat_p50", "lat_p95", "lat_p99",
     "throughput_rps",
@@ -543,6 +548,16 @@ def metric(data: dict, name: str, key: str):
         return None
 
 
+def _overload_saturates(block: dict) -> str:
+    """GO condition 1: r120_overload rows carry which protocol's calibrated
+    ceiling defined the family's overload rate (image/track: graphql=62,
+    page: rest=43 -- design/CALIBRATION.md). Empty for sub-saturation rows
+    and non-mot grids; overload rows must never be pooled with r40/r80."""
+    if not block.get("scenario") or block.get("rate_label") != "r120_overload":
+        return ""
+    return MOT_OVERLOAD_SATURATES[mot_family(block["scenario"])]
+
+
 def _round_trip_count(block: dict, data: dict):
     """page_size=0/"0" (not in page mode, core/full grid): always 1 logical
     request per k6 iteration on both protocols. page_size>0 (batch grid):
@@ -800,6 +815,7 @@ class Executor:
             "payload_bytes_med": metric(data, "payload_bytes", "med"),
             "cache_hit_rate": metric(data, "cache_hit", "rate") if block["caching"] == "on" else None,
             "round_trip_count": _round_trip_count(block, data),
+            "overload_saturates": _overload_saturates(block),
             "page_latency_med": metric(data, "page_latency", "med"),
             "error_rate": metric(data, "http_req_failed", "rate"),
             "apq_registrations": metric(data, "apq_registrations", "count") or 0,
