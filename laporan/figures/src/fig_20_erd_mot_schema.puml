@@ -1,0 +1,82 @@
+' Gambar (rencana): ERD korpus deteksi MOT (mot_detections.db)
+' Notasi: Entity-Relationship dengan kardinalitas crow's foot (Information
+'         Engineering); atribut, PK/FK eksplisit.
+' Basis (diverifikasi 2026-07-04):
+'   DDL: ~/training/build_detection_db.py:55-104 (CREATE TABLE persis);
+'   jumlah baris: design/mot_profile.json counts (profil read-only 2026-07-02).
+' Kejujuran skema: TIDAK ada tabel "trajectory" — trajektori adalah hasil
+' kueri turunan (detection JOIN image dibatasi jendela frame ±W), lihat
+' core/dal.py get_track_trajectory(). detection.track_id nullable menurut DDL
+' (di data aktual: 0 baris NULL).
+@startuml
+skinparam dpi 150
+skinparam defaultFontName sans-serif
+skinparam linetype ortho
+hide circle
+hide empty methods
+
+title Skema relasional korpus deteksi MOT — mot_detections.db\n(7 sequence · 2.846 image · 5.429 track · 104.767 detection · 10 class)
+
+entity "sequence\n(n = 7)" as sequence {
+  * <b>id</b> : INTEGER <<PK>>
+  --
+  * name : TEXT <<UNIQUE>>
+  * n_frames : INTEGER
+}
+
+entity "image\n(n = 2.846)" as image {
+  * <b>id</b> : INTEGER <<PK>>
+  --
+  * sequence_id : INTEGER <<FK → sequence.id>>
+  * frame_index : INTEGER
+  * width : INTEGER
+  * height : INTEGER
+  * density_tier : TEXT (low | medium | high)
+  * density_count_conf25 : INTEGER
+  <i><<UNIQUE(sequence_id, frame_index)>></i>
+}
+
+entity "track\n(n = 5.429)" as track {
+  * <b>id</b> : INTEGER <<PK>>
+  --
+  * sequence_id : INTEGER <<FK → sequence.id>>
+  * local_track_id : INTEGER
+  * class_id : INTEGER <<FK → class.id>>
+  * first_frame : INTEGER
+  * last_frame : INTEGER
+  <i><<UNIQUE(sequence_id, local_track_id)>></i>
+}
+
+entity "detection\n(n = 104.767)" as detection {
+  * <b>id</b> : INTEGER <<PK>>
+  --
+  * image_id : INTEGER <<FK → image.id>>
+  o track_id : INTEGER <<FK → track.id, nullable>>
+  * class_id : INTEGER <<FK → class.id>>
+  * confidence : REAL
+  * bbox_x : REAL
+  * bbox_y : REAL
+  * bbox_w : REAL
+  * bbox_h : REAL
+}
+
+entity "class\n(n = 10)" as class {
+  * <b>id</b> : INTEGER <<PK>>
+  --
+  * name : TEXT <<UNIQUE>>
+}
+
+sequence ||--o{ image : memuat
+sequence ||--o{ track : memuat
+image    ||--o{ detection : berisi
+track    |o--o{ detection : mengelompokkan
+class    ||--o{ track : label mayoritas
+class    ||--o{ detection : label
+
+note bottom of detection
+  "Trajektori" (skenario M5/M6) BUKAN tabel:
+  ia hasil kueri turunan — detection JOIN image
+  dibatasi image.frame_index ∈ [center − W, center + W]
+  untuk satu track (core/dal.py::get_track_trajectory).
+end note
+@enduml

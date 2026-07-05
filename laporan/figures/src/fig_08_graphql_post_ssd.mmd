@@ -1,0 +1,21 @@
+%% Gambar IV.3 - SSD request GraphQL POST
+%% Type: System Sequence Diagram.
+%% Reference basis: Larman for SSD; UML 2.5.1; GraphQL Specification.
+sequenceDiagram
+    actor VU as k6 virtual user
+    participant GQL as APE GraphQL system
+    participant Schema as GraphQL schema/resolvers
+    participant DAL as Shared DAL
+    participant DB as SQLite corpus
+
+    VU->>GQL: POST /graphql { query, variables }
+    GQL->>Schema: parse, validate, execute query
+    Schema->>DAL: get_image / get_track / get detections
+    DAL->>DB: SELECT rows
+    DB-->>DAL: rows
+    DAL-->>Schema: dictionaries
+    Schema-->>GQL: GraphQL data object
+    GQL-->>VU: 200 {"data": ...} + X-Process-Time
+
+    note over VU,GQL: POST route is not the cacheable APQ-over-GET path used in Phase 2 cache experiments.
+

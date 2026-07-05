@@ -1,0 +1,23 @@
+%% Gambar III.3 - Pipeline persiapan data VisDrone-YOLO-SQLite
+%% Type: BPMN-style process/data pipeline.
+%% Reference basis: VisDrone literature, Ultralytics YOLO docs, ByteTrack paper, SQLite docs.
+flowchart LR
+    vis[VisDrone MOT sequences]
+    model[YOLO model fine-tuned on VisDrone]
+    track[infer_mot_track.py\nYOLO tracking with ByteTrack/BoT-SORT]
+    pred[Tracked MOT prediction txt files]
+    density[mot_compute_density.py / density profiling]
+    dbbuild[build_detection_db.py]
+    sqlite[(mot_detections.db)]
+    idpool[build_id_pool.py\nscratch/id_pool.json]
+    ape[APE REST/GraphQL servers]
+
+    vis --> model --> track --> pred
+    pred --> density
+    pred --> dbbuild
+    density --> dbbuild
+    dbbuild --> sqlite
+    sqlite --> idpool
+    sqlite --> ape
+    idpool --> ape
+

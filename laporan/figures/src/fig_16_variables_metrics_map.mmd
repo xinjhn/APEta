@@ -1,0 +1,38 @@
+%% Gambar III.2 - Pemetaan variabel bebas, kontrol, dan metrik
+%% Type: Concept map.
+%% Reference basis: experiment design in orchestrator/config.py and workload.js.
+flowchart TB
+    subgraph IV["Independent variables"]
+        protocol[protocol]
+        caching[caching]
+        access[access_pattern]
+        entropy[entropy]
+        payload[payload_weight]
+        network[network]
+        density[density]
+        concurrency[concurrency]
+    end
+
+    subgraph Controls["Controlled variables"]
+        db[same SQLite corpus]
+        dal[same DetectionDAL]
+        worker[single worker origin]
+        seed[fixed seed/run plan]
+        duration[same run duration]
+        caps[CPU and memory caps when enabled]
+    end
+
+    subgraph DV["Dependent metrics"]
+        lat[latency p50/p95/p99]
+        thr[throughput rps]
+        bytes[payload bytes median]
+        hit[cache hit rate]
+        err[error rate]
+        apq[APQ registrations]
+        cpu[CPU mean/p95]
+        rss[RSS mean/p95]
+    end
+
+    IV --> DV
+    Controls -. "kept constant where possible" .-> DV
+

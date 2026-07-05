@@ -1,0 +1,27 @@
+%% Gambar IV.7 - Topologi network namespace dan cache
+%% Type: Deployment/topology diagram.
+%% Reference basis: tools/netns_topology.sh, orchestrator/config.py, RFC 9110 intermediaries.
+flowchart LR
+    subgraph RootNS["Root namespace"]
+        K6["k6 workload"]
+        HostIP["veth host\n10.200.0.1"]
+    end
+
+    subgraph NetNS["ape-origin namespace"]
+        NsIP["veth ns\n10.200.0.2"]
+        Varnish["Varnish\n:8080"]
+        Origin["REST/GraphQL origin\n:8000"]
+        SQLite[("mot_detections.db")]
+    end
+
+    K6 -->|"direct cache-off: http://10.200.0.2:8000"| NsIP
+    K6 -->|"cache-on: http://10.200.0.2:8080"| NsIP
+    HostIP <-->|"emulated network hop"| NsIP
+    NsIP --> Varnish
+    NsIP --> Origin
+    Varnish -->|"backend loopback inside namespace"| Origin
+    Origin --> SQLite
+
+    note["Design intent: client-to-origin/cache crosses the emulated veth once; Varnish-to-origin stays inside namespace."]
+    note -.-> Varnish
+

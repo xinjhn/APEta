@@ -1,0 +1,16 @@
+# Generated/runtime artifacts
+__pycache__/
+.pytest_cache/
+venv/
+
+# Local scratch/runtime state
+scratch/id_pool.json
+scratch/id_pool_mot.json
+scratch/k6_summaries/
+scratch/varnish-*
+
+# Bulk experiment data: never on GitHub (12G+, many files over the 100 MB
+# hard limit). Thesis-critical small files are snapshotted to the
+# results-backup branch by tools/backup_results.sh instead.
+results/
+archive/

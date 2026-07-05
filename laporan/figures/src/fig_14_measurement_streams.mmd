@@ -1,0 +1,19 @@
+%% Gambar IV.8 - Aliran metrik eksperimen
+%% Type: Data-flow style diagram.
+%% Reference basis: k6 workload.js, telemetry/sampler.py, run_experiment.py.
+flowchart TB
+    K6["k6 execution"]
+    Server["REST/GraphQL server"]
+    Sampler["telemetry sampler"]
+    Summary["k6 summary JSON"]
+    Telemetry["telemetry CSV"]
+    Parser["run_experiment.py parser"]
+    Results["results.csv"]
+
+    K6 -->|"latency, throughput, payload_bytes, cache_hit_rate, apq_registrations, error_rate"| Summary
+    Server -->|"X-Process-Time header"| K6
+    Sampler -->|"cpu_percent, rss_mb sampled by PID"| Telemetry
+    Summary --> Parser
+    Telemetry --> Parser
+    Parser -->|"one row per measured run"| Results
+

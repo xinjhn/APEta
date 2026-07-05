@@ -1,0 +1,13 @@
+%% Gambar II.2 - Konsep GraphQL selection set terhadap payload
+%% Type: Conceptual diagram.
+%% Reference basis: GraphQL Specification.
+flowchart LR
+    query["GraphQL query\nimage(id) { detections { class_id confidence } }"]
+    schema["GraphQL schema\nImage -> Detection"]
+    resolver["Resolvers\nread data from shared DAL"]
+    fullData["Available data\nclass_id, confidence, bbox_x, bbox_y, bbox_w, bbox_h, track"]
+    projected["Response payload\nonly requested fields"]
+
+    query --> schema --> resolver --> fullData --> projected
+    query -. "selection set controls shape" .-> projected
+

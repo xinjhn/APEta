@@ -1,0 +1,57 @@
+%% Gambar IV.1 - Arsitektur komponen APE
+%% Type: UML component-style architecture diagram, rendered in Mermaid.
+%% Reference basis: UML 2.5.1 component/deployment-style documentation.
+flowchart TB
+    subgraph LoadLayer["Load and orchestration layer"]
+        Orchestrator["orchestrator/run_experiment.py"]
+        K6["k6/workload.js"]
+        Sampler["telemetry/sampler.py"]
+    end
+
+    subgraph CacheLayer["Cache layer"]
+        Varnish["Varnish reverse proxy\ncache/varnish.vcl"]
+    end
+
+    subgraph APILayer["API origin server (one active protocol per block)"]
+        REST["FastAPI REST\nrest_server.py"]
+        GQL["Strawberry GraphQL\ngraphql_server.py"]
+    end
+
+    subgraph SharedCore["Shared core"]
+        DAL["DetectionDAL\ncore/dal.py"]
+        CacheLogic["Cache headers and ETag\ncore/caching.py"]
+        Timing["X-Process-Time middleware\ncore/timing.py"]
+    end
+
+    subgraph DataLayer["Data and results"]
+        DB[("SQLite corpus\ntraining/mot_detections.db")]
+        IDPool["scratch/id_pool.json"]
+        RunPlan["results/run_plan.csv"]
+        Results["results/results.csv"]
+        Summaries["results/k6_summaries/*.json"]
+        Telemetry["results/telemetry/*.csv"]
+    end
+
+    Orchestrator --> RunPlan
+    Orchestrator --> REST
+    Orchestrator --> GQL
+    Orchestrator --> Varnish
+    Orchestrator --> K6
+    Orchestrator --> Sampler
+    K6 -->|"HTTP workload"| Varnish
+    K6 -->|"HTTP workload when cache off"| REST
+    K6 -->|"HTTP workload when cache off"| GQL
+    Varnish --> REST
+    Varnish --> GQL
+    REST --> DAL
+    GQL --> DAL
+    REST --> CacheLogic
+    GQL --> CacheLogic
+    REST --> Timing
+    GQL --> Timing
+    DAL --> DB
+    K6 --> IDPool
+    K6 --> Summaries
+    Sampler --> Telemetry
+    Orchestrator --> Results
+

@@ -1,0 +1,17 @@
+%% Gambar IV.2 - SSD request REST
+%% Type: System Sequence Diagram.
+%% Reference basis: Larman for SSD; UML 2.5.1 sequence diagram; RFC 9110.
+sequenceDiagram
+    actor VU as k6 virtual user
+    participant REST as APE REST system
+    participant DAL as Shared DAL
+    participant DB as SQLite corpus
+
+    VU->>REST: GET /images/{id}/detections?fields=&class_id=&min_confidence=
+    REST->>DAL: get_image_with_detections(image_id, filters)
+    DAL->>DB: SELECT image and detection rows
+    DB-->>DAL: rows
+    DAL-->>REST: image envelope + detections
+    REST->>REST: project fields and compute cache headers
+    REST-->>VU: 200 JSON + Cache-Control/ETag + X-Process-Time
+

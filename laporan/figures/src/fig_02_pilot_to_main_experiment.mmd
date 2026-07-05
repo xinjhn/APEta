@@ -1,0 +1,14 @@
+%% Gambar I.2 / III.x - Alur uji pendahuluan menuju eksperimen utama
+%% Type: BPMN-style decision process.
+%% Reference basis: OMG BPMN 2.0.2; implementation evidence from APE workspace.
+flowchart TB
+    plan[Desain penelitian dua tahap]
+    pilot[Uji pendahuluan: REST vs GraphQL pada skenario awal]
+    pilotMetrics[Metrik pilot: latency, throughput, payload, processing time, CPU, RSS]
+    evaluate[Evaluasi kesiapan instrument dan variabilitas hasil]
+    calibrate[Kalibrasi desain eksperimen utama]
+    main[Eksperimen utama Phase 2]
+    controls[Kontrol utama: shared DAL, SQLite MOT corpus, APQ-over-GET, Varnish, access pattern, entropy, payload weight, network profile]
+    analysis[Analisis hasil utama per experimental cell]
+
+    plan --> pilot --> pilotMetrics --> evaluate --> calibrate --> main --> controls --> analysis

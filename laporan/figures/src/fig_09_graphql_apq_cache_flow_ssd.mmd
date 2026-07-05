@@ -1,0 +1,30 @@
+%% Gambar IV.4 - SSD GraphQL APQ over GET
+%% Type: System Sequence Diagram.
+%% Reference basis: Larman for SSD; UML 2.5.1; Apollo APQ; GraphQL Specification.
+sequenceDiagram
+    actor VU as k6 virtual user
+    participant GQL as APE GraphQL APQ endpoint
+    participant Store as Persisted query store
+    participant Schema as GraphQL schema/resolvers
+    participant DAL as Shared DAL
+    participant DB as SQLite corpus
+
+    VU->>GQL: GET /graphql?extensions={sha256Hash}&variables={id}
+    GQL->>Store: lookup sha256Hash
+    alt Hash unknown
+        Store-->>GQL: not found
+        GQL-->>VU: PersistedQueryNotFound
+        VU->>GQL: GET /graphql?query=text&extensions={sha256Hash}&variables={id}
+        GQL->>GQL: verify sha256(query) == hash
+        GQL->>Store: save hash -> query
+    else Hash known
+        Store-->>GQL: query text
+    end
+    GQL->>Schema: execute query
+    Schema->>DAL: shared data access
+    DAL->>DB: SELECT rows
+    DB-->>DAL: rows
+    DAL-->>Schema: dictionaries
+    Schema-->>GQL: GraphQL data object
+    GQL-->>VU: 200 {"data": ...} + Cache-Control/ETag
+

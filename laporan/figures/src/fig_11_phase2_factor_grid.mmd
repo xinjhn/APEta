@@ -1,0 +1,25 @@
+%% Gambar III.1 - Desain faktor eksperimen Phase 2
+%% Type: Factor map.
+%% Reference basis: orchestrator/config.py and make_run_plan.py.
+flowchart LR
+    cell[Experimental cell]
+    protocol["protocol\nREST | GraphQL"]
+    caching["caching\non | off"]
+    access["access_pattern\nunique | uniform | zipfian"]
+    entropy["entropy\nlow | medium | high"]
+    payload["payload_weight\nlight | heavy"]
+    network["network\nlan | constrained"]
+    density["density\nlow | medium | high"]
+    conc["concurrency\nVUs"]
+    metrics["Dependent metrics\nlat_p50/p95/p99, throughput, payload_bytes, cache_hit_rate, error_rate, APQ registrations, CPU, RSS"]
+
+    protocol --> cell
+    caching --> cell
+    access --> cell
+    entropy --> cell
+    payload --> cell
+    network --> cell
+    density --> cell
+    conc --> cell
+    cell --> metrics
+

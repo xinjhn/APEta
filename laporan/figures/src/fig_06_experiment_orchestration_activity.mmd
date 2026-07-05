@@ -1,0 +1,37 @@
+%% Gambar IV.6 - Orkestrasi eksperimen APE
+%% Type: UML activity/BPMN-style process.
+%% Reference basis: UML activity diagram / BPMN process; run_experiment.py.
+flowchart TB
+    start((Start))
+    loadPlan[Load run_plan.csv]
+    resume[Load completed run_uid from results.csv]
+    nextBlock[Select next incomplete block]
+    done{All blocks complete?}
+    server{Protocol changed?}
+    startServer[Stop old server and start REST/GraphQL origin]
+    cache{Caching level changed?}
+    varnish[Start/stop Varnish]
+    network{Network profile changed?}
+    netem[Apply network namespace/netem profile]
+    sampler[Start telemetry sampler]
+    warmup[Run warmup k6 executions]
+    measured[Run measured k6 execution]
+    parse[Parse k6 summary and telemetry]
+    append[Append row to results.csv]
+    moreRuns{More measured rows in block?}
+    stopSampler[Stop telemetry sampler]
+    end((End))
+
+    start --> loadPlan --> resume --> nextBlock --> done
+    done -- "Yes" --> end
+    done -- "No" --> server
+    server -- "Yes" --> startServer --> cache
+    server -- "No" --> cache
+    cache -- "Yes" --> varnish --> network
+    cache -- "No" --> network
+    network -- "Yes" --> netem --> sampler
+    network -- "No" --> sampler
+    sampler --> warmup --> measured --> parse --> append --> moreRuns
+    moreRuns -- "Yes" --> measured
+    moreRuns -- "No" --> stopSampler --> nextBlock
+

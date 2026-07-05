@@ -1,0 +1,83 @@
+' Gambar (rencana): Sequence diagram — REST K round-trip vs GraphQL 1 round-trip (inti RQ2)
+' Notasi: OMG UML 2.5 sequence diagram (lifeline, activation bar/ExecutionSpecification,
+'         combined fragment loop, pesan bernomor).
+' Basis kode (diverifikasi 2026-07-04):
+'   k6/workload_mot.js restIteration() M5/M6, gqlIteration(), apqGet()
+'   rest_server.py /tracks/{id}, /tracks/{id}/trajectory
+'   graphql_server.py Query.tracks (prefetch), core/dal.py get_track_trajectory /
+'   get_tracks_with_trajectories (2 SQL IN-clause total berapa pun K)
+' Catatan kejujuran: kedua protokol TIDAK pernah aktif bersamaan (server
+' bergantian di port 8000); dua frame di bawah membandingkan dua eksekusi
+' terpisah atas halaman K id track yang sama (skenario M6).
+@startuml
+skinparam dpi 150
+skinparam defaultFontName sans-serif
+skinparam sequenceMessageAlign left
+skinparam ParticipantPadding 12
+skinparam BoxPadding 8
+
+title Perbandingan jumlah round-trip: REST (K panggilan) vs GraphQL (1 kueri komposit)\nSkenario M6 — halaman berisi K id track; jaringan lan (delay 5 ms/arah)
+
+participant "k6\n(klien)" as K6
+participant "Server REST\n(FastAPI, :8000)" as REST
+participant "Server GraphQL\n(Strawberry, :8000)" as GQL
+participant "DAL bersama\n(core/dal.py)" as DAL
+database "SQLite\nmot_detections.db" as DB
+
+group Eksekusi REST — M6: K round-trip HTTP berurutan (round_trip_count = K)
+  autonumber 1 "<b>[R0]"
+  loop i = 1..K (setiap id track dalam halaman)
+    K6 -> REST : GET /tracks/{id_i}/trajectory?window=2
+    activate REST
+    REST -> DAL : get_track_trajectory(id_i, window=2)
+    activate DAL
+    DAL -> DB : SELECT track JOIN class WHERE id = ?
+    activate DB
+    DB --> DAL : baris track
+    deactivate DB
+    DAL -> DB : SELECT detection JOIN image\nWHERE track_id = ? AND frame_index BETWEEN ?±W
+    activate DB
+    DB --> DAL : titik trajektori
+    deactivate DB
+    DAL --> REST : track + trajectory (dict)
+    deactivate DAL
+    REST --> K6 : 200 JSON (kompak) + ETag/Cache-Control
+    deactivate REST
+  end
+  note right of K6
+    page_latency = Σ durasi K respons
+    Biaya jaringan ≈ K × RTT
+  end note
+end
+
+group Eksekusi GraphQL — M6: 1 round-trip HTTP komposit (round_trip_count = 1)
+  autonumber 1 "<b>[G0]"
+  K6 -> GQL : GET /graphql?extensions={sha256Hash}\n&variables={ids:[K id]}  (APQ)
+  activate GQL
+  GQL -> GQL : lookup persisted query\n(registrasi 1× per query, run pertama)
+  GQL -> DAL : get_tracks_with_trajectories(ids, window=2)
+  activate DAL
+  DAL -> DB : SELECT track JOIN class WHERE id IN (K id)
+  activate DB
+  DB --> DAL : K baris track
+  deactivate DB
+  DAL -> DB : SELECT detection JOIN image JOIN track\nWHERE track_id IN (K id) AND frame_index BETWEEN first_frame±W
+  activate DB
+  DB --> DAL : semua titik trajektori
+  deactivate DB
+  DAL --> GQL : K track + trajectory (batch, urutan = ids)
+  deactivate DAL
+  GQL --> K6 : 200 {"data":{"tracks":[…K item…]}} + ETag/Cache-Control
+  deactivate GQL
+  note right of K6
+    page_latency = durasi 1 respons
+    Biaya jaringan ≈ 1 × RTT
+  end note
+end
+
+note over K6, DB
+  Skenario M5 (trajektori bersarang satu track) mengikuti pola yang sama dengan K = 2 pada sisi REST:
+  [1] GET /tracks/{id}  lalu  [2] GET /tracks/{id}/trajectory?center_frame=…&window=W  (round_trip_count = 2),
+  sedangkan GraphQL tetap 1 kueri track{…trajectory{…}} (round_trip_count = 1).
+end note
+@enduml

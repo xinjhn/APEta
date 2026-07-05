@@ -1,0 +1,37 @@
+# =============================================================================
+# visdrone.yaml  -  Konfigurasi dataset untuk FINE-TUNING YOLO26
+# =============================================================================
+# PENTING (benang merah metodologis):
+#   'train' dan 'val' di file ini KEDUANYA berasal dari split TRAIN VisDrone
+#   yang sudah dibagi 90/10 oleh prepare_visdrone.py.
+#     - train         -> 90% citra train  (melatih bobot)
+#     - val           -> 10% citra train  (validation INTERNAL: monitoring,
+#                                           early stopping). BUKAN data eksperimen.
+#
+#   Split VAL resmi VisDrone (VisDrone2019-DET-val) SENGAJA TIDAK dirujuk di sini,
+#   karena dicadangkan sepenuhnya untuk tahap eksperimen API (In-Memory Data Pool).
+#   Jangan menambahkannya ke file ini.
+# =============================================================================
+
+# Ganti 'path' dengan folder ROOT VisDrone Anda (yang berisi folder 'splits/').
+path: /home/ubuntu/datasets/VisDrone
+
+# Daftar citra hasil split 90/10 (dibuat oleh prepare_visdrone.py -> folder splits/)
+train: splits/train_sub.txt       # 90% train
+val:   splits/val_internal.txt    # 10% train (monitoring/early stopping)
+
+# Jumlah kelas
+nc: 10
+
+# Nama kelas (indeks 0..9). Kategori VisDrone 1..10 dipetakan ke 0..9.
+names:
+  0: pedestrian
+  1: people
+  2: bicycle
+  3: car
+  4: van
+  5: truck
+  6: tricycle
+  7: awning-tricycle
+  8: bus
+  9: motor

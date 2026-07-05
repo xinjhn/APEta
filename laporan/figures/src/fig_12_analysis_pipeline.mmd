@@ -1,0 +1,23 @@
+%% Gambar V.1 - Pipeline analisis hasil
+%% Type: Activity/data pipeline.
+%% Reference basis: tools/analyze_phase2.py; Mann-Whitney U; Vargha-Delaney A12.
+flowchart LR
+    results[results.csv]
+    validate[Validate required columns and cell completeness]
+    group[Group by experimental cell]
+    compare[Compare REST vs GraphQL per cell]
+    mwu[Mann-Whitney U test]
+    effect[Vargha-Delaney A12 and Cliff's delta]
+    holm[Holm correction per metric family]
+    plots[Generate plots: crossover, entropy-hit-rate, boxplots]
+    report[Generate analysis report]
+    discussion[Interpret results against RQ and hypotheses]
+
+    results --> validate --> group --> compare
+    compare --> mwu --> holm
+    compare --> effect
+    holm --> report
+    effect --> report
+    results --> plots --> report
+    report --> discussion
+

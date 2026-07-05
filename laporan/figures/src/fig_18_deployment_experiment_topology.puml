@@ -1,0 +1,60 @@
+' Gambar (rencana): Deployment diagram — topologi eksperimen mot-scenarios-core
+' Notasi: OMG UML 2.5 deployment diagram (node, execution environment, artifact,
+'         communication path berlabel protokol).
+' Basis kode/konfigurasi (diverifikasi 2026-07-04):
+'   tools/netns_topology.sh (header + up()); orchestrator/config.py (IP/veth/caps);
+'   results/mot-scenarios-core/env_snapshot/ape_env.txt (pin core, rate);
+'   env_snapshot/netem_qdisc.txt (delay 5ms ±1ms, rate 100Mbit);
+'   ps aktual: systemd-run --scope -p CPUQuota=400% -p MemoryMax=2048M
+'   taskset -c 0-7 uvicorn … --workers 1 --port 8000.
+' Kejujuran topologi: k6 berjalan di namespace ROOT, server di netns ape-origin
+' (BUKAN k6 di dalam netns); netem hanya di veth sisi host. Varnish tidak
+' digambar: run mot-scenarios-core seluruhnya caching=off (jalur cache = RQ3,
+' lihat figur topologi cache terpisah).
+@startuml
+skinparam dpi 150
+skinparam defaultFontName sans-serif
+skinparam wrapWidth 210
+
+title Topologi eksperimen mot-scenarios-core — satu VM, dua network namespace,\nsubstrat fairness DAL bersama (kedua protokol bergantian pada node server yang sama)
+
+node "VM vm-kota515 — AMD EPYC 7302 (32 core), Ubuntu Linux" as VM {
+
+  node "Namespace jaringan root" as ROOT {
+    node "Proses k6 v2.0.0\n(taskset core 8–15)" as K6 <<execution environment>> {
+      artifact "k6/workload_mot.js\n(open-loop constant-arrival-rate)" as WL
+      artifact "scratch/id_pool_mot.json\n(pool id per tier, halaman K tetap)" as POOL
+    }
+    node "Sampler telemetri\ntelemetry/sampler.py\n(taskset core 31, 1 Hz, per-PID)" as SAMP
+    node "Orkestrator\norchestrator/run_experiment.py\n(serial: 1 lock, 1 server, 1 k6)" as ORCH
+    node "veth-ape-h\n10.200.0.1/24" as VETHH <<device>>
+    note bottom of VETHH
+      qdisc netem terpasang DI SINI (sisi host saja):
+      delay 5 ms ± 1 ms (normal), rate 100 Mbit — profil "lan".
+      Klien melintasi veth tepat SATU kali per request.
+    end note
+  }
+
+  node "Namespace jaringan ape-origin" as NS {
+    node "veth-ape-n\n10.200.0.2/24" as VETHN <<device>>
+    node "systemd scope\nCPUQuota=400% · MemoryMax=2048M\ntaskset core 0–7" as SCOPE <<execution environment>> {
+      node "uvicorn --workers 1\n0.0.0.0:8000 (HTTP/1.1)" as UV <<execution environment>> {
+        component "rest_server.py (FastAPI)\n— ATAU —\ngraphql_server.py (Strawberry)\n(bergantian per blok, tidak pernah bersamaan)" as SRV
+      }
+    }
+    artifact "core/dal.py — DetectionDAL\n(jalur akses data BERSAMA kedua protokol;\nkoneksi sqlite thread-local, query_only=1)" as DAL
+    artifact "mot_detections.db\n(SQLite, read-only;\nmd5 dibekukan di env_snapshot)" as DB
+  }
+}
+
+WL ..> POOL : baca
+ORCH ..> K6 : start k6\n(blocking, per run)
+ORCH ..> SAMP : start/stop\nper blok
+ORCH ..> SCOPE : start/stop server per blok\n(systemd-run di dalam netns)
+SAMP ..> SCOPE : sampling CPU/RSS\nper-PID server
+K6 -- VETHH
+VETHH -- VETHN : <<communication path>>\nHTTP/1.1, tanpa kompresi,\nGET (REST) / GET APQ (GraphQL)
+VETHN -- UV
+SRV ..> DAL : <<use>> (panggilan metode\nidentik kedua protokol)
+DAL ..> DB : <<use>> SQL read-only
+@enduml

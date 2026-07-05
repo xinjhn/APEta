@@ -1,0 +1,58 @@
+' Gambar (rencana): Activity diagram — alur eksekusi eksperimen mot-scenarios-core
+' Notasi: OMG UML 2.5 activity diagram (initial node, action, decision/merge node
+'         dengan guard, final node).
+' Basis kode (diverifikasi 2026-07-04):
+'   tools/calibrate_mot.py + design/CALIBRATION.md (probe & derivasi rate);
+'   orchestrator/make_run_plan.py (grid mot, blok terandomisasi);
+'   orchestrator/run_experiment.py: acquire_orchestrator_lock, clean_results_tail,
+'   find_resume_index, ensure_server/ensure_network, run_block (1 warmup lalu
+'   run terukur), run_measured (k6 90 s -> summary + telemetri -> results.csv
+'   -> progress.log), shutdown/teardown.
+@startuml
+skinparam dpi 150
+skinparam defaultFontName sans-serif
+skinparam wrapWidth 260
+skinparam ActivityDiamondFontSize 12
+
+title Alur eksekusi eksperimen mot-scenarios-core\n(kalibrasi → derivasi rate → eksekusi serial per blok → results.csv)
+
+start
+:Kalibrasi ceiling saturasi per family
+(probe bertingkat 12 s: 25→50→100→… + 2 langkah bisection,
+pada cell terberat: M1-high, M5-w23, M6-k10 ·
+saturasi := dropped>0 ∨ error>1% ∨ p95>max(5×baseline, 150 ms));
+:Derivasi rate = 40% / 80% / 120% dari ceiling
+protokol TERENDAH per family
+(image & track: 25/50/74 · page: 17/34/52 iterasi/s ·
+120% dilabeli r120_overload);
+:Buat run plan (make_run_plan.py, APE_GRID=mot):
+2 protokol × 6 skenario × 3 tier × 3 rate × 30 run = 3.240 run terukur,
+urutan blok terandomisasi (block_id/block_order, seed 42);
+:Ambil lock orkestrator (tunggal) ·
+bersihkan ekor results.csv ·
+muat run_uid yang sudah selesai (mekanisme resume);
+:Naikkan topologi netns (ape-origin + veth) ·
+terapkan netem "lan" pada veth sisi host;
+while (Masih ada blok yang belum lengkap?) is (ya)
+  :Siapkan server protokol blok pada port 8000
+  (alternasi REST/GraphQL — restart hanya bila
+  protokol/backend berbeda dari blok sebelumnya);
+  :Mulai sampler telemetri (per-PID server, 1 Hz);
+  :Jalankan 1 run warmup (k6 90 s) — hasil DIBUANG;
+  repeat
+    :Jalankan 1 run terukur: k6 90 s,
+    executor open-loop constant-arrival-rate
+    pada rate terkalibrasi cell;
+    :Ekstrak k6 summary JSON (lat p50/p95/p99, throughput,
+    payload, round_trip_count, page_latency, dropped)
+    + join statistik telemetri (CPU/RSS) pada [ts_start, ts_end];
+    :Append 1 baris ke results.csv ·
+    catat kemajuan ke logs/progress.log;
+  repeat while (Masih ada run terukur dalam blok?) is (ya)
+  ->tidak;
+  :Hentikan sampler telemetri;
+endwhile (tidak)
+:Teardown: hentikan server, hapus netem,
+turunkan topologi netns, lepas lock;
+stop
+@enduml

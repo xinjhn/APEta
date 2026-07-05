@@ -1,0 +1,53 @@
+%% Gambar III.4 - ERD korpus deteksi MOT
+%% Type: ERD.
+%% Reference basis: Chen ER model; schema from training/mot_detections.db.
+erDiagram
+    SEQUENCE_TBL ||--o{ IMAGE_TBL : contains
+    SEQUENCE_TBL ||--o{ TRACK_TBL : contains
+    IMAGE_TBL ||--o{ DETECTION_TBL : has
+    TRACK_TBL |o--o{ DETECTION_TBL : groups
+    CLASS_TBL ||--o{ DETECTION_TBL : labels
+    CLASS_TBL ||--o{ TRACK_TBL : majority_label
+
+    CLASS_TBL {
+        integer id PK
+        text name
+    }
+
+    SEQUENCE_TBL {
+        integer id PK
+        text name
+        integer n_frames
+    }
+
+    IMAGE_TBL {
+        integer id PK
+        integer sequence_id FK
+        integer frame_index
+        integer width
+        integer height
+        text density_tier
+        integer density_count_conf25
+    }
+
+    TRACK_TBL {
+        integer id PK
+        integer sequence_id FK
+        integer local_track_id
+        integer class_id FK
+        integer first_frame
+        integer last_frame
+    }
+
+    DETECTION_TBL {
+        integer id PK
+        integer image_id FK
+        integer track_id FK
+        integer class_id FK
+        real confidence
+        real bbox_x
+        real bbox_y
+        real bbox_w
+        real bbox_h
+    }
+

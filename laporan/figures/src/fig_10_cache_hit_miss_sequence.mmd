@@ -1,0 +1,30 @@
+%% Gambar IV.5 / II.1 - Sequence cache hit dan cache miss
+%% Type: Sequence diagram.
+%% Reference basis: UML 2.5.1; RFC 9111; Varnish docs.
+sequenceDiagram
+    actor VU as k6 virtual user
+    participant Cache as Varnish cache
+    participant Origin as REST/GraphQL origin
+    participant DAL as Shared DAL
+    participant DB as SQLite corpus
+
+    VU->>Cache: GET cacheable resource
+    alt Cache HIT and fresh
+        Cache-->>VU: 200 cached response + X-Cache: HIT
+    else Cache MISS or stale
+        Cache->>Origin: Forward GET request
+        Origin->>DAL: read requested resource
+        DAL->>DB: SELECT rows
+        DB-->>DAL: rows
+        DAL-->>Origin: data
+        Origin-->>Cache: 200 response + Cache-Control + ETag
+        Cache->>Cache: store response if cacheable
+        Cache-->>VU: 200 response + X-Cache: MISS
+    end
+
+    opt Revalidation after stale response
+        Cache->>Origin: GET with If-None-Match
+        Origin-->>Cache: 304 Not Modified if ETag matches
+        Cache-->>VU: cached body after validation
+    end
+

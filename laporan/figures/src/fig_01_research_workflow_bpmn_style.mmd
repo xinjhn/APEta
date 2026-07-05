@@ -1,0 +1,23 @@
+%% Gambar I.1 - Alur besar penelitian APE
+%% Type: BPMN-style process diagram, rendered in Mermaid for editable source.
+%% Reference basis: OMG BPMN 2.0.2 for process notation.
+%% Caption source: Diolah penulis berdasarkan proses penelitian.
+flowchart LR
+    start((Start))
+    lit[Studi literatur REST, GraphQL, caching, dan benchmark API]
+    problem[Identifikasi masalah fairness benchmark]
+    data[Persiapan data VisDrone dan output YOLO]
+    phase1[Phase 1: benchmark awal REST vs GraphQL]
+    audit[Audit hasil Phase 1 dan temuan tak terduga]
+    decision{Apakah desain cukup mengisolasi faktor?}
+    phase2design[Desain Phase 2: cache, access pattern, entropy, payload, network]
+    ape[Pengembangan APE sebagai instrument eksperimen]
+    execute[Eksekusi eksperimen dan pengumpulan metrik]
+    analysis[Analisis statistik dan interpretasi]
+    report[Penyusunan laporan TA]
+    finish((End))
+
+    start --> lit --> problem --> data --> phase1 --> audit --> decision
+    decision -->|Belum cukup| phase2design --> ape --> execute --> analysis --> report --> finish
+    decision -->|Cukup sebagai pilot| phase2design
+
