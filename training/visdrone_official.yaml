@@ -1,0 +1,32 @@
+# =============================================================================
+# visdrone_official.yaml - Konfigurasi dataset PROTOKOL RESMI VisDrone-DET
+# =============================================================================
+# Berbeda dari visdrone.yaml (split internal 90/10 dari TRAIN):
+#   train -> SELURUH split TRAIN resmi (6.471 citra)
+#   val   -> split VAL resmi (548 citra)
+# Ini protokol benchmark standar VisDrone-DET, sehingga mAP hasil training
+# dapat dibandingkan langsung dengan literatur.
+#
+# CATATAN BENANG MERAH: DET-val semula dicadangkan untuk eksperimen API,
+# tetapi eksperimen final memakai korpus MOT-val (mot_detections.db),
+# sehingga DET-val bebas dipakai sebagai set validasi resmi.
+# =============================================================================
+
+path: /home/ubuntu/datasets/VisDrone
+
+train: VisDrone2019-DET-train/images
+val: VisDrone2019-DET-val/images
+
+nc: 10
+
+names:
+  0: pedestrian
+  1: people
+  2: bicycle
+  3: car
+  4: van
+  5: truck
+  6: tricycle
+  7: awning-tricycle
+  8: bus
+  9: motor

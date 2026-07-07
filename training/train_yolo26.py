@@ -1,94 +1,93 @@
 """
 train_yolo26.py
 ===============
-Fine-tuning YOLO26s pada VisDrone-DET (split train 90/10) untuk menghasilkan
-model penghasil payload deteksi padat pada penelitian komparasi REST vs GraphQL.
+Fine-tuning YOLO26 pada VisDrone-DET dengan PROTOKOL RESMI:
+  - train : seluruh split TRAIN resmi (6.471 citra)
+  - val   : split VAL resmi (548 citra)
+Bobot awal: pretrained COCO (fresh), BUKAN melanjutkan run sebelumnya --
+satu tahap training yang bersih dan mudah dipertahankan di sidang.
+
+Riwayat protokol:
+  - run1/run2  : split internal 90/10 dari TRAIN (visdrone.yaml); DET-val
+                 dicadangkan untuk eksperimen API.
+  - run3       : protokol resmi (visdrone_official.yaml). DET-val bebas
+                 dipakai karena eksperimen final memakai korpus MOT-val.
 
 Konteks penting:
   - Tujuan training BUKAN mengejar mAP tertinggi, melainkan menghasilkan model
     yang stabil & realistis sebagai penghasil nested JSON berkepadatan tinggi.
     Karena itu setelan dijaga sederhana & dekat default (mudah dipertahankan).
-  - Hardware target: Tesla T4 (16GB VRAM). RTX 3050 laptop hanya untuk debug.
+  - Hardware target: Tesla T4 (16GB VRAM).
 
 Cara pakai:
-  # 1) Siapkan data lebih dulu:
-  #    python prepare_visdrone.py --root /path/ke/VisDrone --seed 42
-  # 2) Sesuaikan 'path' di visdrone.yaml
-  # 3) Jalankan:
+  # 1) Pastikan label val sudah dikonversi:
+  #    python prepare_visdrone.py --root /home/ubuntu/datasets/VisDrone --convert-val
+  # 2) Jalankan:
   #    python train_yolo26.py
-
-Prasyarat:
-  pip install ultralytics
 """
 
 from ultralytics import YOLO
 
-# ---------------------------------------------------------------------------
-# UKURAN MODEL — fleksibel. Mulai dari "n" (nano); naikkan ke "s"/"m" hanya bila
-# profiling densitas output model menunjukkan deteksi terlalu jarang sehingga
-# rentang tier (Rendah/Sedang/Tinggi) menjadi sempit / kurang kontras.
-#   "yolo26n.pt" = nano  (paling ringan, training & inferensi tercepat di T4)
-#   "yolo26s.pt" = small (kapasitas lebih besar, deteksi objek kecil lebih baik)
-# ---------------------------------------------------------------------------
 MODEL_SIZE = "yolo26n.pt"   # ganti ke "yolo26s.pt" bila perlu
+
+RUN_NAME = f"{MODEL_SIZE.replace('.pt', '')}_t4_run3_official"
 
 
 def main():
     # Muat bobot pretrained COCO (.pt = fine-tuning; head kelas diinisialisasi
     # ulang otomatis untuk 10 kelas VisDrone, backbone & neck ditransfer).
-    model = ~/training/runs/detect/visdrone_finetune/yolo26n_t4_run1/weights/last.pt
+    model = YOLO(MODEL_SIZE)
 
     model.train(
         # --- Data ---
-        data="visdrone.yaml",      # menunjuk ke split train 90/10 (val resmi dicadangkan)
+        data="visdrone_official.yaml",  # protokol resmi: train penuh, val resmi
 
         # --- Durasi & penghentian ---
-        epochs=100,                # plafon; early stopping yang menentukan kapan berhenti
-        patience=15,               # berhenti bila val internal plateau 15 epoch.
-                                   # Agresif untuk menghemat waktu T4 (akurasi bukan tujuan).
+        epochs=200,                # plafon dinaikkan dari 100: run2 mencapai 100/100
+                                   # tanpa sempat early-stop (mAP masih naik tipis),
+                                   # jadi plafon lama yang memotong, bukan plateau.
+        patience=15,               # berhenti bila val plateau 15 epoch
 
         # --- Resolusi & batch (disetel untuk T4 16GB) ---
         imgsz=1280,                # WAJIB untuk objek kecil VisDrone (default 640 terlalu kasar)
-        batch=4,                   # aman untuk T4 16GB @ 1280. Jika OOM -> 4; jika longgar -> 12.
-        cache=False,               # mulai False; jika I/O lambat & RAM longgar, coba "ram"
+        batch=4,                   # aman untuk T4 16GB @ 1280
+        cache=False,
 
         # --- Hardware ---
         device=0,                  # GPU index (T4)
-        workers=8,                 # dataloader workers (CPU 32-core punya ruang lebih)
-        amp=True,                  # mixed precision; T4 (Turing) punya Tensor Cores -> lebih cepat
+        workers=8,                 # dataloader workers
+        amp=True,                  # mixed precision; T4 (Turing) punya Tensor Cores
 
-        # --- Optimizer (biarkan otomatis) ---
-        optimizer="auto",          # ~5.800 citra x 100 epoch > 10k iter -> MuSGD lr=0.01 (resep YOLO26)
-        # lr0, momentum diabaikan saat optimizer=auto.
+        # --- Optimizer (EKSPLISIT, bukan "auto") ---
+        # optimizer="auto" memilih MuSGD bila total iterasi > 10k, dan MuSGD
+        # terukur ~4x lebih lambat per iterasi di T4 ini (1.2 s/it vs 0.28 s/it
+        # dengan SGD; diverifikasi A/B satu-variabel, epochs=200, 2026-07-07).
+        # SGD klasik = resep YOLO standar, cepat, dan mudah dipertahankan.
+        optimizer="SGD",
+        lr0=0.01,
+        momentum=0.937,
 
         # --- Strategi transfer ---
-        freeze=None,               # JANGAN freeze: domain drone jauh dari COCO,
-                                   # backbone perlu beradaptasi (rekomendasi dok. Ultralytics).
-        warmup_epochs=3.0,         # default; lindungi fitur pretrained di awal training
+        freeze=None,               # JANGAN freeze: domain drone jauh dari COCO
+        warmup_epochs=3.0,
 
         # --- Reprodusibilitas ---
-        seed=42,                   # split & training dapat direproduksi
-        deterministic=True,        # operasi deterministik saat training
+        seed=42,
+        deterministic=False,       # kernel deterministik sedikit lebih lambat pada
+                                   # masked-scatter (microbench ~1.8x) dan tidak
+                                   # diperlukan; seed tetap mengunci urutan data &
+                                   # augmentasi. (Penyebab utama kelambatan 4x adalah
+                                   # MuSGD dari optimizer="auto", lihat di atas.)
 
         # --- Output ---
-        project="visdrone_finetune",
-        name=f"{MODEL_SIZE.replace('.pt','')}_t4_run1",
+        project="/home/ubuntu/training/runs/detect/visdrone_finetune",
+        name=RUN_NAME,
         exist_ok=False,            # jangan timpa run sebelumnya tanpa sadar
         plots=True,                # simpan kurva loss/PR untuk lampiran laporan
     )
 
-    # -----------------------------------------------------------------------
-    # Setelah training, bobot terbaik ada di:
-    #   visdrone_finetune/<model>_t4_run1/weights/best.pt
-    # Inilah checkpoint yang DIBEKUKAN dan dipakai pada tahap inferensi luring
-    # untuk menghasilkan payload eksperimen (split VAL VisDrone).
-    #
-    # CATATAN BENANG MERAH: kuartil densitas (Q1/Q3) untuk Tabel III.1 & IV.1
-    # harus dihitung dari JUMLAH DETEKSI per citra pada output best.pt ini,
-    # BUKAN dari anotasi ground-truth. Lihat tahap inferensi+profiling.
-    # -----------------------------------------------------------------------
-    name = f"{MODEL_SIZE.replace('.pt','')}_t4_run1"
-    print(f"Training selesai. Bobot terbaik: visdrone_finetune/{name}/weights/best.pt")
+    print(f"Training selesai. Bobot terbaik: "
+          f"runs/detect/visdrone_finetune/{RUN_NAME}/weights/best.pt")
 
 
 if __name__ == "__main__":
