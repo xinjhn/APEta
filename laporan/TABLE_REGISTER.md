@@ -14,6 +14,7 @@ pembaca mengecek definisi, parameter, dan replikasi eksperimen.
 | Tabel III.3 | Metrik eksperimen dan cara pengukurannya | III | Menjelaskan DV dan asal metrik | `k6/workload.js`, `telemetry/sampler.py`, `run_experiment.py` |
 | Tabel III.4 | Ringkasan korpus SQLite | III | Menjelaskan data penelitian | `mot_detections.db` |
 | Tabel III.5 | Controlled variables | III | Menjaga fairness eksperimen | Implementasi APE |
+| Tabel III.6 | Pilot pemilihan optimizer training YOLO26 (laju iterasi di T4) | III | Mendokumentasikan pemilihan konfigurasi training detektor secara empiris | `reproducibility/PILOT_TRAINING_YOLO26.md`, `training/pilots/2026-07-07_optimizer_pace/pace_summary.csv` |
 | Tabel IV.1 | Endpoint REST dan query GraphQL yang ekuivalen | IV | Membuktikan parity fungsional | `rest_server.py`, `graphql_server.py`, `k6/workload.js` |
 | Tabel IV.2 | Modul APE dan tanggung jawabnya | IV | Menjelaskan implementasi aplikasi pendukung | Workspace inventory |
 | Tabel IV.3 | Konfigurasi environment variable | IV | Membantu replikasi | `orchestrator/config.py`, `k6/workload.js` |

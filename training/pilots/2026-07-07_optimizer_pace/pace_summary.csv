@@ -1,0 +1,11 @@
+cell,optimizer_resolved,optimizer_arg,epochs_arg,deterministic,val_plots,launcher,pace_measured,pace_s_per_img,evidence
+A1,MuSGD,auto,200,true,on,tmux+tee,1.2 s/it,0.30,catatan sesi (log tidak diarsipkan)
+A2,MuSGD,auto,200,false,on,tmux+tee,1.1-1.2 s/it,0.29,catatan sesi (log tidak diarsipkan)
+B1,AdamW,auto,1,false,off,redirect file,3.9 it/s,0.064,catatan sesi (log tidak diarsipkan)
+B2,AdamW,auto,1,false,off,tmux+tee,3.4-3.6 it/s,0.071,logs/ab_tmux_tee.log
+C1,MuSGD,auto,200,false,on,tmux+tee,1.2 s/it,0.30,logs/ab_full_cfg.log
+C2,MuSGD,auto,200,false,off,tmux+tee,1.2 s/it,0.30,logs/ab_ep200.log
+D1,SGD,SGD eksplisit,200,false,off,tmux+tee,3.5-3.6 it/s,0.070,logs/ab_ep200_sgd.log
+FINAL,SGD,SGD eksplisit,200,false,on,tmux+tee,3.6-4.1 it/s,0.065,../../runs (run3_official; berjalan)
+BASE1,tidak tercatat,auto,100,true,tidak diketahui,tidak diketahui,0.74 s/it @batch=8,0.092,runs/detect/visdrone_finetune/yolo26n_t4_run1/results.csv (2026-06)
+BASE2,tidak tercatat,auto,100,true,tidak diketahui,tidak diketahui,0.31 s/it @batch=4,0.077,runs/detect/visdrone_finetune/yolo26n_t4_run2/results.csv (2026-06-16)
