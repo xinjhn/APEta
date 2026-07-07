@@ -149,13 +149,19 @@ def plot_metric_for_rate(df: pd.DataFrame, metric: str, rate: str,
     ax.set_ylabel(ylabel)
     style_axes(ax)
     ax.legend(frameon=False, fontsize=9)
-    overload_note = (" — TIER OVERLOAD (r120): dianalisis TERPISAH, "
+    log_note = ""
+    if rate == OVERLOAD_RATE and metric in ("lat_p50", "lat_p95"):
+        # kolaps saturasi (mis. M1-high GraphQL ~6,7 dtk) meratakan bar lain
+        # pada sumbu linier — log satu-satunya cara semua cell tetap terbaca
+        ax.set_yscale("log")
+        log_note = "; sumbu-y logaritmik"
+    overload_note = ("\n— TIER OVERLOAD (r120): dianalisis TERPISAH, "
                      "jangan bandingkan dengan r40/r80"
                      if rate == OVERLOAD_RATE else "")
     dry_note = "  [DRY-RUN — DATA SINTETIS, BUKAN HASIL]" if dry_run else ""
-    ax.set_title(f"RQ1 — {ylabel} per skenario M1–M4, rate {rate}"
-                 f"{overload_note}{dry_note}\n"
-                 f"n = {N_EXPECTED_PER_CELL} run per cell; whisker = IQR",
+    ax.set_title(f"RQ1 — {ylabel} per skenario M1–M4, rate {rate}{dry_note}"
+                 f"{overload_note}\n"
+                 f"n = {N_EXPECTED_PER_CELL} run per cell; whisker = IQR{log_note}",
                  fontsize=10)
     fig.tight_layout()
     for ext in ("png", "svg"):

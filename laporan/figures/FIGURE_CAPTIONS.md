@@ -107,3 +107,83 @@ frame pada figur membandingkan dua eksekusi terpisah pada port yang sama.
 - **fig_14 (aliran metrik)** → tambahkan kalimat: "Header X-Process-Time
   tersedia dari kedua server tetapi tidak dipanen ke results.csv studi
   utama (limitasi, lihat BAB V ancaman validitas)."
+
+---
+
+## Figur hasil mot-scenarios-core (fig_rq1_*, fig_rq2_*) — dibuat 2026-07-07
+
+Sumber data semua figur di bawah: `results/mot-scenarios-core/results.csv`
+(3.240 run terukur, 108 cell × 30 run, eksekusi serial penuh 2026-07-02 s.d.
+2026-07-06, error_rate = 0; drift dalam-cell awal-vs-akhir ~0%, CV replikasi
+median 0,5%). Sidecar statistik: `export/rq1_stats.json`, `export/rq2_stats.json`.
+Varian per rate: `_r40`, `_r80` (sub-saturasi), `_r120_overload` (dianalisis
+terpisah). Telemetri CPU/RSS sesi ini valid dan lolos uji kewajaran
+(CV dalam-cell median 1,3%; CPU naik monoton terhadap rate, rasio r80/r40 =
+1,93 ≈ 2). Kolom `lat_p50/lat_p95` pada M5/M6 sisi REST adalah latensi
+per-round-trip; figur M5/M6 memakai `page_latency_med` (per halaman/skenario).
+
+## fig_rq1_lat_p50 / fig_rq1_lat_p95 — waktu respons M1–M4 · usulan: BAB V
+
+> Median waktu respons per skenario M1–M4 × tier densitas objek. Pada kedua
+> rate sub-saturasi REST lebih cepat pada seluruh 12 kombinasi skenario×tier
+> dengan pemisahan lengkap (Cliff's δ = −1,00 pada tiap cell; p50 REST
+> 6,9–9,7 ms vs GraphQL 10,8–20,9 ms; rasio 1,4×–2,7×). Selisih terkecil pada
+> M4 (agregasi, payload ratusan byte), terbesar pada M1-high (payload ~7,2 KB).
+> Varian r120_overload (sumbu-y logaritmik): hanya GraphQL M1-high yang
+> kolaps saturasi (p50 ~6,7 detik; 30/30 run mencatat dropped_iterations),
+> REST tetap ≤8,7 ms pada seluruh cell. Batang = median 30 run per cell;
+> whisker = rentang interkuartil.
+
+## fig_rq1_throughput — pemenuhan laju kedatangan · usulan: BAB V (atau lampiran)
+
+> Median throughput per skenario × tier. Pada r40/r80 kedua protokol memenuhi
+> laju kedatangan target k6 (open-loop constant-arrival-rate) sehingga
+> perbandingan waktu respons antar protokol dilakukan pada beban tervalidasi
+> sama; pada r120_overload throughput protokol yang tersaturasi turun di bawah
+> target (lihat `rows_with_dropped_iterations` pada sidecar sebelum menyebut
+> cell "tersaturasi").
+
+## fig_rq1_cpu / fig_rq1_rss — biaya sumber daya server · usulan: BAB V
+
+> Median CPU dan RSS proses server per skenario × tier. Pada rate sama,
+> GraphQL memakai ~2,4×–3,9× CPU REST pada M1–M4 (mis. M1-high r80: 17,9%
+> vs 79,5%); RSS keduanya stabil. Catatan kewajaran (outline C.9): CV
+> dalam-cell median 1,3% dan CPU naik proporsional terhadap rate (rasio
+> median r80/r40 = 1,93). Satu cell ber-CV tinggi (68%): M4-high
+> r120_overload REST — cell ambang saturasi dengan 1 run dropped_iterations.
+
+## fig_rq2_m5_window — M5 trajektori bersarang (under-fetching) · usulan: BAB V
+
+> Waktu respons skenario M5 per halaman: REST dipaksa 2 round-trip
+> (GET /tracks/{id} + GET .../trajectory) vs GraphQL 1 kueri bersarang.
+> Penghematan satu round-trip GraphQL hanya menghasilkan seri pada window
+> terkecil w2 (r80: 14,5 vs 14,6 ms; satu-satunya cell studi tanpa pemisahan
+> lengkap — δ = +0,32 pada r40, −0,82 pada r80); pada w8 GraphQL +9% dan w23
+> +28–34% lebih lambat karena overhead eksekusi GraphQL tumbuh lebih cepat
+> daripada biaya satu round-trip LAN (delay netem 5 ms). Varian
+> r120_overload: GraphQL w23 kolaps (~5,1 detik; 30/30 dropped_iterations).
+> Catatan lingkup: kesimpulan terikat profil "lan"; pada latensi jaringan
+> lebih tinggi biaya round-trip membesar dan hasil w2 dapat berbalik.
+
+## fig_rq2_m6_crossover — M6 K round-trip vs 1 kueri komposit · usulan: BAB V (figur kunci RQ2)
+
+> Waktu respons halaman M6: REST menyelesaikan halaman K id track lewat K
+> panggilan berurutan, GraphQL lewat satu kueri komposit `tracks(ids)`.
+> Biaya REST linier terhadap K (~7,5 ms per panggilan); GraphQL nyaris datar
+> (14,2→19,9 ms). Titik silang hasil interpolasi linier K* ≈ 2,0 pada ketiga
+> rate (K = 2 TIDAK diukur — grid K ∈ {1,5,10}); pada K = 5 GraphQL 2,2×
+> lebih cepat, pada K = 10 3,8–4,1× (δ = +1,00, pemisahan lengkap — satu-
+> satunya keunggulan GraphQL berpemisahan lengkap dalam studi ini). Varian
+> r120_overload (sumbu-y logaritmik): giliran REST yang kolaps pada k10
+> (~13,1 detik per halaman; CPU ~168%) karena 52 halaman/s × 10 panggilan =
+> 520 request/s melampaui kapasitas origin.
+
+## fig_rq2_delta_rtc — konsolidasi round-trip M5+M6 · usulan: BAB V (ringkasan RQ2)
+
+> Selisih median waktu respons REST − GraphQL terhadap jumlah round-trip
+> REST per iterasi (GraphQL selalu 1). Δ < 0 (REST unggul) pada 1–2
+> round-trip; Δ menjadi positif dan membesar pada 5 dan 10 round-trip
+> (+20,9 ms dan +60,5 ms pada r80; +19,7 dan +55,3 ms pada r40). Whisker = CI bootstrap 95% selisih
+> median (2.000 resampel, seed 42). Varian r120_overload memakai sumbu-y
+> symlog (linier di ±10 ms) karena memuat +13,1 detik (M6-k10, REST kolaps)
+> dan −5,0 detik (M5-w23, GraphQL kolaps) sekaligus nilai ±milidetik.

@@ -8,6 +8,8 @@ Status:
 - `draft`: sudah ada konsep/sumber awal, masih perlu review visual.
 - `ready-source`: sumber diagram awal tersedia di `figures/src`.
 - `later`: dibuat setelah data hasil final tersedia.
+- `generated`: sudah dirender dari data final ke `figures/export` (PNG+SVG +
+  sidecar statistik); tinggal review visual dan penempatan nomor bab.
 
 | No. | Rencana Nomor | Judul | Bab | Jenis | Tujuan | Basis Referensi | File Sumber | Status |
 |---|---|---|---|---|---|---|---|---|
@@ -31,6 +33,18 @@ Status:
 | 18 | Gambar V.2 | Crossover surface latency | V | Heatmap | Menampilkan REST-minus-GraphQL terhadap cache-hit dan payload | Hasil `tools/analyze_phase2.py` | generated after final run | later |
 | 19 | Gambar V.3 | Entropy vs cache-hit rate | V | Bar/box plot | Menguji H3 tentang variasi query shape dan cache-hit | Hasil `tools/analyze_phase2.py` | generated after final run | later |
 | 20 | Lampiran | Struktur file workspace eksperimen | Lampiran | Tree/table | Membantu replikasi oleh pembaca | Implementasi workspace | `reproducibility/WORKSPACE_INVENTORY.md` | ready-source |
+| 21 | TBD (IV, rujuk V) | Sequence REST vs GraphQL round-trip (M5/M6) | IV | Sequence | Menjelaskan mekanisme K round-trip vs 1 kueri komposit | OMG UML 2.5.1 | `figures/export/fig_17_sequence_rest_vs_graphql_roundtrip.*` | generated |
+| 22 | TBD (IV) | Deployment topologi eksperimen MOT | IV | Deployment | Menjelaskan netns, netem lan, pinning core, systemd scope | OMG UML 2.5.1 | `figures/export/fig_18_deployment_experiment_topology.*` | generated |
+| 23 | TBD (III) | Activity alur eksekusi eksperimen MOT | III | Activity | Menjelaskan kalibrasi → run plan → eksekusi serial → results.csv | OMG UML 2.5.1 | `figures/export/fig_19_activity_execution_flow.*` | generated |
+| 24 | TBD (III) | ERD korpus MOT (revisi fig_05) | III | ERD crow's foot | Menjelaskan skema + kardinalitas aktual korpus | Elmasri & Navathe | `figures/export/fig_20_erd_mot_schema.*` | generated |
+| 25 | TBD (V) | Tingkat cache hit per pola akses (RQ3) | V | Bar+IQR | Bukti H3: zipfian vs uniform vs unique, paritas REST/GraphQL | phase2-core-real | `figures/export/fig_21_rq3_cache_hit_rate.*` | generated |
+| 26 | TBD (V) | Efek caching terhadap waktu respons (RQ3) | V | Bar+CI bootstrap | Manfaat caching hanya pada zipfian; overhead proxy di pola lain | phase2-core-real | `figures/export/fig_22_rq3_latency_delta.*` | generated |
+| 27 | TBD (V) | Waktu respons M1–M4 REST vs GraphQL (RQ1) | V | Bar+IQR ×3 rate | REST unggul seluruh cell δ=−1,00; overload: kolaps GraphQL M1-high | mot-scenarios-core | `figures/export/fig_rq1_lat_p50_*` `fig_rq1_lat_p95_*` | generated |
+| 28 | TBD (V/lampiran) | Throughput pemenuhan laju target (RQ1) | V | Bar+IQR ×3 rate | Validasi beban setara antar protokol pada r40/r80 | mot-scenarios-core | `figures/export/fig_rq1_throughput_*` | generated |
+| 29 | TBD (V) | CPU dan RSS server per skenario (RQ1) | V | Bar+IQR ×3 rate | GraphQL ~2,4–3,9× CPU REST; telemetri lolos uji kewajaran C.9 | mot-scenarios-core | `figures/export/fig_rq1_cpu_*` `fig_rq1_rss_*` | generated |
+| 30 | TBD (V) | M5 trajektori bersarang per window (RQ2) | V | Bar+IQR ×3 rate | Hemat 1 round-trip GraphQL hanya seri di w2; kalah di w8/w23 | mot-scenarios-core | `figures/export/fig_rq2_m5_window_*` | generated |
+| 31 | TBD (V, figur kunci) | Crossover M6: K round-trip vs kueri komposit (RQ2) | V | Line+IQR ×3 rate | K*≈2,0 (interpolasi); GraphQL menang lengkap K≥5; overload kolaps REST k10 | mot-scenarios-core | `figures/export/fig_rq2_m6_crossover_*` | generated |
+| 32 | TBD (V) | Konsolidasi Δ vs jumlah round-trip M5+M6 (RQ2) | V | Scatter+CI ×3 rate | Ringkasan RQ2: tanda Δ berbalik antara 2 dan 5 round-trip | mot-scenarios-core | `figures/export/fig_rq2_delta_rtc_*` | generated |
 
 ## Caption Siap Pakai
 

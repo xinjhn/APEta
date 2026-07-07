@@ -69,3 +69,29 @@ Guard kelengkapan lolos otomatis saat 3.240 run terpenuhi. Sebelum memakai
 figur CPU/RSS: cek kewajaran variasinya (outline C.9, pasca-perbaikan bug
 sampler). Periksa juga sidecar `rows_with_dropped_iterations` per cell
 sebelum menyebut cell overload "tersaturasi".
+
+## 5. RUN FINAL (2026-07-07) — data lengkap 3.240/3.240
+
+Kedua skrip dieksekusi pada CSV final; guard kelengkapan lolos otomatis
+(108 cell × 30 run, `[schema] semua kolom wajib ada`, dry_run=false pada
+kedua sidecar). Angka sidecar dicek silang terhadap analisis pandas
+independen (median/IQR cocok). Uji kewajaran CPU/RSS (C.9) LULUS:
+CV dalam-cell median 1,3%, CPU monoton naik terhadap rate, rasio r80/r40
+= 1,93. `rows_with_dropped_iterations` > 0 hanya pada cell overload:
+M1-high GraphQL (30/30), M5-w23 GraphQL (30/30), M6-k10 REST (30/30),
+M4-high REST (1/30, ambang).
+
+**Dua perbaikan skrip setelah inspeksi visual PNG** (regenerasi penuh):
+
+1. Panel latensi r120_overload tidak terbaca pada sumbu linier (bar 6,7 dtk
+   M1-high meratakan 23 bar lain) → sumbu-y log untuk lat_p50/p95 (RQ1)
+   dan m5_window/m6_crossover (RQ2) KHUSUS rate overload; delta_rtc
+   overload memakai symlog (linthresh 10 ms) karena memuat Δ dua tanda.
+   Dicatat di judul figur ("sumbu-y logaritmik"/"symlog").
+2. Catatan overload pada judul melebihi kanvas (terpotong dua sisi) →
+   dipindah ke baris judul sendiri; judul delta_rtc dipecah + fontsize 9;
+   margins(y=0.2) mencegah marker M6-k10 terpotong.
+
+Figur sub-saturasi (r40/r80) TIDAK berubah skala — tetap linier.
+Caption final: `FIGURE_CAPTIONS.md` bagian "Figur hasil mot-scenarios-core";
+register: `laporan/FIGURE_REGISTER.md` baris 27–32 (status `generated`).

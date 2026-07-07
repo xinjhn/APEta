@@ -119,11 +119,20 @@ def cell_values(df, sc, tier, rate, proto) -> np.ndarray:
 
 def title_suffix(rate: str, dry_run: bool) -> str:
     s = ""
-    if rate == OVERLOAD_RATE:
-        s += " — TIER OVERLOAD (r120): dianalisis TERPISAH"
     if dry_run:
         s += "  [DRY-RUN — DATA SINTETIS, BUKAN HASIL]"
+    if rate == OVERLOAD_RATE:
+        s += "\n— TIER OVERLOAD (r120): dianalisis TERPISAH"
     return s
+
+
+def apply_overload_yscale(ax, rate: str) -> str:
+    """Kolaps saturasi (REST M6-k10 ~13 dtk; GraphQL M5-w23 ~5 dtk) meratakan
+    titik lain pada sumbu linier — log agar semua cell tetap terbaca."""
+    if rate != OVERLOAD_RATE:
+        return ""
+    ax.set_yscale("log")
+    return "; sumbu-y logaritmik"
 
 
 def fig_m5_window(df, rate, outdir, dry_run) -> dict:
@@ -154,10 +163,11 @@ def fig_m5_window(df, rate, outdir, dry_run) -> dict:
     ax.set_xlabel("Tier window trajektori")
     ax.set_ylabel("Median waktu respons skenario (ms)\n(page_latency: REST = jumlah 2 sub-panggilan)")
     style_axes(ax)
+    log_note = apply_overload_yscale(ax, rate)
     ax.legend(frameon=False, fontsize=9)
     ax.set_title(f"RQ2 — M5 trajektori bersarang: 2 round-trip REST vs 1 kueri GraphQL, "
                  f"rate {rate}{title_suffix(rate, dry_run)}\n"
-                 f"n = {N_EXPECTED_PER_CELL} run per cell; whisker = IQR", fontsize=10)
+                 f"n = {N_EXPECTED_PER_CELL} run per cell; whisker = IQR{log_note}", fontsize=10)
     fig.tight_layout()
     for ext in ("png", "svg"):
         fig.savefig(outdir / f"fig_rq2_m5_window_{rate}.{ext}", dpi=200)
@@ -212,11 +222,12 @@ def fig_m6_crossover(df, rate, outdir, dry_run) -> dict:
     ax.set_xlabel("Ukuran halaman K (id track per iterasi)")
     ax.set_ylabel("Median waktu respons halaman (ms)\n(page_latency: REST = jumlah K sub-panggilan)")
     style_axes(ax)
+    log_note = apply_overload_yscale(ax, rate)
     ax.legend(frameon=False, fontsize=9)
     ax.set_title(f"RQ2 — M6: K round-trip REST vs 1 kueri GraphQL, rate {rate}"
                  f"{title_suffix(rate, dry_run)}\n"
                  f"anotasi = jumlah round-trip (RT) per iterasi; "
-                 f"n = {N_EXPECTED_PER_CELL} run per titik; whisker = IQR", fontsize=9)
+                 f"n = {N_EXPECTED_PER_CELL} run per titik; whisker = IQR{log_note}", fontsize=9)
     fig.tight_layout()
     for ext in ("png", "svg"):
         fig.savefig(outdir / f"fig_rq2_m6_crossover_{rate}.{ext}", dpi=200)
@@ -258,10 +269,18 @@ def fig_delta_vs_rtc(df, rate, outdir, dry_run) -> dict:
     ax.set_xlabel("Jumlah round-trip REST per iterasi (GraphQL selalu 1)")
     ax.set_ylabel("Δ median waktu respons skenario (ms)\nREST − GraphQL, cell yang sama")
     style_axes(ax)
-    ax.set_title(f"RQ2 — konsolidasi round-trip: selisih REST−GraphQL terhadap jumlah "
-                 f"round-trip, rate {rate}{title_suffix(rate, dry_run)}\n"
+    log_note = ""
+    if rate == OVERLOAD_RATE:
+        # Δ overload memuat +13 dtk (M6-k10) dan −5 dtk (M5-w23) sekaligus
+        # nilai ±ms — symlog satu-satunya skala yang memuat dua tanda itu
+        ax.set_yscale("symlog", linthresh=10)
+        ax.margins(y=0.2)
+        log_note = "; sumbu-y symlog (linier di ±10 ms)"
+    ax.set_title(f"RQ2 — konsolidasi round-trip: selisih REST−GraphQL\n"
+                 f"terhadap jumlah round-trip, rate {rate}"
+                 f"{title_suffix(rate, dry_run)}{log_note}\n"
                  f"gabungan M5+M6 pada rate sama; whisker = CI bootstrap 95% selisih median",
-                 fontsize=10)
+                 fontsize=9)
     fig.tight_layout()
     for ext in ("png", "svg"):
         fig.savefig(outdir / f"fig_rq2_delta_rtc_{rate}.{ext}", dpi=200)

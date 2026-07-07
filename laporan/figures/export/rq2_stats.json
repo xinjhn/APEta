@@ -1,0 +1,473 @@
+{
+  "source_csv": "/home/ubuntu/APE/APEta/results/mot-scenarios-core/results.csv",
+  "n_rows": 3240,
+  "dry_run": false,
+  "comparison_variable": "page_latency_med (bukan lat_p* per-HTTP-call)",
+  "rates": {
+    "r40": {
+      "m5_window": {
+        "M5|w2|r40|rest": {
+          "n": 30,
+          "median": 14.795,
+          "q1": 14.699,
+          "q3": 14.824,
+          "round_trip_count": 2
+        },
+        "M5|w8|r40|rest": {
+          "n": 30,
+          "median": 15.139,
+          "q1": 15.064,
+          "q3": 15.261,
+          "round_trip_count": 2
+        },
+        "M5|w23|r40|rest": {
+          "n": 30,
+          "median": 15.672,
+          "q1": 15.577,
+          "q3": 15.75,
+          "round_trip_count": 2
+        },
+        "M5|w2|r40|graphql": {
+          "n": 30,
+          "median": 14.732,
+          "q1": 14.709,
+          "q3": 14.777,
+          "round_trip_count": 1
+        },
+        "M5|w8|r40|graphql": {
+          "n": 30,
+          "median": 16.228,
+          "q1": 16.188,
+          "q3": 16.263,
+          "round_trip_count": 1
+        },
+        "M5|w23|r40|graphql": {
+          "n": 30,
+          "median": 20.072,
+          "q1": 20.036,
+          "q3": 20.12,
+          "round_trip_count": 1
+        }
+      },
+      "m6_crossover": {
+        "cells": {
+          "M6|k1|r40|rest": {
+            "n": 30,
+            "median": 7.746,
+            "q1": 7.695,
+            "q3": 7.788,
+            "round_trip_count": 1
+          },
+          "M6|k5|r40|rest": {
+            "n": 30,
+            "median": 36.574,
+            "q1": 36.423,
+            "q3": 36.734,
+            "round_trip_count": 5
+          },
+          "M6|k10|r40|rest": {
+            "n": 30,
+            "median": 75.128,
+            "q1": 74.952,
+            "q3": 75.302,
+            "round_trip_count": 10
+          },
+          "M6|k1|r40|graphql": {
+            "n": 30,
+            "median": 14.325,
+            "q1": 14.219,
+            "q3": 14.795,
+            "round_trip_count": 1
+          },
+          "M6|k5|r40|graphql": {
+            "n": 30,
+            "median": 16.883,
+            "q1": 16.849,
+            "q3": 16.912,
+            "round_trip_count": 1
+          },
+          "M6|k10|r40|graphql": {
+            "n": 30,
+            "median": 19.86,
+            "q1": 19.843,
+            "q3": 19.943,
+            "round_trip_count": 1
+          }
+        },
+        "k_star": 2.0
+      },
+      "delta_vs_round_trip": {
+        "M6-k1": {
+          "round_trip_count_rest": 1,
+          "delta_ms": -6.58,
+          "ci95": [
+            -6.902,
+            -6.494
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M5-w2": {
+          "round_trip_count_rest": 2,
+          "delta_ms": 0.064,
+          "ci95": [
+            -0.006,
+            0.099
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M5-w8": {
+          "round_trip_count_rest": 2,
+          "delta_ms": -1.089,
+          "ci95": [
+            -1.133,
+            -0.984
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M5-w23": {
+          "round_trip_count_rest": 2,
+          "delta_ms": -4.4,
+          "ci95": [
+            -4.462,
+            -4.345
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M6-k5": {
+          "round_trip_count_rest": 5,
+          "delta_ms": 19.691,
+          "ci95": [
+            19.565,
+            19.794
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M6-k10": {
+          "round_trip_count_rest": 10,
+          "delta_ms": 55.267,
+          "ci95": [
+            55.12,
+            55.395
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        }
+      }
+    },
+    "r80": {
+      "m5_window": {
+        "M5|w2|r80|rest": {
+          "n": 30,
+          "median": 14.517,
+          "q1": 14.458,
+          "q3": 14.581,
+          "round_trip_count": 2
+        },
+        "M5|w8|r80|rest": {
+          "n": 30,
+          "median": 14.721,
+          "q1": 14.646,
+          "q3": 14.779,
+          "round_trip_count": 2
+        },
+        "M5|w23|r80|rest": {
+          "n": 30,
+          "median": 15.028,
+          "q1": 14.993,
+          "q3": 15.056,
+          "round_trip_count": 2
+        },
+        "M5|w2|r80|graphql": {
+          "n": 30,
+          "median": 14.639,
+          "q1": 14.622,
+          "q3": 14.662,
+          "round_trip_count": 1
+        },
+        "M5|w8|r80|graphql": {
+          "n": 30,
+          "median": 16.057,
+          "q1": 16.025,
+          "q3": 16.082,
+          "round_trip_count": 1
+        },
+        "M5|w23|r80|graphql": {
+          "n": 30,
+          "median": 20.135,
+          "q1": 20.099,
+          "q3": 20.151,
+          "round_trip_count": 1
+        }
+      },
+      "m6_crossover": {
+        "cells": {
+          "M6|k1|r80|rest": {
+            "n": 30,
+            "median": 7.628,
+            "q1": 7.598,
+            "q3": 7.67,
+            "round_trip_count": 1
+          },
+          "M6|k5|r80|rest": {
+            "n": 30,
+            "median": 37.682,
+            "q1": 37.617,
+            "q3": 37.719,
+            "round_trip_count": 5
+          },
+          "M6|k10|r80|rest": {
+            "n": 30,
+            "median": 80.31,
+            "q1": 80.076,
+            "q3": 80.639,
+            "round_trip_count": 10
+          },
+          "M6|k1|r80|graphql": {
+            "n": 30,
+            "median": 14.192,
+            "q1": 14.161,
+            "q3": 14.215,
+            "round_trip_count": 1
+          },
+          "M6|k5|r80|graphql": {
+            "n": 30,
+            "median": 16.795,
+            "q1": 16.769,
+            "q3": 16.817,
+            "round_trip_count": 1
+          },
+          "M6|k10|r80|graphql": {
+            "n": 30,
+            "median": 19.776,
+            "q1": 19.756,
+            "q3": 19.811,
+            "round_trip_count": 1
+          }
+        },
+        "k_star": 1.96
+      },
+      "delta_vs_round_trip": {
+        "M6-k1": {
+          "round_trip_count_rest": 1,
+          "delta_ms": -6.564,
+          "ci95": [
+            -6.593,
+            -6.522
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M5-w2": {
+          "round_trip_count_rest": 2,
+          "delta_ms": -0.122,
+          "ci95": [
+            -0.169,
+            -0.095
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M5-w8": {
+          "round_trip_count_rest": 2,
+          "delta_ms": -1.336,
+          "ci95": [
+            -1.394,
+            -1.277
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M5-w23": {
+          "round_trip_count_rest": 2,
+          "delta_ms": -5.107,
+          "ci95": [
+            -5.143,
+            -5.072
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M6-k5": {
+          "round_trip_count_rest": 5,
+          "delta_ms": 20.887,
+          "ci95": [
+            20.827,
+            20.917
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M6-k10": {
+          "round_trip_count_rest": 10,
+          "delta_ms": 60.534,
+          "ci95": [
+            60.355,
+            60.774
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        }
+      }
+    },
+    "r120_overload": {
+      "m5_window": {
+        "M5|w2|r120_overload|rest": {
+          "n": 30,
+          "median": 14.374,
+          "q1": 14.336,
+          "q3": 14.403,
+          "round_trip_count": 2
+        },
+        "M5|w8|r120_overload|rest": {
+          "n": 30,
+          "median": 14.402,
+          "q1": 14.381,
+          "q3": 14.432,
+          "round_trip_count": 2
+        },
+        "M5|w23|r120_overload|rest": {
+          "n": 30,
+          "median": 15.118,
+          "q1": 15.091,
+          "q3": 15.162,
+          "round_trip_count": 2
+        },
+        "M5|w2|r120_overload|graphql": {
+          "n": 30,
+          "median": 14.818,
+          "q1": 14.802,
+          "q3": 14.83,
+          "round_trip_count": 1
+        },
+        "M5|w8|r120_overload|graphql": {
+          "n": 30,
+          "median": 16.319,
+          "q1": 16.298,
+          "q3": 16.355,
+          "round_trip_count": 1
+        },
+        "M5|w23|r120_overload|graphql": {
+          "n": 30,
+          "median": 5052.458,
+          "q1": 4983.739,
+          "q3": 5134.885,
+          "round_trip_count": 1
+        }
+      },
+      "m6_crossover": {
+        "cells": {
+          "M6|k1|r120_overload|rest": {
+            "n": 30,
+            "median": 7.288,
+            "q1": 7.271,
+            "q3": 7.32,
+            "round_trip_count": 1
+          },
+          "M6|k5|r120_overload|rest": {
+            "n": 30,
+            "median": 37.228,
+            "q1": 37.042,
+            "q3": 37.405,
+            "round_trip_count": 5
+          },
+          "M6|k10|r120_overload|rest": {
+            "n": 30,
+            "median": 13094.379,
+            "q1": 12653.41,
+            "q3": 13808.035,
+            "round_trip_count": 10
+          },
+          "M6|k1|r120_overload|graphql": {
+            "n": 30,
+            "median": 14.219,
+            "q1": 14.204,
+            "q3": 14.246,
+            "round_trip_count": 1
+          },
+          "M6|k5|r120_overload|graphql": {
+            "n": 30,
+            "median": 16.711,
+            "q1": 16.685,
+            "q3": 16.729,
+            "round_trip_count": 1
+          },
+          "M6|k10|r120_overload|graphql": {
+            "n": 30,
+            "median": 20.143,
+            "q1": 20.103,
+            "q3": 20.205,
+            "round_trip_count": 1
+          }
+        },
+        "k_star": 2.01
+      },
+      "delta_vs_round_trip": {
+        "M6-k1": {
+          "round_trip_count_rest": 1,
+          "delta_ms": -6.931,
+          "ci95": [
+            -6.953,
+            -6.908
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M5-w2": {
+          "round_trip_count_rest": 2,
+          "delta_ms": -0.444,
+          "ci95": [
+            -0.476,
+            -0.423
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M5-w8": {
+          "round_trip_count_rest": 2,
+          "delta_ms": -1.916,
+          "ci95": [
+            -1.948,
+            -1.889
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M5-w23": {
+          "round_trip_count_rest": 2,
+          "delta_ms": -5037.341,
+          "ci95": [
+            -5097.451,
+            -5003.071
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M6-k5": {
+          "round_trip_count_rest": 5,
+          "delta_ms": 20.517,
+          "ci95": [
+            20.367,
+            20.613
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        },
+        "M6-k10": {
+          "round_trip_count_rest": 10,
+          "delta_ms": 13074.235,
+          "ci95": [
+            12846.149,
+            13619.754
+          ],
+          "n_rest": 30,
+          "n_graphql": 30
+        }
+      }
+    }
+  }
+}
