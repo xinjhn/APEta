@@ -1,0 +1,81 @@
+{
+  "source_csv": "/home/ubuntu/APE/APEta/results/factorial-A/results.csv",
+  "n_rows": 2880,
+  "session": [
+    "factorial-A"
+  ],
+  "note_cpu": "CPU/RSS tidak diplot: core jenuh ~100% kedua protokol (tak informatif)",
+  "payload_envelope": {
+    "pattern_medians": {
+      "aggregate": {
+        "rest": 287.0,
+        "graphql": 310.0,
+        "gap_bytes": 23.0
+      },
+      "filtered": {
+        "rest": 1963.0,
+        "graphql": 1993.0,
+        "gap_bytes": 30.0
+      },
+      "partial": {
+        "rest": 2639.0,
+        "graphql": 2669.0,
+        "gap_bytes": 30.0
+      },
+      "baseline": {
+        "rest": 5502.0,
+        "graphql": 5532.0,
+        "gap_bytes": 30.0
+      }
+    },
+    "n_cells": 48,
+    "cells_graphql_smaller": [
+      {
+        "pattern": "filtered",
+        "density": "high",
+        "concurrency": 1,
+        "delta_gql_minus_rest": -60.0,
+        "p_bh": 0.14420541992147143,
+        "sig_bh": false
+      },
+      {
+        "pattern": "filtered",
+        "density": "high",
+        "concurrency": 10,
+        "delta_gql_minus_rest": -15.0,
+        "p_bh": 0.06671766343185784,
+        "sig_bh": false
+      }
+    ],
+    "delta_median_bytes": 30.0
+  },
+  "load_invariance": {
+    "cliffs_delta_per_cell_min": 1.0,
+    "cliffs_delta_per_cell_max": 1.0,
+    "n_cells_complete_separation": 48,
+    "ratio_p95_grid": {
+      "low": {
+        "1": 4.307,
+        "10": 5.948,
+        "50": 2.549,
+        "100": 2.749
+      },
+      "medium": {
+        "1": 3.426,
+        "10": 4.318,
+        "50": 2.373,
+        "100": 2.532
+      },
+      "high": {
+        "1": 2.717,
+        "10": 3.455,
+        "50": 2.253,
+        "100": 2.451
+      }
+    },
+    "ratio_range_displayed": [
+      2.25,
+      5.95
+    ]
+  }
+}

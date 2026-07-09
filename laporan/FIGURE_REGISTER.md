@@ -45,6 +45,8 @@ Status:
 | 30 | TBD (V) | M5 trajektori bersarang per window (RQ2) | V | Bar+IQR ×3 rate | Hemat 1 round-trip GraphQL hanya seri di w2; kalah di w8/w23 | mot-scenarios-core | `figures/export/fig_rq2_m5_window_*` | generated |
 | 31 | TBD (V, figur kunci) | Crossover M6: K round-trip vs kueri komposit (RQ2) | V | Line+IQR ×3 rate | K*≈2,0 (interpolasi); GraphQL menang lengkap K≥5; overload kolaps REST k10 | mot-scenarios-core | `figures/export/fig_rq2_m6_crossover_*` | generated |
 | 32 | TBD (V) | Konsolidasi Δ vs jumlah round-trip M5+M6 (RQ2) | V | Scatter+CI ×3 rate | Ringkasan RQ2: tanda Δ berbalik antara 2 dan 5 round-trip | mot-scenarios-core | `figures/export/fig_rq2_delta_rtc_*` | generated |
+| 33 | TBD (V) | Overfetching GraphQL tertelan amplop protokol | V | Dumbbell log + strip Δ per-sel | GraphQL = REST + amplop JSON ~30 B; seleksi field hanya unggul di 2 sel filtered/high (n.s.) — anti-overfetching tak terbukti pada ukuran payload ini | factorial-A | `figures/export/fig_factA_payload_envelope.*` | generated |
+| 34 | TBD (V) | Invariansi keunggulan latensi REST terhadap beban | V | Heatmap δ 48-sel + line rasio | Cliff's δ lat_p95 = +1,00 di SEMUA 48 sel (separasi lengkap, tanpa pooling); besaran 2,3–5,9× bergeser menurut konkurensi (puncak di 10 VU) | factorial-A | `figures/export/fig_factA_load_invariance.*` | generated |
 
 ## Caption Siap Pakai
 
