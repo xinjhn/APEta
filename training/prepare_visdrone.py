@@ -145,6 +145,10 @@ def main():
     ap.add_argument("--convert-val", action="store_true",
                     help="(Opsional) konversi label split VAL juga, untuk sanity-check. "
                          "VAL tetap TIDAK dipakai untuk training.")
+    ap.add_argument("--internal-split", action="store_true",
+                    help="(Legacy run1/run2) tulis daftar split internal 90/10 ke splits/. "
+                         "TIDAK diperlukan protokol resmi (run3+): yaml resmi memakai "
+                         "seluruh TRAIN + VAL resmi, daftar split tidak pernah dibaca.")
     args = ap.parse_args()
 
     root = Path(args.root).resolve()
@@ -158,10 +162,14 @@ def main():
         print("[opsional] Konversi anotasi VAL -> label YOLO (hanya sanity-check) ...")
         visdrone2yolo(val_dir)
 
-    print("[2/2] Membagi TRAIN menjadi 90/10 ...")
-    split_train(train_dir, args.val_ratio, args.seed, out_dir=root / "splits")
+    if args.internal_split:
+        print("[legacy] Membagi TRAIN menjadi 90/10 (HANYA untuk protokol run1/run2) ...")
+        split_train(train_dir, args.val_ratio, args.seed, out_dir=root / "splits")
+    else:
+        print("[2/2] Split internal 90/10 DILEWATI (protokol resmi run3+; "
+              "pakai --internal-split bila perlu mereproduksi run1/run2).")
 
-    print("\nSelesai. Selanjutnya: sesuaikan 'path' di visdrone.yaml lalu jalankan train_yolo26.py")
+    print("\nSelesai. Selanjutnya: sesuaikan 'path' di yaml dataset lalu jalankan train_yolo26.py")
 
 
 if __name__ == "__main__":
