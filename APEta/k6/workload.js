@@ -311,7 +311,16 @@ function gqlPageRequest(ids) {
       `&extensions=${encodeURIComponent(extensions)}&variables=${encodeURIComponent(variables)}`
     );
   }
-  check(res, { "status is 200": (r) => r.status === 200 });
+  // Checked on the FINAL res only (same structure as workload_mot.js): the
+  // APQ hash-miss reply above is a legitimate PERSISTED_QUERY_NOT_FOUND
+  // "errors" body that gets REPLACED by the registration retry before this
+  // check, so registration never fails it -- only real in-band GraphQL
+  // errors do. Lesson from run-sesi-1: http_req_failed alone hid 345,879
+  // in-band errors behind error_rate=0.
+  check(res, {
+    "status is 200": (r) => r.status === 200,
+    "no graphql errors": (r) => r.status === 200 && r.body.indexOf('"errors"') === -1,
+  });
   latency.add(res.timings.duration);
   payloadBytes.add(res.body ? res.body.length : 0);
   const hit = res.headers["X-Cache"];
@@ -436,7 +445,18 @@ export default function () {
 
   const { res, cacheHeader } = PROTOCOL === "graphql" ? gqlRequest() : restRequest();
 
-  check(res, { "status is 200": (r) => r.status === 200 });
+  if (PROTOCOL === "graphql") {
+    // Same final-res semantics as gqlPageRequest()/workload_mot.js: the APQ
+    // registration retry inside gqlRequest() already replaced any legitimate
+    // PERSISTED_QUERY_NOT_FOUND reply, so this only fails on real in-band
+    // GraphQL errors. REST keeps the status-only check below.
+    check(res, {
+      "status is 200": (r) => r.status === 200,
+      "no graphql errors": (r) => r.status === 200 && r.body.indexOf('"errors"') === -1,
+    });
+  } else {
+    check(res, { "status is 200": (r) => r.status === 200 });
+  }
   latency.add(res.timings.duration);
   payloadBytes.add(res.body ? res.body.length : 0);
   // X-Cache only exists when the request went through Varnish (BASE_URL
