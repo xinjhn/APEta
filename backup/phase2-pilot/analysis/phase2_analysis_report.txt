@@ -1,0 +1,82 @@
+======================================================================
+PHASE 2 ANALYSIS REPORT -- REST vs GraphQL, per-cell Mann-Whitney U
++ Vargha-Delaney A12 / Cliff's delta, Holm-corrected within metric
+======================================================================
+
+Total runs: 48
+Cells: 12
+
+
+======================================================================
+METRIC: lat_p50
+======================================================================
+  WARNING: 12/12 cells have n<3/group, excluded
+  Cells tested: 0, significant after Holm correction (p<0.05): 0
+
+======================================================================
+METRIC: lat_p95
+======================================================================
+  WARNING: 12/12 cells have n<3/group, excluded
+  Cells tested: 0, significant after Holm correction (p<0.05): 0
+
+======================================================================
+METRIC: lat_p99
+======================================================================
+  WARNING: 12/12 cells have n<3/group, excluded
+  Cells tested: 0, significant after Holm correction (p<0.05): 0
+
+======================================================================
+METRIC: throughput_rps
+======================================================================
+  WARNING: 12/12 cells have n<3/group, excluded
+  Cells tested: 0, significant after Holm correction (p<0.05): 0
+
+======================================================================
+METRIC: payload_bytes_med
+======================================================================
+  WARNING: 12/12 cells have n<3/group, excluded
+  Cells tested: 0, significant after Holm correction (p<0.05): 0
+
+======================================================================
+METRIC: cache_hit_rate
+======================================================================
+  WARNING: 12/12 cells have n<3/group, excluded
+  Cells tested: 0, significant after Holm correction (p<0.05): 0
+
+======================================================================
+METRIC: error_rate
+======================================================================
+  WARNING: 12/12 cells have n<3/group, excluded
+  Cells tested: 0, significant after Holm correction (p<0.05): 0
+
+======================================================================
+METRIC: cpu_mean
+======================================================================
+  WARNING: 12/12 cells have n<3/group, excluded
+  Cells tested: 0, significant after Holm correction (p<0.05): 0
+
+======================================================================
+METRIC: rss_mean_mb
+======================================================================
+  WARNING: 12/12 cells have n<3/group, excluded
+  Cells tested: 0, significant after Holm correction (p<0.05): 0
+
+======================================================================
+SCOPE NOTES (disclose, don't bury)
+----------------------------------------------------------------------
+- round_trip_count is constant=1 for both protocols in this design --
+  the coupling figure uses entropy-vs-hit-rate as the practical stand-in
+  for H3, not a literal round-trip count (see analyze_phase2.py docstring).
+- Corpus is 7 independent MOT sequences -- effective N for any claim about
+  variety-across-scenes is ~7, not the row count in results.csv.
+- With >=30 reps/cell, everything tends toward 'significant' -- read the
+  Cliff's delta magnitude column, not just the Holm-corrected p-value.
+- network=constrained rows with caching=on are biased: tc/netem delays the
+  whole loopback interface, so a cache MISS pays the emulated network delay
+  TWICE (client->varnish AND varnish->backend both cross `lo`). Measured
+  ~2x direct latency on MISS vs ~1x on HIT under `constrained` (see
+  tools/netem.sh). This makes caching look WORSE under constrained network
+  than a real edge-cache topology would -- discount crossover-surface cells
+  combining caching=on x network=constrained accordingly, or rerun with a
+  network-namespace-separated topology before trusting that combination.
+======================================================================

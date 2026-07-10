@@ -1,0 +1,528 @@
+======================================================================
+MOT SCENARIO ANALYSIS -- REST vs GraphQL, per-cell Mann-Whitney U
++ Vargha-Delaney A12 / Cliff's delta, Holm-corrected per family
+======================================================================
+
+Total runs: 3240
+Cells (scenario/tier/rate_label x protocol): 108
+Families: sub_saturation (r40+r80 pooled Holm family per metric);
+          overload_image / overload_track / overload_page (separate
+          Holm families -- r120_overload never pooled with r40/r80).
+
+
+======================================================================
+METRIC: lat_p95
+======================================================================
+
+  [overload_image] cells tested: 12, significant after Holm (p<0.05): 12
+  [*] scenario=M1,tier=high,rate_label=r120_overload sat=graphql: rest_med=10.67 gql_med=1.167e+04 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=low,rate_label=r120_overload sat=graphql: rest_med=8.853 gql_med=16.37 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=medium,rate_label=r120_overload sat=graphql: rest_med=9.472 gql_med=42.19 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=high,rate_label=r120_overload sat=graphql: rest_med=10.04 gql_med=32.79 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=low,rate_label=r120_overload sat=graphql: rest_med=8.755 gql_med=14.88 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=medium,rate_label=r120_overload sat=graphql: rest_med=9.274 gql_med=17.51 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=high,rate_label=r120_overload sat=graphql: rest_med=9.38 gql_med=35.13 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=low,rate_label=r120_overload sat=graphql: rest_med=8.784 gql_med=20.7 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=medium,rate_label=r120_overload sat=graphql: rest_med=8.967 gql_med=19.19 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=high,rate_label=r120_overload sat=graphql: rest_med=9.396 gql_med=15.48 n=(30,30) p_holm=0.0000 delta=-0.933 (large)
+  [*] scenario=M4,tier=low,rate_label=r120_overload sat=graphql: rest_med=8.552 gql_med=14.16 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=medium,rate_label=r120_overload sat=graphql: rest_med=8.998 gql_med=15.84 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+  [overload_page] cells tested: 3, significant after Holm (p<0.05): 3
+  [*] scenario=M6,tier=k1,rate_label=r120_overload sat=rest: rest_med=9 gql_med=18.09 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r120_overload sat=rest: rest_med=1603 gql_med=37.85 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r120_overload sat=rest: rest_med=9.766 gql_med=20.97 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+  [overload_track] cells tested: 3, significant after Holm (p<0.05): 3
+  [*] scenario=M5,tier=w2,rate_label=r120_overload sat=graphql: rest_med=8.82 gql_med=20.8 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r120_overload sat=graphql: rest_med=9.556 gql_med=8646 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r120_overload sat=graphql: rest_med=8.915 gql_med=43.37 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+  [sub_saturation] cells tested: 36, significant after Holm (p<0.05): 36
+  [*] scenario=M1,tier=high,rate_label=r40: rest_med=11.76 gql_med=26.43 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=high,rate_label=r80: rest_med=10.73 gql_med=33.68 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=low,rate_label=r40: rest_med=9.293 gql_med=16.34 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=low,rate_label=r80: rest_med=8.962 gql_med=15.41 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=medium,rate_label=r40: rest_med=10.09 gql_med=19.4 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=medium,rate_label=r80: rest_med=9.672 gql_med=19.55 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=high,rate_label=r40: rest_med=10.89 gql_med=19.41 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=high,rate_label=r80: rest_med=10.08 gql_med=19.9 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=low,rate_label=r40: rest_med=9.274 gql_med=14.34 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=low,rate_label=r80: rest_med=8.867 gql_med=14.39 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=medium,rate_label=r40: rest_med=9.791 gql_med=16.52 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=medium,rate_label=r80: rest_med=9.408 gql_med=16.74 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=high,rate_label=r40: rest_med=9.9 gql_med=18.65 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=high,rate_label=r80: rest_med=9.417 gql_med=19.21 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=low,rate_label=r40: rest_med=9.306 gql_med=16.73 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=low,rate_label=r80: rest_med=8.845 gql_med=16.82 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=medium,rate_label=r40: rest_med=9.471 gql_med=17.82 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=medium,rate_label=r80: rest_med=9.012 gql_med=17.38 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=high,rate_label=r40: rest_med=10.27 gql_med=15 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=high,rate_label=r80: rest_med=9.659 gql_med=15.03 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=low,rate_label=r40: rest_med=8.963 gql_med=13.66 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=low,rate_label=r80: rest_med=8.701 gql_med=14.11 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=medium,rate_label=r40: rest_med=9.547 gql_med=14.51 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=medium,rate_label=r80: rest_med=9.089 gql_med=14.49 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w2,rate_label=r40: rest_med=9.049 gql_med=17.81 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w2,rate_label=r80: rest_med=8.907 gql_med=17.88 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r40: rest_med=9.876 gql_med=23.26 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r80: rest_med=9.491 gql_med=24.02 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r40: rest_med=9.317 gql_med=19.29 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r80: rest_med=9.13 gql_med=19.4 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k1,rate_label=r40: rest_med=9.433 gql_med=17.72 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k1,rate_label=r80: rest_med=9.42 gql_med=17.7 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r40: rest_med=9.409 gql_med=23.3 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r80: rest_med=10.62 gql_med=23.33 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r40: rest_med=8.846 gql_med=20.36 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r80: rest_med=9.355 gql_med=20.39 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+======================================================================
+METRIC: lat_p50
+======================================================================
+
+  [overload_image] cells tested: 12, significant after Holm (p<0.05): 12
+  [*] scenario=M1,tier=high,rate_label=r120_overload sat=graphql: rest_med=8.643 gql_med=6725 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=low,rate_label=r120_overload sat=graphql: rest_med=7.167 gql_med=12.88 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=medium,rate_label=r120_overload sat=graphql: rest_med=7.61 gql_med=16.06 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=high,rate_label=r120_overload sat=graphql: rest_med=8.126 gql_med=15.86 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=low,rate_label=r120_overload sat=graphql: rest_med=7.074 gql_med=11.92 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=medium,rate_label=r120_overload sat=graphql: rest_med=7.472 gql_med=13.31 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=high,rate_label=r120_overload sat=graphql: rest_med=7.579 gql_med=15.38 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=low,rate_label=r120_overload sat=graphql: rest_med=7.115 gql_med=13.57 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=medium,rate_label=r120_overload sat=graphql: rest_med=7.231 gql_med=13.93 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=high,rate_label=r120_overload sat=graphql: rest_med=7.554 gql_med=11.83 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=low,rate_label=r120_overload sat=graphql: rest_med=6.852 gql_med=10.78 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=medium,rate_label=r120_overload sat=graphql: rest_med=7.238 gql_med=11.29 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+  [overload_page] cells tested: 3, significant after Holm (p<0.05): 3
+  [*] scenario=M6,tier=k1,rate_label=r120_overload sat=rest: rest_med=7.288 gql_med=14.22 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r120_overload sat=rest: rest_med=1313 gql_med=20.14 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r120_overload sat=rest: rest_med=7.503 gql_med=16.71 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+  [overload_track] cells tested: 3, significant after Holm (p<0.05): 3
+  [*] scenario=M5,tier=w2,rate_label=r120_overload sat=graphql: rest_med=7.202 gql_med=14.82 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r120_overload sat=graphql: rest_med=7.62 gql_med=5052 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r120_overload sat=graphql: rest_med=7.224 gql_med=16.32 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+  [sub_saturation] cells tested: 36, significant after Holm (p<0.05): 36
+  [*] scenario=M1,tier=high,rate_label=r40: rest_med=9.654 gql_med=20.46 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=high,rate_label=r80: rest_med=8.699 gql_med=20.94 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=low,rate_label=r40: rest_med=7.625 gql_med=12.86 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=low,rate_label=r80: rest_med=7.243 gql_med=12.7 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=medium,rate_label=r40: rest_med=7.994 gql_med=15.79 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=medium,rate_label=r80: rest_med=7.798 gql_med=15.67 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=high,rate_label=r40: rest_med=9.003 gql_med=15.64 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=high,rate_label=r80: rest_med=8.222 gql_med=15.57 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=low,rate_label=r40: rest_med=7.592 gql_med=11.91 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=low,rate_label=r80: rest_med=7.18 gql_med=11.87 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=medium,rate_label=r40: rest_med=8.005 gql_med=13.24 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=medium,rate_label=r80: rest_med=7.514 gql_med=13.22 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=high,rate_label=r40: rest_med=8.157 gql_med=15.17 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=high,rate_label=r80: rest_med=7.667 gql_med=15.21 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=low,rate_label=r40: rest_med=7.659 gql_med=13.37 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=low,rate_label=r80: rest_med=7.157 gql_med=13.35 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=medium,rate_label=r40: rest_med=7.76 gql_med=13.83 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=medium,rate_label=r80: rest_med=7.29 gql_med=13.69 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=high,rate_label=r40: rest_med=8.36 gql_med=11.86 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=high,rate_label=r80: rest_med=7.816 gql_med=11.78 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=low,rate_label=r40: rest_med=7.252 gql_med=10.8 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=low,rate_label=r80: rest_med=6.931 gql_med=10.86 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=medium,rate_label=r40: rest_med=7.777 gql_med=11.33 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=medium,rate_label=r80: rest_med=7.275 gql_med=11.21 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w2,rate_label=r40: rest_med=7.4 gql_med=14.73 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w2,rate_label=r80: rest_med=7.277 gql_med=14.64 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r40: rest_med=7.891 gql_med=20.07 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r80: rest_med=7.563 gql_med=20.13 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r40: rest_med=7.613 gql_med=16.23 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r80: rest_med=7.379 gql_med=16.06 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k1,rate_label=r40: rest_med=7.746 gql_med=14.33 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k1,rate_label=r80: rest_med=7.628 gql_med=14.19 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r40: rest_med=7.491 gql_med=19.86 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r80: rest_med=7.949 gql_med=19.78 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r40: rest_med=7.299 gql_med=16.88 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r80: rest_med=7.459 gql_med=16.79 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+======================================================================
+METRIC: throughput_rps
+======================================================================
+
+  [overload_image] cells tested: 12, significant after Holm (p<0.05): 12
+  [*] scenario=M1,tier=high,rate_label=r120_overload sat=graphql: rest_med=74 gql_med=61.05 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M1,tier=low,rate_label=r120_overload sat=graphql: rest_med=74 gql_med=74 n=(30,30) p_holm=0.0002 delta=0.620 (large)
+  [*] scenario=M1,tier=medium,rate_label=r120_overload sat=graphql: rest_med=74 gql_med=74 n=(30,30) p_holm=0.0000 delta=0.960 (large)
+  [*] scenario=M2,tier=high,rate_label=r120_overload sat=graphql: rest_med=74 gql_med=74 n=(30,30) p_holm=0.0000 delta=0.998 (large)
+  [*] scenario=M2,tier=low,rate_label=r120_overload sat=graphql: rest_med=74 gql_med=74 n=(30,30) p_holm=0.0006 delta=0.558 (large)
+  [*] scenario=M2,tier=medium,rate_label=r120_overload sat=graphql: rest_med=74 gql_med=74 n=(30,30) p_holm=0.0000 delta=0.824 (large)
+  [*] scenario=M3,tier=high,rate_label=r120_overload sat=graphql: rest_med=74 gql_med=74 n=(30,30) p_holm=0.0000 delta=0.960 (large)
+  [*] scenario=M3,tier=low,rate_label=r120_overload sat=graphql: rest_med=74 gql_med=74 n=(30,30) p_holm=0.0000 delta=0.804 (large)
+  [*] scenario=M3,tier=medium,rate_label=r120_overload sat=graphql: rest_med=74 gql_med=74 n=(30,30) p_holm=0.0000 delta=0.676 (large)
+  [*] scenario=M4,tier=high,rate_label=r120_overload sat=graphql: rest_med=74 gql_med=74 n=(30,30) p_holm=0.0012 delta=0.489 (large)
+  [*] scenario=M4,tier=low,rate_label=r120_overload sat=graphql: rest_med=74 gql_med=74 n=(30,30) p_holm=0.0002 delta=0.611 (large)
+  [*] scenario=M4,tier=medium,rate_label=r120_overload sat=graphql: rest_med=74 gql_med=74 n=(30,30) p_holm=0.0006 delta=0.562 (large)
+
+  [overload_page] cells tested: 3, significant after Holm (p<0.05): 3
+  [*] scenario=M6,tier=k1,rate_label=r120_overload sat=rest: rest_med=52.01 gql_med=52 n=(30,30) p_holm=0.0001 delta=0.602 (large)
+  [*] scenario=M6,tier=k10,rate_label=r120_overload sat=rest: rest_med=351.6 gql_med=52 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r120_overload sat=rest: rest_med=259.9 gql_med=52 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+
+  [overload_track] cells tested: 3, significant after Holm (p<0.05): 3
+  [*] scenario=M5,tier=w2,rate_label=r120_overload sat=graphql: rest_med=148 gql_med=74 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r120_overload sat=graphql: rest_med=148 gql_med=64.84 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r120_overload sat=graphql: rest_med=148 gql_med=74 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+
+  [sub_saturation] cells tested: 36, significant after Holm (p<0.05): 32
+  [*] scenario=M1,tier=high,rate_label=r40: rest_med=25.01 gql_med=25 n=(30,30) p_holm=0.0117 delta=0.509 (large)
+  [*] scenario=M1,tier=high,rate_label=r80: rest_med=50.01 gql_med=50 n=(30,30) p_holm=0.0000 delta=0.940 (large)
+  [*] scenario=M1,tier=low,rate_label=r40: rest_med=25.01 gql_med=25 n=(30,30) p_holm=0.0186 delta=0.467 (medium)
+  [*] scenario=M1,tier=low,rate_label=r80: rest_med=50.01 gql_med=50 n=(30,30) p_holm=0.0153 delta=0.489 (large)
+  [*] scenario=M1,tier=medium,rate_label=r40: rest_med=25.01 gql_med=25.01 n=(30,30) p_holm=0.0190 delta=0.458 (medium)
+  [*] scenario=M1,tier=medium,rate_label=r80: rest_med=50.01 gql_med=50 n=(30,30) p_holm=0.0064 delta=0.540 (large)
+  [ ] scenario=M2,tier=high,rate_label=r40: rest_med=25.01 gql_med=25 n=(30,30) p_holm=0.0551 delta=0.356 (medium)
+  [*] scenario=M2,tier=high,rate_label=r80: rest_med=50.01 gql_med=50 n=(30,30) p_holm=0.0117 delta=0.507 (large)
+  [ ] scenario=M2,tier=low,rate_label=r40: rest_med=25.01 gql_med=25.01 n=(30,30) p_holm=0.0812 delta=0.289 (small)
+  [ ] scenario=M2,tier=low,rate_label=r80: rest_med=50.01 gql_med=50 n=(30,30) p_holm=0.0812 delta=0.309 (small)
+  [*] scenario=M2,tier=medium,rate_label=r40: rest_med=25.01 gql_med=25 n=(30,30) p_holm=0.0176 delta=0.476 (large)
+  [*] scenario=M2,tier=medium,rate_label=r80: rest_med=50.01 gql_med=50 n=(30,30) p_holm=0.0231 delta=0.436 (medium)
+  [*] scenario=M3,tier=high,rate_label=r40: rest_med=25.01 gql_med=25.01 n=(30,30) p_holm=0.0000 delta=0.716 (large)
+  [*] scenario=M3,tier=high,rate_label=r80: rest_med=50.01 gql_med=50 n=(30,30) p_holm=0.0190 delta=0.458 (medium)
+  [*] scenario=M3,tier=low,rate_label=r40: rest_med=25.01 gql_med=25.01 n=(30,30) p_holm=0.0117 delta=0.509 (large)
+  [*] scenario=M3,tier=low,rate_label=r80: rest_med=50.01 gql_med=50 n=(30,30) p_holm=0.0003 delta=0.651 (large)
+  [*] scenario=M3,tier=medium,rate_label=r40: rest_med=25.01 gql_med=25.01 n=(30,30) p_holm=0.0068 delta=0.536 (large)
+  [ ] scenario=M3,tier=medium,rate_label=r80: rest_med=50.01 gql_med=50 n=(30,30) p_holm=0.0509 delta=0.376 (medium)
+  [*] scenario=M4,tier=high,rate_label=r40: rest_med=25.01 gql_med=25.01 n=(30,30) p_holm=0.0364 delta=0.404 (medium)
+  [*] scenario=M4,tier=high,rate_label=r80: rest_med=50.01 gql_med=50 n=(30,30) p_holm=0.0080 delta=0.527 (large)
+  [*] scenario=M4,tier=low,rate_label=r40: rest_med=25.01 gql_med=25 n=(30,30) p_holm=0.0054 delta=0.549 (large)
+  [*] scenario=M4,tier=low,rate_label=r80: rest_med=50.01 gql_med=50 n=(30,30) p_holm=0.0186 delta=0.469 (medium)
+  [*] scenario=M4,tier=medium,rate_label=r40: rest_med=25.01 gql_med=25 n=(30,30) p_holm=0.0000 delta=0.729 (large)
+  [*] scenario=M4,tier=medium,rate_label=r80: rest_med=50.01 gql_med=50 n=(30,30) p_holm=0.0164 delta=0.482 (large)
+  [*] scenario=M5,tier=w2,rate_label=r40: rest_med=50.01 gql_med=25 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M5,tier=w2,rate_label=r80: rest_med=100 gql_med=50 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r40: rest_med=50.01 gql_med=25 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r80: rest_med=100 gql_med=50 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r40: rest_med=50.01 gql_med=25 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r80: rest_med=100 gql_med=50 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k1,rate_label=r40: rest_med=17.01 gql_med=17.01 n=(30,30) p_holm=0.0000 delta=0.740 (large)
+  [*] scenario=M6,tier=k1,rate_label=r80: rest_med=34.01 gql_med=34.01 n=(30,30) p_holm=0.0000 delta=0.713 (large)
+  [*] scenario=M6,tier=k10,rate_label=r40: rest_med=170 gql_med=17.01 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r80: rest_med=339.8 gql_med=34 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r40: rest_med=85.02 gql_med=17.01 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r80: rest_med=170 gql_med=34 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+
+======================================================================
+METRIC: payload_bytes_med
+======================================================================
+
+  [overload_image] cells tested: 7, significant after Holm (p<0.05): 5
+  (5 cells constant-by-design, reported descriptively)
+  [ ] scenario=M1,tier=high,rate_label=r120_overload sat=graphql: rest_med=7453 gql_med=7448 n=(30,30) p_holm=0.9941 delta=-0.002 (negligible)
+  [c] scenario=M1,tier=low,rate_label=r120_overload: rest=428 gql=447 (constant by design)
+  [ ] scenario=M1,tier=medium,rate_label=r120_overload sat=graphql: rest_med=3478 gql_med=3474 n=(30,30) p_holm=0.0648 delta=-0.322 (small)
+  [*] scenario=M2,tier=high,rate_label=r120_overload sat=graphql: rest_med=2744 gql_med=2759 n=(30,30) p_holm=0.0089 delta=-0.447 (medium)
+  [c] scenario=M2,tier=low,rate_label=r120_overload: rest=234 gql=253 (constant by design)
+  [*] scenario=M2,tier=medium,rate_label=r120_overload sat=graphql: rest_med=1324 gql_med=1340 n=(30,30) p_holm=0.0069 delta=-0.471 (medium)
+  [*] scenario=M3,tier=high,rate_label=r120_overload sat=graphql: rest_med=2153 gql_med=2174 n=(30,30) p_holm=0.0000 delta=-0.760 (large)
+  [*] scenario=M3,tier=low,rate_label=r120_overload sat=graphql: rest_med=329 gql_med=348 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=medium,rate_label=r120_overload sat=graphql: rest_med=431 gql_med=450 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [c] scenario=M4,tier=high,rate_label=r120_overload: rest=211 gql=224 (constant by design)
+  [c] scenario=M4,tier=low,rate_label=r120_overload: rest=59 gql=72 (constant by design)
+  [c] scenario=M4,tier=medium,rate_label=r120_overload: rest=135 gql=148 (constant by design)
+
+  [overload_page] cells tested: 2, significant after Holm (p<0.05): 2
+  (1 cells constant-by-design, reported descriptively)
+  [c] scenario=M6,tier=k1,rate_label=r120_overload: rest=517 gql=539 (constant by design)
+  [*] scenario=M6,tier=k10,rate_label=r120_overload sat=rest: rest_med=517 gql_med=4977 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r120_overload sat=rest: rest_med=517 gql_med=2506 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+  [overload_track] cells tested: 3, significant after Holm (p<0.05): 3
+  [*] scenario=M5,tier=w2,rate_label=r120_overload sat=graphql: rest_med=129 gql_med=787 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r120_overload sat=graphql: rest_med=907 gql_med=5994 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r120_overload sat=graphql: rest_med=129 gql_med=2200 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+  [sub_saturation] cells tested: 24, significant after Holm (p<0.05): 19
+  (12 cells constant-by-design, reported descriptively)
+  [ ] scenario=M1,tier=high,rate_label=r40: rest_med=7289 gql_med=7442 n=(30,30) p_holm=0.1539 delta=-0.326 (small)
+  [ ] scenario=M1,tier=high,rate_label=r80: rest_med=7437 gql_med=7455 n=(30,30) p_holm=1.0000 delta=-0.133 (negligible)
+  [c] scenario=M1,tier=low,rate_label=r40: rest=428 gql=447 (constant by design)
+  [c] scenario=M1,tier=low,rate_label=r80: rest=428 gql=447 (constant by design)
+  [ ] scenario=M1,tier=medium,rate_label=r40: rest_med=3509 gql_med=3452 n=(30,30) p_holm=1.0000 delta=-0.164 (small)
+  [*] scenario=M1,tier=medium,rate_label=r80: rest_med=3502 gql_med=3520 n=(30,30) p_holm=0.0074 delta=-0.487 (large)
+  [ ] scenario=M2,tier=high,rate_label=r40: rest_med=2760 gql_med=2772 n=(30,30) p_holm=1.0000 delta=-0.028 (negligible)
+  [ ] scenario=M2,tier=high,rate_label=r80: rest_med=2758 gql_med=2759 n=(30,30) p_holm=1.0000 delta=0.014 (negligible)
+  [c] scenario=M2,tier=low,rate_label=r40: rest=234 gql=253 (constant by design)
+  [c] scenario=M2,tier=low,rate_label=r80: rest=234 gql=253 (constant by design)
+  [*] scenario=M2,tier=medium,rate_label=r40: rest_med=1321 gql_med=1369 n=(30,30) p_holm=0.0036 delta=-0.522 (large)
+  [*] scenario=M2,tier=medium,rate_label=r80: rest_med=1350 gql_med=1369 n=(30,30) p_holm=0.0011 delta=-0.573 (large)
+  [*] scenario=M3,tier=high,rate_label=r40: rest_med=2155 gql_med=2172 n=(30,30) p_holm=0.0009 delta=-0.584 (large)
+  [*] scenario=M3,tier=high,rate_label=r80: rest_med=2153 gql_med=2173 n=(30,30) p_holm=0.0001 delta=-0.656 (large)
+  [*] scenario=M3,tier=low,rate_label=r40: rest_med=328.5 gql_med=348 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=low,rate_label=r80: rest_med=329 gql_med=348 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=medium,rate_label=r40: rest_med=431 gql_med=450 n=(30,30) p_holm=0.0000 delta=-0.813 (large)
+  [*] scenario=M3,tier=medium,rate_label=r80: rest_med=431 gql_med=450.5 n=(30,30) p_holm=0.0000 delta=-0.933 (large)
+  [c] scenario=M4,tier=high,rate_label=r40: rest=211 gql=224 (constant by design)
+  [c] scenario=M4,tier=high,rate_label=r80: rest=211 gql=224 (constant by design)
+  [c] scenario=M4,tier=low,rate_label=r40: rest=59 gql=72 (constant by design)
+  [c] scenario=M4,tier=low,rate_label=r80: rest=59 gql=72 (constant by design)
+  [c] scenario=M4,tier=medium,rate_label=r40: rest=135 gql=148 (constant by design)
+  [c] scenario=M4,tier=medium,rate_label=r80: rest=135 gql=148 (constant by design)
+  [*] scenario=M5,tier=w2,rate_label=r40: rest_med=129 gql_med=787 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w2,rate_label=r80: rest_med=129 gql_med=787 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r40: rest_med=907 gql_med=5996 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r80: rest_med=907 gql_med=5996 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r40: rest_med=129 gql_med=2200 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r80: rest_med=129 gql_med=2198 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [c] scenario=M6,tier=k1,rate_label=r40: rest=517 gql=539 (constant by design)
+  [c] scenario=M6,tier=k1,rate_label=r80: rest=517 gql=539 (constant by design)
+  [*] scenario=M6,tier=k10,rate_label=r40: rest_med=517 gql_med=4977 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r80: rest_med=517 gql_med=4976 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r40: rest_med=517 gql_med=2508 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r80: rest_med=517 gql_med=2507 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+======================================================================
+METRIC: round_trip_count
+======================================================================
+
+  [overload_image] cells tested: 0, significant after Holm (p<0.05): 0
+  (12 cells constant-by-design, reported descriptively)
+  [c] scenario=M1,tier=high,rate_label=r120_overload: rest=1 gql=1 (constant by design)
+  [c] scenario=M1,tier=low,rate_label=r120_overload: rest=1 gql=1 (constant by design)
+  [c] scenario=M1,tier=medium,rate_label=r120_overload: rest=1 gql=1 (constant by design)
+  [c] scenario=M2,tier=high,rate_label=r120_overload: rest=1 gql=1 (constant by design)
+  [c] scenario=M2,tier=low,rate_label=r120_overload: rest=1 gql=1 (constant by design)
+  [c] scenario=M2,tier=medium,rate_label=r120_overload: rest=1 gql=1 (constant by design)
+  [c] scenario=M3,tier=high,rate_label=r120_overload: rest=1 gql=1 (constant by design)
+  [c] scenario=M3,tier=low,rate_label=r120_overload: rest=1 gql=1 (constant by design)
+  [c] scenario=M3,tier=medium,rate_label=r120_overload: rest=1 gql=1 (constant by design)
+  [c] scenario=M4,tier=high,rate_label=r120_overload: rest=1 gql=1 (constant by design)
+  [c] scenario=M4,tier=low,rate_label=r120_overload: rest=1 gql=1 (constant by design)
+  [c] scenario=M4,tier=medium,rate_label=r120_overload: rest=1 gql=1 (constant by design)
+
+  [overload_page] cells tested: 0, significant after Holm (p<0.05): 0
+  (3 cells constant-by-design, reported descriptively)
+  [c] scenario=M6,tier=k1,rate_label=r120_overload: rest=1 gql=1 (constant by design)
+  [c] scenario=M6,tier=k10,rate_label=r120_overload: rest=10 gql=1 (constant by design)
+  [c] scenario=M6,tier=k5,rate_label=r120_overload: rest=5 gql=1 (constant by design)
+
+  [overload_track] cells tested: 0, significant after Holm (p<0.05): 0
+  (3 cells constant-by-design, reported descriptively)
+  [c] scenario=M5,tier=w2,rate_label=r120_overload: rest=2 gql=1 (constant by design)
+  [c] scenario=M5,tier=w23,rate_label=r120_overload: rest=2 gql=1 (constant by design)
+  [c] scenario=M5,tier=w8,rate_label=r120_overload: rest=2 gql=1 (constant by design)
+
+  [sub_saturation] cells tested: 0, significant after Holm (p<0.05): 0
+  (36 cells constant-by-design, reported descriptively)
+  [c] scenario=M1,tier=high,rate_label=r40: rest=1 gql=1 (constant by design)
+  [c] scenario=M1,tier=high,rate_label=r80: rest=1 gql=1 (constant by design)
+  [c] scenario=M1,tier=low,rate_label=r40: rest=1 gql=1 (constant by design)
+  [c] scenario=M1,tier=low,rate_label=r80: rest=1 gql=1 (constant by design)
+  [c] scenario=M1,tier=medium,rate_label=r40: rest=1 gql=1 (constant by design)
+  [c] scenario=M1,tier=medium,rate_label=r80: rest=1 gql=1 (constant by design)
+  [c] scenario=M2,tier=high,rate_label=r40: rest=1 gql=1 (constant by design)
+  [c] scenario=M2,tier=high,rate_label=r80: rest=1 gql=1 (constant by design)
+  [c] scenario=M2,tier=low,rate_label=r40: rest=1 gql=1 (constant by design)
+  [c] scenario=M2,tier=low,rate_label=r80: rest=1 gql=1 (constant by design)
+  [c] scenario=M2,tier=medium,rate_label=r40: rest=1 gql=1 (constant by design)
+  [c] scenario=M2,tier=medium,rate_label=r80: rest=1 gql=1 (constant by design)
+  [c] scenario=M3,tier=high,rate_label=r40: rest=1 gql=1 (constant by design)
+  [c] scenario=M3,tier=high,rate_label=r80: rest=1 gql=1 (constant by design)
+  [c] scenario=M3,tier=low,rate_label=r40: rest=1 gql=1 (constant by design)
+  [c] scenario=M3,tier=low,rate_label=r80: rest=1 gql=1 (constant by design)
+  [c] scenario=M3,tier=medium,rate_label=r40: rest=1 gql=1 (constant by design)
+  [c] scenario=M3,tier=medium,rate_label=r80: rest=1 gql=1 (constant by design)
+  [c] scenario=M4,tier=high,rate_label=r40: rest=1 gql=1 (constant by design)
+  [c] scenario=M4,tier=high,rate_label=r80: rest=1 gql=1 (constant by design)
+  [c] scenario=M4,tier=low,rate_label=r40: rest=1 gql=1 (constant by design)
+  [c] scenario=M4,tier=low,rate_label=r80: rest=1 gql=1 (constant by design)
+  [c] scenario=M4,tier=medium,rate_label=r40: rest=1 gql=1 (constant by design)
+  [c] scenario=M4,tier=medium,rate_label=r80: rest=1 gql=1 (constant by design)
+  [c] scenario=M5,tier=w2,rate_label=r40: rest=2 gql=1 (constant by design)
+  [c] scenario=M5,tier=w2,rate_label=r80: rest=2 gql=1 (constant by design)
+  [c] scenario=M5,tier=w23,rate_label=r40: rest=2 gql=1 (constant by design)
+  [c] scenario=M5,tier=w23,rate_label=r80: rest=2 gql=1 (constant by design)
+  [c] scenario=M5,tier=w8,rate_label=r40: rest=2 gql=1 (constant by design)
+  [c] scenario=M5,tier=w8,rate_label=r80: rest=2 gql=1 (constant by design)
+  [c] scenario=M6,tier=k1,rate_label=r40: rest=1 gql=1 (constant by design)
+  [c] scenario=M6,tier=k1,rate_label=r80: rest=1 gql=1 (constant by design)
+  [c] scenario=M6,tier=k10,rate_label=r40: rest=10 gql=1 (constant by design)
+  [c] scenario=M6,tier=k10,rate_label=r80: rest=10 gql=1 (constant by design)
+  [c] scenario=M6,tier=k5,rate_label=r40: rest=5 gql=1 (constant by design)
+  [c] scenario=M6,tier=k5,rate_label=r80: rest=5 gql=1 (constant by design)
+
+======================================================================
+METRIC: cpu_mean
+======================================================================
+
+  [overload_image] cells tested: 12, significant after Holm (p<0.05): 12
+  [*] scenario=M1,tier=high,rate_label=r120_overload sat=graphql: rest_med=26.45 gql_med=99.14 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=low,rate_label=r120_overload sat=graphql: rest_med=15.1 gql_med=57.72 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=medium,rate_label=r120_overload sat=graphql: rest_med=18.59 gql_med=77.38 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=high,rate_label=r120_overload sat=graphql: rest_med=22.74 gql_med=79.6 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=low,rate_label=r120_overload sat=graphql: rest_med=14.44 gql_med=51.22 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=medium,rate_label=r120_overload sat=graphql: rest_med=17.48 gql_med=60.64 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=high,rate_label=r120_overload sat=graphql: rest_med=18.27 gql_med=76.27 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=low,rate_label=r120_overload sat=graphql: rest_med=14.65 gql_med=63.66 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=medium,rate_label=r120_overload sat=graphql: rest_med=15.5 gql_med=66.03 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=high,rate_label=r120_overload sat=graphql: rest_med=18.54 gql_med=51.13 n=(30,30) p_holm=0.0000 delta=-0.933 (large)
+  [*] scenario=M4,tier=low,rate_label=r120_overload sat=graphql: rest_med=12.82 gql_med=43.8 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=medium,rate_label=r120_overload sat=graphql: rest_med=15.53 gql_med=48.03 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+  [overload_page] cells tested: 3, significant after Holm (p<0.05): 3
+  [*] scenario=M6,tier=k1,rate_label=r120_overload sat=rest: rest_med=11.04 gql_med=49.1 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r120_overload sat=rest: rest_med=167.9 gql_med=79.02 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r120_overload sat=rest: rest_med=48.19 gql_med=62 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+  [overload_track] cells tested: 3, significant after Holm (p<0.05): 3
+  [*] scenario=M5,tier=w2,rate_label=r120_overload sat=graphql: rest_med=27.2 gql_med=72.47 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r120_overload sat=graphql: rest_med=32.91 gql_med=99.2 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r120_overload sat=graphql: rest_med=27.73 gql_med=82.33 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+  [sub_saturation] cells tested: 36, significant after Holm (p<0.05): 36
+  [*] scenario=M1,tier=high,rate_label=r40: rest_med=11.11 gql_med=39.76 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=high,rate_label=r80: rest_med=17.96 gql_med=79.45 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=low,rate_label=r40: rest_med=6.122 gql_med=20.56 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=low,rate_label=r80: rest_med=10.57 gql_med=39.07 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=medium,rate_label=r40: rest_med=7.505 gql_med=26.49 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=medium,rate_label=r80: rest_med=13.36 gql_med=52.22 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=high,rate_label=r40: rest_med=9.544 gql_med=27.15 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=high,rate_label=r80: rest_med=15.45 gql_med=53.96 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=low,rate_label=r40: rest_med=6.077 gql_med=17.58 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=low,rate_label=r80: rest_med=10.12 gql_med=34.73 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=medium,rate_label=r40: rest_med=7.077 gql_med=20.99 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=medium,rate_label=r80: rest_med=12.41 gql_med=41.59 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=high,rate_label=r40: rest_med=7.412 gql_med=25.83 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=high,rate_label=r80: rest_med=12.48 gql_med=51.9 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=low,rate_label=r40: rest_med=6.149 gql_med=21.56 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=low,rate_label=r80: rest_med=10.03 gql_med=42.71 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=medium,rate_label=r40: rest_med=6.473 gql_med=23.14 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=medium,rate_label=r80: rest_med=10.66 gql_med=44.54 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=high,rate_label=r40: rest_med=8.205 gql_med=17.62 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=high,rate_label=r80: rest_med=13.45 gql_med=34.78 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=low,rate_label=r40: rest_med=5.339 gql_med=14.91 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=low,rate_label=r80: rest_med=9.481 gql_med=30.14 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=medium,rate_label=r40: rest_med=6.552 gql_med=16.36 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=medium,rate_label=r80: rest_med=10.92 gql_med=31.95 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w2,rate_label=r40: rest_med=10.13 gql_med=24.69 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w2,rate_label=r80: rest_med=19.13 gql_med=48.78 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r40: rest_med=12.51 gql_med=37.69 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r80: rest_med=22.02 gql_med=74.36 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r40: rest_med=11.15 gql_med=28.32 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r80: rest_med=20.5 gql_med=55.71 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k1,rate_label=r40: rest_med=4.308 gql_med=16.41 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k1,rate_label=r80: rest_med=8.363 gql_med=32.12 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r40: rest_med=32.6 gql_med=25.67 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r80: rest_med=61.56 gql_med=50.87 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r40: rest_med=16.36 gql_med=20.79 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r80: rest_med=32.45 gql_med=40.99 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+======================================================================
+METRIC: rss_mean_mb
+======================================================================
+
+  [overload_image] cells tested: 12, significant after Holm (p<0.05): 12
+  [*] scenario=M1,tier=high,rate_label=r120_overload sat=graphql: rest_med=55.57 gql_med=91.23 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=low,rate_label=r120_overload sat=graphql: rest_med=52.33 gql_med=59.21 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=medium,rate_label=r120_overload sat=graphql: rest_med=55.53 gql_med=61.01 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=high,rate_label=r120_overload sat=graphql: rest_med=56.58 gql_med=61.12 n=(30,30) p_holm=0.0000 delta=-0.933 (large)
+  [*] scenario=M2,tier=low,rate_label=r120_overload sat=graphql: rest_med=51.45 gql_med=59.37 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=medium,rate_label=r120_overload sat=graphql: rest_med=56.05 gql_med=61.04 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=high,rate_label=r120_overload sat=graphql: rest_med=55.27 gql_med=61.15 n=(30,30) p_holm=0.0000 delta=-0.667 (large)
+  [*] scenario=M3,tier=low,rate_label=r120_overload sat=graphql: rest_med=51.2 gql_med=59.51 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=medium,rate_label=r120_overload sat=graphql: rest_med=57.11 gql_med=61.23 n=(30,30) p_holm=0.0051 delta=-0.400 (medium)
+  [*] scenario=M4,tier=high,rate_label=r120_overload sat=graphql: rest_med=79.57 gql_med=61.09 n=(30,30) p_holm=0.0000 delta=0.667 (large)
+  [*] scenario=M4,tier=low,rate_label=r120_overload sat=graphql: rest_med=50.34 gql_med=59.33 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=medium,rate_label=r120_overload sat=graphql: rest_med=53.9 gql_med=61.07 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+  [overload_page] cells tested: 3, significant after Holm (p<0.05): 3
+  [*] scenario=M6,tier=k1,rate_label=r120_overload sat=rest: rest_med=59.04 gql_med=60.86 n=(30,30) p_holm=0.0000 delta=-0.667 (large)
+  [*] scenario=M6,tier=k10,rate_label=r120_overload sat=rest: rest_med=177.3 gql_med=60.74 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r120_overload sat=rest: rest_med=58.69 gql_med=60.88 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+  [overload_track] cells tested: 3, significant after Holm (p<0.05): 2
+  [ ] scenario=M5,tier=w2,rate_label=r120_overload sat=graphql: rest_med=61.83 gql_med=60.83 n=(30,30) p_holm=0.0771 delta=0.267 (small)
+  [*] scenario=M5,tier=w23,rate_label=r120_overload sat=graphql: rest_med=59.36 gql_med=83.57 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r120_overload sat=graphql: rest_med=63.43 gql_med=61.2 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+
+  [sub_saturation] cells tested: 36, significant after Holm (p<0.05): 36
+  [*] scenario=M1,tier=high,rate_label=r40: rest_med=59.23 gql_med=59.91 n=(30,30) p_holm=0.0000 delta=-0.867 (large)
+  [*] scenario=M1,tier=high,rate_label=r80: rest_med=56.61 gql_med=61.11 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=low,rate_label=r40: rest_med=51.33 gql_med=58.25 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=low,rate_label=r80: rest_med=51.17 gql_med=59.54 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=medium,rate_label=r40: rest_med=49.6 gql_med=60.68 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M1,tier=medium,rate_label=r80: rest_med=58.78 gql_med=60.54 n=(30,30) p_holm=0.0000 delta=-0.933 (large)
+  [*] scenario=M2,tier=high,rate_label=r40: rest_med=49.69 gql_med=59.82 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=high,rate_label=r80: rest_med=56.18 gql_med=60.39 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=low,rate_label=r40: rest_med=50.14 gql_med=58.13 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=low,rate_label=r80: rest_med=51.31 gql_med=61.23 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=medium,rate_label=r40: rest_med=49.65 gql_med=59.77 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M2,tier=medium,rate_label=r80: rest_med=54.85 gql_med=90.73 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=high,rate_label=r40: rest_med=60.34 gql_med=60.14 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M3,tier=high,rate_label=r80: rest_med=52.4 gql_med=60.93 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=low,rate_label=r40: rest_med=61.67 gql_med=84.71 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=low,rate_label=r80: rest_med=48.77 gql_med=59.25 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=medium,rate_label=r40: rest_med=54.1 gql_med=60 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M3,tier=medium,rate_label=r80: rest_med=61.45 gql_med=60.8 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M4,tier=high,rate_label=r40: rest_med=52.41 gql_med=59.81 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=high,rate_label=r80: rest_med=56.01 gql_med=84.71 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=low,rate_label=r40: rest_med=50.21 gql_med=58.12 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=low,rate_label=r80: rest_med=55.01 gql_med=60.3 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=medium,rate_label=r40: rest_med=49.05 gql_med=59.7 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M4,tier=medium,rate_label=r80: rest_med=56.52 gql_med=90.73 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w2,rate_label=r40: rest_med=51.43 gql_med=61.12 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w2,rate_label=r80: rest_med=55.57 gql_med=60.31 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r40: rest_med=51.84 gql_med=59.65 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r80: rest_med=53.95 gql_med=60.48 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r40: rest_med=60.87 gql_med=60.67 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r80: rest_med=61.04 gql_med=60.38 n=(30,30) p_holm=0.0000 delta=0.933 (large)
+  [*] scenario=M6,tier=k1,rate_label=r40: rest_med=49.02 gql_med=59.95 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k1,rate_label=r80: rest_med=51.62 gql_med=60.58 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r40: rest_med=55.34 gql_med=59.7 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r80: rest_med=63.32 gql_med=60.06 n=(30,30) p_holm=0.0000 delta=0.867 (large)
+  [*] scenario=M6,tier=k5,rate_label=r40: rest_med=52.02 gql_med=60.8 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r80: rest_med=53.54 gql_med=60.36 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+======================================================================
+METRIC: page_latency_med
+======================================================================
+
+  [overload_page] cells tested: 3, significant after Holm (p<0.05): 3
+  [*] scenario=M6,tier=k1,rate_label=r120_overload sat=rest: rest_med=7.288 gql_med=14.22 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r120_overload sat=rest: rest_med=1.309e+04 gql_med=20.14 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r120_overload sat=rest: rest_med=37.23 gql_med=16.71 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+
+  [overload_track] cells tested: 3, significant after Holm (p<0.05): 3
+  [*] scenario=M5,tier=w2,rate_label=r120_overload sat=graphql: rest_med=14.37 gql_med=14.82 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r120_overload sat=graphql: rest_med=15.12 gql_med=5052 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r120_overload sat=graphql: rest_med=14.4 gql_med=16.32 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+  [sub_saturation] cells tested: 12, significant after Holm (p<0.05): 12
+  [*] scenario=M5,tier=w2,rate_label=r40: rest_med=14.8 gql_med=14.73 n=(30,30) p_holm=0.0364 delta=0.316 (small)
+  [*] scenario=M5,tier=w2,rate_label=r80: rest_med=14.52 gql_med=14.64 n=(30,30) p_holm=0.0000 delta=-0.816 (large)
+  [*] scenario=M5,tier=w23,rate_label=r40: rest_med=15.67 gql_med=20.07 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w23,rate_label=r80: rest_med=15.03 gql_med=20.13 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r40: rest_med=15.14 gql_med=16.23 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M5,tier=w8,rate_label=r80: rest_med=14.72 gql_med=16.06 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k1,rate_label=r40: rest_med=7.746 gql_med=14.33 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k1,rate_label=r80: rest_med=7.628 gql_med=14.19 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r40: rest_med=75.13 gql_med=19.86 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k10,rate_label=r80: rest_med=80.31 gql_med=19.78 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r40: rest_med=36.57 gql_med=16.88 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] scenario=M6,tier=k5,rate_label=r80: rest_med=37.68 gql_med=16.79 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+
+======================================================================
+SCOPE NOTES (disclose, don't bury)
+----------------------------------------------------------------------
+- r120_overload guarantees super-saturation only relative to the
+  calibrated heaviest-tier ceiling of its family; lighter-tier overload
+  cells may not themselves saturate (design/CALIBRATION.md). Read
+  overload cells as 'behavior at the family's shared overload rate',
+  not 'both protocols saturated'.
+- dropped_iterations > 0 occurs ONLY in overload cells (expected):
+  the arrival rate exceeds service rate there by construction.
+- round_trip_count differs by protocol BY DESIGN in M5 (rest=2) and
+  M6 (rest=K); it is a design descriptor, not a measured outcome --
+  reported descriptively only.
+- page_latency_med exists only for M5/M6 (multi-request client flows).
+- Corpus is 7 independent MOT sequences -- effective N for claims about
+  variety-across-scenes is ~7, not the row count.
+- With n=30/cell, tiny differences reach significance -- read the
+  Cliff's delta magnitude column, not just p_holm.
+======================================================================
