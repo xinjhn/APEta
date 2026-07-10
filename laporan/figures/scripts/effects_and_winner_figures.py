@@ -41,6 +41,12 @@ REST_C, GQL_C = "#1f77b4", "#d62728"
 PROTO_KW = dict(marker="o", linewidth=2, markersize=6)
 
 
+def _save(fig, outpath):
+    fig.savefig(outpath, dpi=200, bbox_inches="tight")
+    fig.savefig(Path(outpath).with_suffix(".svg"), bbox_inches="tight")
+    plt.close(fig)
+
+
 def num(s):
     return pd.to_numeric(s, errors="coerce")
 
@@ -76,7 +82,7 @@ def mot_maineffect(df, metric, ylabel, outpath, stats):
         rec[col] = {"levels": order, "rest": r_med.round(2).tolist(), "graphql": g_med.round(2).tolist()}
     fig.suptitle(f"Efek marginal variabel bebas terhadap {ylabel} (M1–M4)", y=1.02)
     fig.tight_layout()
-    fig.savefig(outpath, dpi=150, bbox_inches="tight"); plt.close(fig)
+    _save(fig, outpath)
     stats[outpath.stem] = rec
 
 
@@ -106,7 +112,7 @@ def delta_heatmap(df, metric, scenarios, tier_order_map, outpath, title, stats):
     cb = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
     cb.set_label("Cliff's δ  (biru: REST unggul · merah: GraphQL unggul)", fontsize=8)
     ax.set_title(title, fontsize=10)
-    fig.tight_layout(); fig.savefig(outpath, dpi=150, bbox_inches="tight"); plt.close(fig)
+    fig.tight_layout(); _save(fig, outpath)
     stats[outpath.stem] = {"rowlabels": rowlabels, "rates": rates, "delta": np.where(np.isnan(M), None, M).tolist()}
 
 
@@ -125,7 +131,7 @@ def mot_roundtrip(df, outpath, stats):
     ax.set_ylabel("Median round-trip per operasi"); ax.legend(frameon=False)
     ax.set_title("Mekanisme: jumlah round-trip REST vs GraphQL (r40)")
     ax.grid(True, axis="y", alpha=0.3)
-    fig.tight_layout(); fig.savefig(outpath, dpi=150, bbox_inches="tight"); plt.close(fig)
+    fig.tight_layout(); _save(fig, outpath)
     stats[outpath.stem] = {"order": order, "rest": sub["rest_median"].tolist(), "graphql": sub["graphql_median"].tolist()}
 
 
@@ -144,7 +150,7 @@ def mot_overfetch(df, outpath, stats):
     ax.set_ylim(0.9, max(1.15, sub["ratio"].max() * 1.05))
     ax.set_title("Uji over-fetching: payload GraphQL relatif REST (M1–M4, r40) — garis=paritas")
     ax.grid(True, axis="y", alpha=0.3)
-    fig.tight_layout(); fig.savefig(outpath, dpi=150, bbox_inches="tight"); plt.close(fig)
+    fig.tight_layout(); _save(fig, outpath)
     stats[outpath.stem] = {"key": sub["key"].tolist(), "ratio": sub["ratio"].round(3).tolist(),
                            "median_ratio": round(float(sub["ratio"].median()), 3)}
 
@@ -178,7 +184,7 @@ def mot_decoupling(df, outpath, stats):
     ax.set_title("Throughput bukan metrik pembeda: latensi terpisah\n"
                  "penuh, throughput setara (sel round-trip sebanding)")
     ax.grid(True, alpha=0.3)
-    fig.tight_layout(); fig.savefig(outpath, dpi=150, bbox_inches="tight"); plt.close(fig)
+    fig.tight_layout(); _save(fig, outpath)
     stats[outpath.stem] = {"n_comparable_cells": len(idx),
                            "throughput_pct_diff_min": round(float(np.nanmin(tpct)), 4),
                            "throughput_pct_diff_max": round(float(np.nanmax(tpct)), 4),
@@ -209,7 +215,7 @@ def cache_maineffect(df, outpath, stats):
             if row == 0 and col == 0: ax.legend(frameon=False)
             rec[f"{metric}|{fcol}"] = {"levels": order, "rest": r_med.round(3).tolist(), "graphql": g_med.round(3).tolist()}
     fig.suptitle("Efek marginal faktor caching terhadap latensi & cache hit rate", y=1.0)
-    fig.tight_layout(); fig.savefig(outpath, dpi=150, bbox_inches="tight"); plt.close(fig)
+    fig.tight_layout(); _save(fig, outpath)
     stats[outpath.stem] = rec
 
 
@@ -239,7 +245,7 @@ def cache_delta_heatmap(df, outpath, stats):
     cb = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
     cb.set_label("Cliff's δ (biru: REST unggul · merah: GraphQL unggul)", fontsize=8)
     ax.set_title("Peta pemenang grid caching (signed δ per metrik)", fontsize=10)
-    fig.tight_layout(); fig.savefig(outpath, dpi=150, bbox_inches="tight"); plt.close(fig)
+    fig.tight_layout(); _save(fig, outpath)
     stats[outpath.stem] = {"rowlabels": rowlabels, "metrics": metrics,
                            "delta": np.where(np.isnan(M), None, M).tolist()}
 

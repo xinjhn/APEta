@@ -95,3 +95,9 @@ mengembalikan respons dari cache, sedangkan cache miss meneruskan request ke
 origin server dan menyimpan respons cacheable. Sumber: diolah penulis
 berdasarkan implementasi APE, Varnish, dan RFC 9111.
 
+| 35 | Gambar V.3 | Efek marginal variabel bebas terhadap median p50 (M1–M4) | V | Line 3-panel REST vs GraphQL | Menjawab "bagaimana tiap IV memengaruhi DV": densitas paling memperlebar selisih; laju hampir tidak | mot-scenarios-core | `figures/export/fx_mot_maineffect_lat_p50.*` | placed (docx 2026-07-10) |
+| 36 | Gambar V.4 | Throughput bukan metrik pembeda (dekopling latensi–throughput) | V | Scatter δ-lat vs %Δ-throughput | Signifikansi statistik ≠ praktis: δ throughput +0,5–0,9 pada selisih median <0,03% | mot-scenarios-core | `figures/export/fx_mot_decoupling.*` | placed (docx 2026-07-10) |
+| 37 | Gambar V.5 | Uji over-fetching: rasio payload GraphQL/REST M1–M4 | V | Bar rasio + garis paritas | Anti-over-fetching tidak terbukti: median 1,04, terburuk 1,22, 17 sel n.s. | mot-scenarios-core | `figures/export/fx_mot_overfetch.*` | placed (docx 2026-07-10) |
+| 38 | Gambar V.6 | Mekanisme round-trip per operasi logis (r40) | V | Bar berpasangan | Mekanisme crossover M6: REST membayar K trip, GraphQL selalu 1 | mot-scenarios-core | `figures/export/fx_mot_mechanism_roundtrip.*` | placed (docx 2026-07-10) |
+| 39 | Gambar V.7 | Peta pemenang page latency M5–M6 (signed Cliff's δ) | V | Heatmap RdBu ±1 | Seluruh dinamika crossover satu gambar: imbang M5·w2·r40 (+0,32), GraphQL menang penuh M6 K≥5 | mot-scenarios-core | `figures/export/fx_mot_delta_heatmap_page.*` | placed (docx 2026-07-10) |
+| 40 | Gambar V.8 | Peta pemenang grid caching (signed Cliff's δ per metrik) | V | Heatmap RdBu ±1 | Tidak ada faktor caching yang membalik pemenang latensi; cache-hit δ≈0 (fairness N4) | phase2-core-real | `figures/export/fx_cache_delta_heatmap.*` | placed (docx 2026-07-10) |

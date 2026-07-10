@@ -187,3 +187,53 @@ per-round-trip; figur M5/M6 memakai `page_latency_med` (per halaman/skenario).
 > median (2.000 resampel, seed 42). Varian r120_overload memakai sumbu-y
 > symlog (linier di ±10 ms) karena memuat +13,1 detik (M6-k10, REST kolaps)
 > dan −5,0 detik (M5-w23, GraphQL kolaps) sekaligus nilai ±milidetik.
+
+## fx_mot_maineffect_lat_p50 — efek marginal variabel bebas · DIPASANG: Gambar V.3
+
+> Efek marginal skenario, tier densitas, dan laju kedatangan terhadap median
+> waktu respons p50 REST dan GraphQL (M1–M4). Densitas adalah faktor yang
+> paling memperlebar selisih antar-protokol (GraphQL 12,3→15,5 ms dari tier
+> low ke high; REST hanya 7,2→8,2 ms — interaksi densitas×protokol), laju
+> kedatangan pada rentang sub-saturasi hampir tidak menggeser selisih, dan
+> skenario memodulasi besar selisih tanpa mengubah arahnya.
+
+## fx_mot_decoupling — throughput bukan metrik pembeda · DIPASANG: Gambar V.4
+
+> Selisih throughput GraphQL−REST (%) terhadap Cliff's δ latensi p50 pada 39
+> sel dengan jumlah round-trip sebanding (M1–M4, M6·k1). δ latensi terkunci
+> pada −1,00 sementara selisih throughput <0,03% — δ throughput yang
+> "signifikan" (+0,5…+0,9, p-Holm kecil) adalah artefak peringkat pada nilai
+> praktis identik (keduanya mengikuti laju tawaran k6). Satu simpangan −17,5%
+> adalah sel overload tempat protokol yang kolaps kehilangan throughput.
+> δ=+1,00 pada M6·k5/k10 dikecualikan: artefak satuan (REST menghitung K
+> sub-permintaan per halaman).
+
+## fx_mot_overfetch — uji klaim over-fetching · DIPASANG: Gambar V.5
+
+> Rasio ukuran payload GraphQL/REST pada M1–M4 (r40); garis putus-putus =
+> paritas. Median 1,04 (envelope {"data":…}), sel terburuk M4·low 1,22, satu
+> sel di bawah paritas (M1·medium 0,98), 17 sel tidak terpisah statistik.
+> Narasi "GraphQL menghemat bandwidth dengan menghindari over-fetching"
+> tidak didukung: pembeda sesungguhnya latensi per-permintaan dan round-trip.
+
+## fx_mot_mechanism_roundtrip — mekanisme crossover · DIPASANG: Gambar V.6
+
+> Median jumlah round-trip per operasi logis (r40): M1–M4 dan M6·k1 setara
+> (1 vs 1); M5 REST 2 vs GraphQL 1; M6 REST K (1/5/10) vs GraphQL 1.
+> Kemenangan GraphQL pada fan-out tinggi adalah efek penghematan round-trip,
+> bukan kecepatan per-permintaan.
+
+## fx_mot_delta_heatmap_page — peta pemenang M5–M6 · DIPASANG: Gambar V.7
+
+> Signed Cliff's δ page latency per sel tier×laju (biru REST unggul, merah
+> GraphQL). Satu-satunya sel imbang sejati M5·w2·r40 (δ=+0,32, selisih median
+> 0,1 ms — dilaporkan sebagai imbang); flip ke −0,82 pada r80; M6·k5/k10
+> merah penuh (δ=+1,00) — kemenangan complete-separation pertama GraphQL.
+
+## fx_cache_delta_heatmap — peta pemenang grid caching · DIPASANG: Gambar V.8
+
+> Signed Cliff's δ per metrik × 12 kombinasi caching·pola-akses·payload.
+> Latensi: REST unggul penuh (δ=−1,00) di seluruh kombinasi — tidak ada
+> faktor caching yang membalik pemenang. Cache hit rate: δ≈0 (−0,22…+0,13),
+> lapisan cache adil antar-protokol (konfirmasi N4). Payload campuran —
+> payload bukan sumbu keunggulan konsisten.
