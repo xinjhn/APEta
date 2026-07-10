@@ -13,16 +13,31 @@ set -u
 SRC=/home/ubuntu/APE/APEta/results
 WT=/home/ubuntu/APE/APEta-backup
 
-for arm in core m6cache m5embed m1mem calibration; do
-    d="$SRC/mot-scenarios-$arm"
-    [ -d "$d" ] || continue
-    out="$WT/backup/mot-scenarios-$arm"
+# Every session/arm directory under results/, not just the MOT arms: the
+# per-run results.csv and the derived analysis/ CSVs are what the laporan
+# cites, and they are small; the bulky raw dirs are excluded by the
+# whitelist below.
+for d in "$SRC"/*/; do
+    d="${d%/}"
+    arm="$(basename "$d")"
+    out="$WT/backup/$arm"
     mkdir -p "$out"
     for f in results.csv run_plan.csv calibration.json orchestrator_console.log; do
         [ -f "$d/$f" ] && cp -f "$d/$f" "$out/"
     done
     [ -f "$d/logs/progress.log" ] && cp -f "$d/logs/progress.log" "$out/"
     [ -d "$d/env_snapshot" ] && cp -rf "$d/env_snapshot" "$out/"
+    [ -d "$d/analysis" ] && cp -rf "$d/analysis" "$out/"
+    rmdir "$out" 2>/dev/null || true   # drop dirs that yielded nothing (raw-only)
+done
+
+# Small top-level derived-output dirs (each <1 MB): early-session analysis,
+# phase2 figure exports, and the visualize/ analysis scripts.
+for extra in analysis_factorialA analysis_session1_preliminary phase2-figures visualize; do
+    if [ -d "$SRC/$extra" ]; then
+        mkdir -p "$WT/backup/$extra"
+        cp -rf "$SRC/$extra/." "$WT/backup/$extra/"
+    fi
 done
 
 cd "$WT" || exit 1
