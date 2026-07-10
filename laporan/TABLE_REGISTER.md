@@ -25,3 +25,5 @@ pembaca mengecek definisi, parameter, dan replikasi eksperimen.
 | Tabel V.4 | Threats to validity dan mitigasi | V/VI | Transparansi ilmiah | Analisis penulis |
 | Tabel VII.1 | Saran penelitian lanjutan | VII | Menutup laporan dengan future work | Pembahasan |
 
+| Tabel L.1 | Hasil per-sel REST vs GraphQL — studi skenario MOT | Lampiran 4 | Detail per-sel pendukung Bab V | `results/mot-scenarios-core/analysis/mot_comparisons.csv` |
+| Tabel L.2 | Hasil per-blok REST vs GraphQL — grid inti caching; baris CPU/RSS dari re-run phase2-core-clean (telemetri valid, ditambahkan 2026-07-10) | Lampiran 5 | Detail per-blok RQ2 + sumber daya server | `results/phase2-core-real/analysis/`, `results/phase2-core-clean/analysis/phase2_comparisons.csv` |
