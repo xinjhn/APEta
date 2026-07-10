@@ -1,0 +1,195 @@
+======================================================================
+PHASE 2 ANALYSIS REPORT -- REST vs GraphQL, per-cell Mann-Whitney U
++ Vargha-Delaney A12 / Cliff's delta, Holm-corrected within metric
+======================================================================
+
+Total runs: 720
+Cells: 12
+
+
+======================================================================
+METRIC: lat_p50
+======================================================================
+  Cells tested: 12, significant after Holm correction (p<0.05): 12
+  [*] caching=off,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=28 gql_med=33.8 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=28.3 gql_med=34.3 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=27.8 gql_med=33.8 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=28.3 gql_med=34.3 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=28.2 gql_med=34.2 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=28.2 gql_med=34.9 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=28.9 gql_med=34.9 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=29.1 gql_med=34.9 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=28.9 gql_med=35.1 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=29.2 gql_med=35.4 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=28 gql_med=31.9 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=28.1 gql_med=31.9 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+======================================================================
+METRIC: lat_p95
+======================================================================
+  Cells tested: 12, significant after Holm correction (p<0.05): 12
+  [*] caching=off,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=36.2 gql_med=42.6 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=36.6 gql_med=43.5 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=36 gql_med=42.5 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=36.4 gql_med=43.5 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=36.4 gql_med=43.3 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=36.7 gql_med=44.2 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=37.1 gql_med=44.1 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=37.2 gql_med=44.4 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=37 gql_med=43.7 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=37.4 gql_med=44.9 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=36.4 gql_med=42.5 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=36.8 gql_med=43.3 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+======================================================================
+METRIC: lat_p99
+======================================================================
+  Cells tested: 12, significant after Holm correction (p<0.05): 12
+  [*] caching=off,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=39.5 gql_med=48.1 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=40 gql_med=48.5 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=39.3 gql_med=47.3 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=40 gql_med=48.3 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=39.5 gql_med=48.4 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=40.1 gql_med=49.2 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=40.4 gql_med=48.9 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=40.7 gql_med=49.4 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=40.4 gql_med=48.3 n=(30,30) p_holm=0.0000 delta=-0.933 (large)
+  [*] caching=on,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=40.9 gql_med=49.8 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=39.8 gql_med=47 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=40.2 gql_med=47.8 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+======================================================================
+METRIC: throughput_rps
+======================================================================
+  Cells tested: 12, significant after Holm correction (p<0.05): 6
+  [ ] caching=off,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=10 gql_med=10 n=(30,30) p_holm=0.3400 delta=0.260 (small)
+  [*] caching=off,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=10 gql_med=10 n=(30,30) p_holm=0.0007 delta=0.604 (large)
+  [*] caching=off,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=10 gql_med=10 n=(30,30) p_holm=0.0390 delta=0.418 (medium)
+  [*] caching=off,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=10 gql_med=10 n=(30,30) p_holm=0.0248 delta=0.451 (medium)
+  [*] caching=off,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=10 gql_med=10 n=(30,30) p_holm=0.0080 delta=0.509 (large)
+  [ ] caching=off,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=10 gql_med=10 n=(30,30) p_holm=0.0619 delta=0.387 (medium)
+  [*] caching=on,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=10 gql_med=10 n=(30,30) p_holm=0.0294 delta=0.438 (medium)
+  [ ] caching=on,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=10 gql_med=10 n=(30,30) p_holm=0.8753 delta=0.118 (negligible)
+  [ ] caching=on,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=10 gql_med=10 n=(30,30) p_holm=0.0619 delta=0.384 (medium)
+  [*] caching=on,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=10 gql_med=10 n=(30,30) p_holm=0.0081 delta=0.504 (large)
+  [ ] caching=on,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=10 gql_med=10 n=(30,30) p_holm=0.6847 delta=0.182 (small)
+  [ ] caching=on,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=10 gql_med=10 n=(30,30) p_holm=0.8753 delta=0.082 (negligible)
+
+======================================================================
+METRIC: payload_bytes_med
+======================================================================
+  Cells tested: 12, significant after Holm correction (p<0.05): 10
+  [*] caching=off,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=653 gql_med=502 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] caching=off,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=1.53e+03 gql_med=1.22e+03 n=(30,30) p_holm=0.0000 delta=0.950 (large)
+  [*] caching=off,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=656 gql_med=506 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [ ] caching=off,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=1.36e+03 gql_med=987 n=(30,30) p_holm=0.3521 delta=0.190 (small)
+  [*] caching=off,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=851 gql_med=689 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] caching=off,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=1.77e+03 gql_med=2.05e+03 n=(30,30) p_holm=0.0000 delta=-0.978 (large)
+  [*] caching=on,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=655 gql_med=500 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] caching=on,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=1.51e+03 gql_med=1.19e+03 n=(30,30) p_holm=0.0000 delta=0.929 (large)
+  [*] caching=on,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=652 gql_med=498 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [ ] caching=on,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=1.35e+03 gql_med=1e+03 n=(30,30) p_holm=0.3521 delta=0.204 (small)
+  [*] caching=on,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=854 gql_med=690 n=(30,30) p_holm=0.0000 delta=1.000 (large)
+  [*] caching=on,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=1.77e+03 gql_med=2.05e+03 n=(30,30) p_holm=0.0000 delta=-0.744 (large)
+
+======================================================================
+METRIC: cache_hit_rate
+======================================================================
+  WARNING: 6/12 cells have n<3/group, excluded
+  Cells tested: 6, significant after Holm correction (p<0.05): 0
+  [ ] caching=on,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0.0244 gql_med=0.0233 n=(30,30) p_holm=1.0000 delta=-0.046 (negligible)
+  [ ] caching=on,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0.0567 gql_med=0.0616 n=(30,30) p_holm=0.5174 delta=-0.229 (small)
+  [ ] caching=on,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0 gql_med=0 n=(30,30) p_holm=1.0000 delta=-0.013 (negligible)
+  [ ] caching=on,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0 gql_med=0 n=(30,30) p_holm=0.4660 delta=0.171 (small)
+  [ ] caching=on,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0.364 gql_med=0.377 n=(30,30) p_holm=0.1560 delta=-0.336 (medium)
+  [ ] caching=on,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0.422 gql_med=0.419 n=(30,30) p_holm=0.6675 delta=0.184 (small)
+
+======================================================================
+METRIC: error_rate
+======================================================================
+  Cells tested: 12, significant after Holm correction (p<0.05): 0
+  [ ] caching=off,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0 gql_med=0 n=(30,30) p_holm=1.0000 delta=0.000 (negligible)
+  [ ] caching=off,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0 gql_med=0 n=(30,30) p_holm=1.0000 delta=0.000 (negligible)
+  [ ] caching=off,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0 gql_med=0 n=(30,30) p_holm=1.0000 delta=0.000 (negligible)
+  [ ] caching=off,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0 gql_med=0 n=(30,30) p_holm=1.0000 delta=0.000 (negligible)
+  [ ] caching=off,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0 gql_med=0 n=(30,30) p_holm=1.0000 delta=0.000 (negligible)
+  [ ] caching=off,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0 gql_med=0 n=(30,30) p_holm=1.0000 delta=0.000 (negligible)
+  [ ] caching=on,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0 gql_med=0 n=(30,30) p_holm=1.0000 delta=0.000 (negligible)
+  [ ] caching=on,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0 gql_med=0 n=(30,30) p_holm=1.0000 delta=0.000 (negligible)
+  [ ] caching=on,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0 gql_med=0 n=(30,30) p_holm=1.0000 delta=0.000 (negligible)
+  [ ] caching=on,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0 gql_med=0 n=(30,30) p_holm=1.0000 delta=0.000 (negligible)
+  [ ] caching=on,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0 gql_med=0 n=(30,30) p_holm=1.0000 delta=0.000 (negligible)
+  [ ] caching=on,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=0 gql_med=0 n=(30,30) p_holm=1.0000 delta=0.000 (negligible)
+
+======================================================================
+METRIC: cpu_mean
+======================================================================
+  Cells tested: 12, significant after Holm correction (p<0.05): 12
+  [*] caching=off,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=2.75 gql_med=8.63 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=3.07 gql_med=8.96 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=2.55 gql_med=8.44 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=3.13 gql_med=8.94 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=2.9 gql_med=8.99 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=3.06 gql_med=9.55 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=2.62 gql_med=8.55 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=2.78 gql_med=8.69 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=2.63 gql_med=8.57 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=2.97 gql_med=8.99 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=1.93 gql_med=6.13 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=2.12 gql_med=6.22 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+======================================================================
+METRIC: rss_mean_mb
+======================================================================
+  Cells tested: 12, significant after Holm correction (p<0.05): 12
+  [*] caching=off,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=48.9 gql_med=59.5 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=49.2 gql_med=59.5 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=49 gql_med=59.5 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=49.4 gql_med=59.5 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=49.4 gql_med=59.4 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=off,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=49.4 gql_med=59.6 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=uniform,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=48.8 gql_med=59.7 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=uniform,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=49 gql_med=59.4 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=unique,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=48.8 gql_med=59.6 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=unique,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=49.5 gql_med=59.4 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=zipfian,payload_weight=heavy,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=49.6 gql_med=59.4 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+  [*] caching=on,access_pattern=zipfian,payload_weight=light,entropy=medium,network=constrained,density=medium,concurrency=10,page_size=0: rest_med=49.5 gql_med=59.4 n=(30,30) p_holm=0.0000 delta=-1.000 (large)
+
+======================================================================
+SCOPE NOTES (disclose, don't bury)
+----------------------------------------------------------------------
+- round_trip_count is constant=1 for both protocols in this design --
+  the coupling figure uses entropy-vs-hit-rate as the practical stand-in
+  for H3, not a literal round-trip count (see analyze_phase2.py docstring).
+- Corpus is 7 independent MOT sequences -- effective N for any claim about
+  variety-across-scenes is ~7, not the row count in results.csv.
+- With >=30 reps/cell, everything tends toward 'significant' -- read the
+  Cliff's delta magnitude column, not just the Holm-corrected p-value.
+- Runs use tools/netns_topology.sh: server+varnish live inside a network
+  namespace, netem applies only to the single client<->edge veth hop, and
+  the varnish<->backend hop stays on the namespace's own loopback. This
+  fixes an earlier double-delay artifact (whole-`lo` netem, now retired --
+  see tools/netem.sh's header) where a cache MISS paid the emulated network
+  delay twice. Verified directly: MISS-through-Varnish latency went from
+  ~2x direct to ~1x direct under the same `constrained` profile after the
+  fix. Results in this report should NOT carry that bias.
+- access_pattern='unique' is a finite-pool no-repeat cursor
+  (exec.scenario.iterationInTest in k6/workload.js, global across VUs, not
+  per-VU offset). Its achieved cache_hit_rate has a derivable floor of
+  max(0, 1 - pool_size / iterations_in_run) once a single run's iteration
+  count exceeds the entity pool size -- a hit rate above ~0 for 'unique' is
+  expected once that happens, not evidence the access-pattern IV failed.
+- cpu_mean/cpu_p95/rss_mean_mb/rss_p95_mb in this dataset are INVALID and
+  should not be reported or interpreted. find_server_pid_in_tree() matched
+  on the outer `sudo` wrapper's cmdline (which contains the full nested
+  command as text) instead of the actual Python/uvicorn worker several
+  exec/fork layers deeper, so the telemetry sampler watched an idle wrapper
+  process for the entire run (confirmed: flat 0% CPU, ~7MB RSS across all
+  720 rows -- a real worker under load showed ~98% CPU, ~48MB RSS in direct
+  verification). Bug is fixed in orchestrator/run_experiment.py post-hoc;
+  re-verified through a fresh pilot showing sane, varying CPU/RSS. The fix
+  cannot retroactively recover this run's already-elapsed sampling windows.
+  All other metrics (lat_p50/p95/p99, throughput_rps, cache_hit_rate,
+  error_rate, payload_bytes_med) come from k6's own client-side measurement,
+  not the sampler, and are unaffected.
+======================================================================
