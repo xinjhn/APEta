@@ -140,3 +140,28 @@ Hasil juga **konsisten eksternal**: arah cocok dengan Lawi/Niswar/Elghazal/Stęp
 ---
 
 *Sumber verifikasi: `~/APE/papers/` (38 PDF, teks diekstrak penuh; Wohlin 282 hal. penuh), teks laporan hasil ekstraksi python-docx, `results/*/analysis/*.csv`, `tools/analyze_phase2.py`. Semua kutipan bahasa Inggris adalah verbatim dari PDF; kesalahan OCR/ekstraksi kecil mungkin ada pada spasi/tanda hubung.*
+
+---
+
+# ITERASI 2 (v2) — Sintesis Jawaban Siap-Tempel
+
+> Versi visual + papan prioritas: https://claude.ai/code/artifact/97d91432-ea19-4908-9244-faf28f0b346f
+> **Koreksi proveniensi:** temuan §4.7/§7.5 ("core grid → drill-in (Wohlin)") diketahui berasal dari teks yang ditulis asisten AI pada sesi penulisan terdahulu — bukan fabrikasi penulis. Dikeluarkan dari daftar kesalahan penulis; tindakan korektifnya tetap berlaku (F4 di bawah).
+
+**F1 — Konfrontasi Lawi (Bab V, Pembahasan RQ1):** tambah paragraf yang menjelaskan tiga perbedaan desain ukur — (1) titik ukur gateway pada sistem utuh vs proses server langsung via cgroup+sampler ter-pin; (2) JMeter closed-loop (protokol lambat otomatis menerima lebih sedikit kerja → utilisasi tampak rendah) vs open-loop constant-arrival pada laju identik; (3) stack berbeda — lalu tutup dengan konvergensi Elghazal 2025 dan replikasi internal dua run independen. Teks lengkap di artifact v2 §F1.
+
+**F2 — Vonis H4 (Bab V + VII):** "didukung sebagian dan dipertajam" — mekanismenya jumlah objek/titik data yang diresolusi per respons (densitas M1–M4: gap 5→7 ms; window M5: w2 seri → w23 kalah), bukan label bobot payload (grid caching: δ=−1,00 pada kedua bobot dengan besaran serupa). Teks lengkap di artifact v2 §F2.
+
+**F3 — Status H3:** nyatakan eksplisit sebagai prediksi mekanistis yang belum diuji (faktor entropi dikunci medium pada grid inti); tambah butir Saran Bab VII untuk pengujian gradien entropi. Teks lengkap di artifact v2 §F3.
+
+**F4 — Atribusi Wohlin (Bab III):** ganti "prinsip core grid kemudian drill-in (Wohlin dkk., 2024)" → "desain faktorial penuh pada empat faktor inti (Wohlin dkk., 2024), dengan faktor lain dikunci…; perluasan diposisikan sebagai kerja lanjutan". Desain faktorial memang ada di Wohlin; strategi bertahap adalah keputusan penelitian sendiri.
+
+**F5 — BH→Holm (Bab V, Validitas kesimpulan):** "koreksi Holm diterapkan per keluarga metrik…; Benjamini-Hochberg (FDR, q=0,05) hanya digunakan pada analisis uji pendahuluan."
+
+**F6 — Split Lawi/Brito (Bab II):** bukti reduksi 94%/99% milik Brito 2019 **terhadap endpoint REST generik**; Lawi menyumbang landasan metrik QoS. Tambahkan catatan konteks yang menyiapkan non-temuan over-fetching Bab V (endpoint tailored menyempitkan ruang penghematan).
+
+**F7 — Rujukan figur Bab V:** ganti "Gambar V.x"→Gambar V.3; "seri fig_rq1_*"→Tabel V.1+Lampiran (atau sisipkan fig_rq1_cpu_r80); "seri fig_rq2_*"→Gambar V.6–V.7 (atau sisipkan fig_rq2_m6_crossover_r40); "Gambar fig_21/fig_22"→sisipkan sebagai Gambar V.9–V.10. Eksekusi docx = iterasi v3.
+
+**F8 — Ambang magnitudo (Bab III):** standarkan ke ambang pipeline (Romano et al. 2006: 0,147/0,33/0,474), sebutkan kesetaraan praktisnya dengan Kerby/Fiel Peres karena |δ|=1,00 hampir di semua sel; tambah entri Romano ke pustaka.
+
+**F9 — Kecil:** (a) ganti "(Khanam et al., 2026)" → "(Jocher et al., 2026)" + entri pustaka "Jocher, G., Qiu, J., Liu, M., Lyu, S., Akyon, F. C., & Kalfaoglu, M. E. (2026). Ultralytics YOLO26: Unified Real-Time End-to-End Vision Models. arXiv."; (b) "selisih 7–13 ms" → "+51% hingga +141% (sekitar 4–12 ms pada r80; terkecil pada M4)".
