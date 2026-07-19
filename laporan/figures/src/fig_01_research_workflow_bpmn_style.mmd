@@ -1,23 +1,27 @@
-%% Gambar I.1 - Alur besar penelitian APE
-%% Type: BPMN-style process diagram, rendered in Mermaid for editable source.
-%% Reference basis: OMG BPMN 2.0.2 for process notation.
-%% Caption source: Diolah penulis berdasarkan proses penelitian.
-flowchart LR
-    start((Start))
-    lit[Studi literatur REST, GraphQL, caching, dan benchmark API]
-    problem[Identifikasi masalah fairness benchmark]
-    data[Persiapan data VisDrone dan output YOLO]
-    phase1[Phase 1: benchmark awal REST vs GraphQL]
-    audit[Audit hasil Phase 1 dan temuan tak terduga]
-    decision{Apakah desain cukup mengisolasi faktor?}
-    phase2design[Desain Phase 2: cache, access pattern, entropy, payload, network]
-    ape[Pengembangan APE sebagai instrument eksperimen]
-    execute[Eksekusi eksperimen dan pengumpulan metrik]
-    analysis[Analisis statistik dan interpretasi]
-    report[Penyusunan laporan TA]
-    finish((End))
-
-    start --> lit --> problem --> data --> phase1 --> audit --> decision
-    decision -->|Belum cukup| phase2design --> ape --> execute --> analysis --> report --> finish
-    decision -->|Cukup sebagai pilot| phase2design
-
+%% Gambar I.2 — Alur besar penelitian APE (layout v4: dua baris agar terbaca portrait)
+%% Type: BPMN-style process diagram (bukan BPMN strict), rendered in Mermaid.
+%% Reference basis: OMG BPMN 2.0.2 untuk notasi proses.
+flowchart TB
+    subgraph r1 [" "]
+        direction LR
+        start((Mulai)) --> lit["Studi literatur:<br/>REST, GraphQL, caching,<br/>benchmark API"]
+        lit --> problem["Identifikasi masalah<br/>fairness benchmark"]
+        problem --> data["Persiapan data:<br/>VisDrone → fine-tune<br/>YOLO26 → korpus"]
+        data --> pilot["Uji pendahuluan<br/>REST vs GraphQL<br/>(in-memory)"]
+    end
+    subgraph r2 [" "]
+        direction LR
+        audit["Audit metodologi:<br/>confounder implementasi<br/>ditemukan"] --> redesign["Perancangan eksperimen utama:<br/>korpus relasional MOT + APE<br/>fairness-by-construction"]
+        redesign --> grid["Grid inti caching<br/>24 blok (720 run)"]
+        redesign --> mot["Studi skenario MOT<br/>M1–M6, kalibrasi laju<br/>(3.240 run)"]
+    end
+    subgraph r3 [" "]
+        direction LR
+        analysis["Analisis statistik<br/>dan interpretasi"] --> report["Penyusunan<br/>laporan TA"] --> finish((Selesai))
+    end
+    pilot --> audit
+    grid --> analysis
+    mot --> analysis
+    style r1 fill:none,stroke:none
+    style r2 fill:none,stroke:none
+    style r3 fill:none,stroke:none

@@ -1,23 +1,17 @@
-%% Gambar III.3 - Pipeline persiapan data VisDrone-YOLO-SQLite
+%% Gambar (Bab III) — Pipeline persiapan data VisDrone→YOLO→SQLite (layout v4b: dua baris)
 %% Type: BPMN-style process/data pipeline.
-%% Reference basis: VisDrone literature, Ultralytics YOLO docs, ByteTrack paper, SQLite docs.
-flowchart LR
-    vis[VisDrone MOT sequences]
-    model[YOLO model fine-tuned on VisDrone]
-    track[infer_mot_track.py\nYOLO tracking with ByteTrack/BoT-SORT]
-    pred[Tracked MOT prediction txt files]
-    density[mot_compute_density.py / density profiling]
-    dbbuild[build_detection_db.py]
-    sqlite[(mot_detections.db)]
-    idpool[build_id_pool.py\nscratch/id_pool.json]
-    ape[APE REST/GraphQL servers]
-
-    vis --> model --> track --> pred
+%% Reference basis: VisDrone, Ultralytics YOLO, ByteTrack, SQLite.
+flowchart TB
+    subgraph r1 [" "]
+        direction LR
+        vis["Sequence<br/>VisDrone-MOT"] --> model["Model YOLO26<br/>hasil fine-tuning"] --> track["infer_mot_track.py<br/>inferensi + tracking"] --> pred["Prediksi MOT<br/>(tracked, per sequence)"]
+    end
+    subgraph r2 [" "]
+        direction LR
+        density["mot_compute_density.py<br/>profil densitas"] --> dbbuild["build_detection_db.py"] --> sqlite[("mot_detections.db")] --> idpool["build_id_pool.py →<br/>id_pool_mot.json"] --> ape["Server APE<br/>REST / GraphQL"]
+    end
     pred --> density
     pred --> dbbuild
-    density --> dbbuild
-    dbbuild --> sqlite
-    sqlite --> idpool
     sqlite --> ape
-    idpool --> ape
-
+    style r1 fill:none,stroke:none
+    style r2 fill:none,stroke:none

@@ -101,3 +101,35 @@ berdasarkan implementasi APE, Varnish, dan RFC 9111.
 | 38 | Gambar V.6 | Mekanisme round-trip per operasi logis (r40) | V | Bar berpasangan | Mekanisme crossover M6: REST membayar K trip, GraphQL selalu 1 | mot-scenarios-core | `figures/export/fx_mot_mechanism_roundtrip.*` | placed (docx 2026-07-10) |
 | 39 | Gambar V.7 | Peta pemenang page latency M5–M6 (signed Cliff's δ) | V | Heatmap RdBu ±1 | Seluruh dinamika crossover satu gambar: imbang M5·w2·r40 (+0,32), GraphQL menang penuh M6 K≥5 | mot-scenarios-core | `figures/export/fx_mot_delta_heatmap_page.*` | placed (docx 2026-07-10) |
 | 40 | Gambar V.8 | Peta pemenang grid caching (signed Cliff's δ per metrik) | V | Heatmap RdBu ±1 | Tidak ada faktor caching yang membalik pemenang latensi; cache-hit δ≈0 (fairness N4) | phase2-core-real | `figures/export/fx_cache_delta_heatmap.*` | placed (docx 2026-07-10) |
+
+## Status v3 — penempatan di docx (2026-07-13, eksekusi REWRITE_V3_INDEX.md)
+
+Semua caption kini SEQ-field (STYLEREF+SEQ); nomor final setelah F9 di Word.
+
+| Figur final | File | Aksi |
+|---|---|---|
+| Gambar I.1 | export/fig_15_graphql_selection_set_payload.png | SISIP (orphan ref Bab I) |
+| Gambar I.2 | export/fig_01_research_workflow_bpmn_style.png (revisi: + node studi MOT) | SISIP |
+| Gambar III.1 | export/fig_16_variables_metrics_map.png (revisi: re-scope IV/DV/kontrol terkunci) | GANTI image stale coco2017 |
+| Gambar III.2 | export/fig_04_data_preparation_pipeline.png | SISIP |
+| Gambar III.3 | export/fig_20_erd_mot_schema.png | SISIP (rujukan Bab IV "Gambar III.4"→III.3 dikoreksi) |
+| Gambar III.4 | export/fig_11_phase2_factor_grid.png (revisi: 2 panel MOT + grid caching) | SISIP (orphan ref Bab III) |
+| Gambar III.5 | (lama) Model Incremental | renumber saja (III.2→III.5) |
+| Gambar IV.1 | export/fig_03_system_architecture_component.png (revisi: artefak MOT, Varnish=jalur caching) | GANTI image stale Phase-1 |
+| Gambar IV.6 | export/fig_17_sequence_rest_vs_graphql_roundtrip.png | GANTI image stale Phase-1 + caption baru |
+| Gambar IV.7 | export/fig_14_measurement_streams.png (revisi: anotasi X-Process-Time tidak direkam) | PASANG di caption kosong |
+| Gambar IV.8 | export/fig_19_activity_execution_flow.png | PASANG di caption kosong |
+| Gambar IV.9 | export/fig_18_deployment_experiment_topology.png | SISIP |
+| Gambar V.2 | export/fig_23_crossover_surface.png (BARU — regenerasi dari phase2-core-real/results.csv; file analysis/ 0 byte) | GANTI image salah (topologi netns) + caption baru |
+| Gambar V.3 | export/fig_rq1_lat_p50_r80.png | SISIP |
+| Gambar V.5 | export/fig_rq1_lat_p50_r120_overload.png | SISIP |
+| Gambar V.6 | export/fig_rq1_cpu_r80.png | SISIP |
+| Gambar V.9 | export/fig_rq2_m5_window_r40.png | SISIP |
+| Gambar V.11 | export/fig_rq2_m6_crossover_r40.png (figur kunci) | SISIP |
+| Gambar V.12 | export/fig_rq2_delta_rtc_r40.png | SISIP |
+| Gambar V.14 | export/fig_21_rq3_cache_hit_rate.png | SISIP |
+| Gambar V.15 | export/fig_22_rq3_latency_delta.png | SISIP |
+| Gambar V.4/V.7/V.8/V.10/V.13/V.16 | fx_* (sudah terpasang 2026-07-10) | renumber dari "V.9" ganda |
+
+Varian r40/r80/r120 lain + fig_rq1_throughput/rss: dirujuk teks sebagai
+Lampiran, belum disisipkan (keputusan: badan bab memuat varian representatif).

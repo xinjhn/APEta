@@ -145,21 +145,203 @@ def plot_latency_by_scenario(df: pd.DataFrame, output_dir: Path) -> None:
     sub = df[df["rate_label"] != OVERLOAD_LABEL]
     sns.set_style("whitegrid")
     scenarios = sorted(sub["scenario"].unique())
+    hue_order = ["rest", "graphql"]
+    protocol_palette = {"rest": "#e99572", "graphql": "#67b7a1"}
     fig, axes = plt.subplots(2, 3, figsize=(18, 9))
     for idx, sc in enumerate(scenarios):
         ax = axes[idx // 3][idx % 3]
         d = sub[sub["scenario"] == sc]
         tiers = sorted(d["tier"].unique())
         sns.boxplot(data=d, x="tier", y="lat_p95", hue="protocol",
-                    order=tiers, ax=ax)
-        ax.set_title(f"{sc} (sub-saturation r40+r80)", fontsize=11, fontweight="bold")
+                    order=tiers, hue_order=hue_order, palette=protocol_palette,
+                    showfliers=False, ax=ax)
+        # Keep the individual runs visible. This makes small demo samples
+        # interpretable and prevents a one-observation box from looking like
+        # an unexplained line, while the box still carries the median/IQR.
+        sns.stripplot(data=d, x="tier", y="lat_p95", hue="protocol",
+                      order=tiers, hue_order=hue_order, palette=protocol_palette,
+                      dodge=True, jitter=0.08, alpha=0.8, size=4,
+                      legend=False, ax=ax)
+        rate_order = [r for r in ("r40", "r80") if r in set(d["rate_label"])]
+        ax.set_title(f"{sc} (sub-saturation {'+'.join(rate_order)})",
+                     fontsize=11, fontweight="bold")
         ax.set_ylabel("lat_p95 (ms)")
-    fig.suptitle("REST vs GraphQL p95 latency per scenario/tier -- overload tier excluded (analyzed separately)",
+    fig.suptitle("REST vs GraphQL p95 latency per scenario/tier -- boxes show median/IQR; dots show runs",
                  fontsize=11, y=1.0)
     plt.tight_layout()
     plt.savefig(output_dir / "fig_mot_latency_by_scenario.png", dpi=150, bbox_inches="tight")
     plt.close()
     print(f"  Saved {output_dir / 'fig_mot_latency_by_scenario.png'}")
+
+
+def plot_throughput_attainment(df: pd.DataFrame, output_dir: Path) -> None:
+    """Plot achieved throughput as a percentage of each cell's target rate."""
+    sub = df[df["rate_label"] != OVERLOAD_LABEL].copy()
+    sub["throughput_rps"] = pd.to_numeric(sub["throughput_rps"], errors="coerce")
+    sub["target_rps"] = pd.to_numeric(sub["concurrency"], errors="coerce")
+    sub["round_trip_count"] = pd.to_numeric(sub["round_trip_count"], errors="coerce")
+    sub = sub[(sub["target_rps"] > 0) & (sub["round_trip_count"] > 0)]
+    # throughput_rps counts HTTP requests. REST M5 uses two requests per
+    # scenario iteration and REST M6 uses K, while GraphQL uses one. Convert
+    # back to completed scenario iterations before comparing with the
+    # configured scenario-arrival target.
+    sub["scenario_throughput_rps"] = sub["throughput_rps"] / sub["round_trip_count"]
+    sub["target_attainment_pct"] = 100 * sub["scenario_throughput_rps"] / sub["target_rps"]
+
+    scenarios = sorted(sub["scenario"].dropna().unique())
+    if not scenarios:
+        return
+    ncols = min(3, len(scenarios))
+    nrows = int(np.ceil(len(scenarios) / ncols))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(6 * ncols, 4.5 * nrows), squeeze=False)
+    axes_flat = axes.ravel()
+    hue_order = ["rest", "graphql"]
+    protocol_palette = {"rest": "#e99572", "graphql": "#67b7a1"}
+
+    for idx, sc in enumerate(scenarios):
+        ax = axes_flat[idx]
+        d = sub[sub["scenario"] == sc]
+        tiers = sorted(d["tier"].unique())
+        sns.boxplot(data=d, x="tier", y="target_attainment_pct", hue="protocol",
+                    order=tiers, hue_order=hue_order, palette=protocol_palette,
+                    showfliers=False, ax=ax)
+        sns.stripplot(data=d, x="tier", y="target_attainment_pct", hue="protocol",
+                      order=tiers, hue_order=hue_order, palette=protocol_palette,
+                      dodge=True, jitter=0.08, alpha=0.8, size=4,
+                      legend=False, ax=ax)
+        ax.axhline(100, color="#667085", linestyle="--", linewidth=1,
+                   label="configured target")
+        rate_order = [r for r in ("r40", "r80") if r in set(d["rate_label"])]
+        targets = "/".join(f"{v:g}" for v in sorted(d["target_rps"].unique()))
+        ax.set_title(f"{sc} ({'+'.join(rate_order)}; target {targets} rps)",
+                     fontsize=11, fontweight="bold")
+        ax.set_ylabel("Achieved / target scenario throughput (%)")
+        ax.set_xlabel("tier")
+    for ax in axes_flat[len(scenarios):]:
+        ax.set_visible(False)
+
+    fig.suptitle("Scenario-throughput target attainment -- request throughput normalized by round trips; 100% = target sustained",
+                 fontsize=11, y=1.0)
+    plt.tight_layout()
+    path = output_dir / "fig_mot_throughput_by_scenario.png"
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"  Saved {path}")
+
+
+def plot_payload_by_scenario(df: pd.DataFrame, output_dir: Path) -> None:
+    """Compare measured response payload size within each demo scenario."""
+    sub = df[df["rate_label"] != OVERLOAD_LABEL].copy()
+    sub["payload_kib"] = pd.to_numeric(sub["payload_bytes_med"], errors="coerce") / 1024
+    scenarios = sorted(sub["scenario"].dropna().unique())
+    if not scenarios:
+        return
+    ncols = min(3, len(scenarios))
+    nrows = int(np.ceil(len(scenarios) / ncols))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(6 * ncols, 4.5 * nrows), squeeze=False)
+    axes_flat = axes.ravel()
+    hue_order = ["rest", "graphql"]
+    palette = {"rest": "#e99572", "graphql": "#67b7a1"}
+    for idx, sc in enumerate(scenarios):
+        ax = axes_flat[idx]
+        d = sub[sub["scenario"] == sc]
+        tiers = sorted(d["tier"].unique())
+        sns.boxplot(data=d, x="tier", y="payload_kib", hue="protocol",
+                    order=tiers, hue_order=hue_order, palette=palette,
+                    showfliers=False, ax=ax)
+        sns.stripplot(data=d, x="tier", y="payload_kib", hue="protocol",
+                      order=tiers, hue_order=hue_order, palette=palette,
+                      dodge=True, jitter=0.08, alpha=0.8, size=4,
+                      legend=False, ax=ax)
+        ax.set_title(f"{sc} response payload", fontsize=11, fontweight="bold")
+        ax.set_ylabel("Median response payload (KiB)")
+        ax.set_xlabel("tier")
+    for ax in axes_flat[len(scenarios):]:
+        ax.set_visible(False)
+    fig.suptitle("Measured response payload by demo scenario -- boxes show median/IQR; dots show runs",
+                 fontsize=11, y=1.0)
+    plt.tight_layout()
+    path = output_dir / "fig_mot_payload_by_scenario.png"
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"  Saved {path}")
+
+
+def plot_round_trips_by_scenario(df: pd.DataFrame, output_dir: Path) -> None:
+    """Visualize the measured/design round-trip count for each scenario."""
+    data = df.copy()
+    data["round_trip_count"] = pd.to_numeric(data["round_trip_count"], errors="coerce")
+    scenarios = sorted(data["scenario"].dropna().unique())
+    if not scenarios:
+        return
+    ncols = min(3, len(scenarios))
+    nrows = int(np.ceil(len(scenarios) / ncols))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(6 * ncols, 4.2 * nrows), squeeze=False)
+    axes_flat = axes.ravel()
+    protocols = ["rest", "graphql"]
+    colors = {"rest": "#e99572", "graphql": "#67b7a1"}
+    width = 0.34
+    for idx, sc in enumerate(scenarios):
+        ax = axes_flat[idx]
+        d = data[data["scenario"] == sc]
+        tiers = sorted(d["tier"].unique())
+        x = np.arange(len(tiers))
+        for offset, protocol in enumerate(protocols):
+            values = [d[(d["tier"] == tier) & (d["protocol"] == protocol)]
+                      ["round_trip_count"].median() for tier in tiers]
+            bars = ax.bar(x + (offset - 0.5) * width, values, width,
+                          color=colors[protocol], label=protocol)
+            ax.bar_label(bars, fmt="%g", padding=3, fontsize=9)
+        ax.set_xticks(x, tiers)
+        ax.set_title(sc, fontsize=11, fontweight="bold")
+        ax.set_ylabel("HTTP round trips / scenario iteration")
+        ax.set_xlabel("tier")
+        ax.set_ylim(0, max(2, d["round_trip_count"].max() + 1))
+        ax.legend()
+    for ax in axes_flat[len(scenarios):]:
+        ax.set_visible(False)
+    fig.suptitle("Round-trip structure by scenario -- M5 and M6 expose REST's multi-request client flow",
+                 fontsize=11, y=1.0)
+    plt.tight_layout()
+    path = output_dir / "fig_mot_round_trips_by_scenario.png"
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"  Saved {path}")
+
+
+def plot_client_flow_latency(df: pd.DataFrame, output_dir: Path) -> None:
+    """Compare end-to-end client-flow latency where M5/M6 populate it."""
+    data = df.copy()
+    data["page_latency_med"] = pd.to_numeric(data["page_latency_med"], errors="coerce")
+    data = data[data["page_latency_med"].notna()]
+    scenarios = sorted(data["scenario"].dropna().unique())
+    if not scenarios:
+        return
+    fig, axes = plt.subplots(1, len(scenarios), figsize=(7 * len(scenarios), 4.8), squeeze=False)
+    axes_flat = axes.ravel()
+    hue_order = ["rest", "graphql"]
+    palette = {"rest": "#e99572", "graphql": "#67b7a1"}
+    for idx, sc in enumerate(scenarios):
+        ax = axes_flat[idx]
+        d = data[data["scenario"] == sc]
+        tiers = sorted(d["tier"].unique())
+        sns.boxplot(data=d, x="tier", y="page_latency_med", hue="protocol",
+                    order=tiers, hue_order=hue_order, palette=palette,
+                    showfliers=False, ax=ax)
+        sns.stripplot(data=d, x="tier", y="page_latency_med", hue="protocol",
+                      order=tiers, hue_order=hue_order, palette=palette,
+                      dodge=True, jitter=0.08, alpha=0.8, size=5,
+                      legend=False, ax=ax)
+        ax.set_title(f"{sc} client flow", fontsize=11, fontweight="bold")
+        ax.set_ylabel("Median end-to-end flow latency (ms)")
+        ax.set_xlabel("tier")
+    fig.suptitle("Client-visible multi-request latency -- REST sequence versus one GraphQL operation",
+                 fontsize=11, y=1.0)
+    plt.tight_layout()
+    path = output_dir / "fig_mot_client_flow_latency.png"
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"  Saved {path}")
 
 
 def plot_overload(df: pd.DataFrame, output_dir: Path) -> None:
@@ -270,6 +452,10 @@ def main() -> None:
     all_results = {m: analyze_metric(df, m) for m in METRICS if m in df.columns}
 
     plot_latency_by_scenario(df, output_dir)
+    plot_throughput_attainment(df, output_dir)
+    plot_payload_by_scenario(df, output_dir)
+    plot_round_trips_by_scenario(df, output_dir)
+    plot_client_flow_latency(df, output_dir)
     plot_overload(df, output_dir)
     generate_report(df, all_results, output_dir)
     print("Done. Output in:", output_dir)

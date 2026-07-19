@@ -1,57 +1,68 @@
-%% Gambar IV.1 - Arsitektur komponen APE
+%% Gambar IV.1 — Arsitektur komponen APE (revisi v4: modul dibungkus dua baris agar terbaca portrait)
 %% Type: UML component-style architecture diagram, rendered in Mermaid.
-%% Reference basis: UML 2.5.1 component/deployment-style documentation.
+%% Reference basis: UML 2.5.1; artefak per FIGURE_AUDIT.md (workload_mot.js,
+%% id_pool_mot.json, modul shared lengkap, Varnish = jalur caching saja).
 flowchart TB
-    subgraph LoadLayer["Load and orchestration layer"]
-        Orchestrator["orchestrator/run_experiment.py"]
-        K6["k6/workload.js"]
-        Sampler["telemetry/sampler.py"]
+    subgraph LoadLayer["Lapisan beban dan orkestrasi"]
+        direction LR
+        Orchestrator["orchestrator/<br/>run_experiment.py"]
+        K6["k6/workload_mot.js (studi MOT)<br/>k6/workload.js (grid caching)"]
+        Sampler["telemetry/<br/>sampler.py"]
     end
 
-    subgraph CacheLayer["Cache layer"]
-        Varnish["Varnish reverse proxy\ncache/varnish.vcl"]
+    subgraph CacheLayer["Lapisan cache — hanya blok caching=on"]
+        Varnish["Varnish reverse proxy<br/>cache/varnish.vcl"]
     end
 
-    subgraph APILayer["API origin server (one active protocol per block)"]
-        REST["FastAPI REST\nrest_server.py"]
-        GQL["Strawberry GraphQL\ngraphql_server.py"]
+    subgraph APILayer["Server origin API (satu protokol aktif per blok, port 8000)"]
+        direction LR
+        REST["FastAPI REST<br/>rest_server.py"]
+        GQL["Strawberry GraphQL<br/>graphql_server.py"]
     end
 
-    subgraph SharedCore["Shared core"]
-        DAL["DetectionDAL\ncore/dal.py"]
-        CacheLogic["Cache headers and ETag\ncore/caching.py"]
-        Timing["X-Process-Time middleware\ncore/timing.py"]
+    subgraph SharedCore["Inti bersama (shared) — identik bagi kedua protokol"]
+        subgraph SC1 [" "]
+            direction LR
+            DAL["DetectionDAL<br/>core/dal.py"] ~~~ Proj["Proyeksi field<br/>core/projection.py"] ~~~ CacheLogic["Header cache & ETag<br/>core/caching.py"]
+        end
+        subgraph SC2 [" "]
+            direction LR
+            Filt["Filter & agregasi<br/>core/filters.py ·<br/>core/aggregate.py"] ~~~ Sel["Seleksi entitas seeded<br/>core/selection.py"] ~~~ Timing["X-Process-Time<br/>core/timing.py"]
+        end
     end
 
-    subgraph DataLayer["Data and results"]
-        DB[("SQLite corpus\ntraining/mot_detections.db")]
-        IDPool["scratch/id_pool.json"]
-        RunPlan["results/run_plan.csv"]
-        Results["results/results.csv"]
-        Summaries["results/k6_summaries/*.json"]
-        Telemetry["results/telemetry/*.csv"]
+    subgraph DataLayer["Data dan hasil"]
+        subgraph DL1 [" "]
+            direction LR
+            DB[("SQLite korpus<br/>mot_detections.db")] ~~~ IDPool["scratch/<br/>id_pool_mot.json"] ~~~ RunPlan["run_plan.csv"]
+        end
+        subgraph DL2 [" "]
+            direction LR
+            Results["results.csv"] ~~~ Summaries["k6_summaries/*.json"] ~~~ Telemetry["telemetry/*.csv"]
+        end
     end
 
-    Orchestrator --> RunPlan
-    Orchestrator --> REST
-    Orchestrator --> GQL
-    Orchestrator --> Varnish
     Orchestrator --> K6
     Orchestrator --> Sampler
-    K6 -->|"HTTP workload"| Varnish
-    K6 -->|"HTTP workload when cache off"| REST
-    K6 -->|"HTTP workload when cache off"| GQL
+    Orchestrator --> Varnish
+    Orchestrator --> REST
+    Orchestrator --> GQL
+    K6 -->|"caching=on"| Varnish
+    K6 -->|"caching=off"| REST
+    K6 -->|"caching=off"| GQL
     Varnish --> REST
     Varnish --> GQL
     REST --> DAL
     GQL --> DAL
     REST --> CacheLogic
     GQL --> CacheLogic
-    REST --> Timing
-    GQL --> Timing
     DAL --> DB
     K6 --> IDPool
     K6 --> Summaries
     Sampler --> Telemetry
+    Orchestrator --> RunPlan
     Orchestrator --> Results
-
+    style SC1 fill:none,stroke:none
+    style SC2 fill:none,stroke:none
+    style DL1 fill:none,stroke:none
+    style DL2 fill:none,stroke:none

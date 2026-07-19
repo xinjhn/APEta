@@ -224,6 +224,9 @@ def build_mot_grid_blocks(cfg) -> List[dict]:
                cache off (the REST-optimized single-call counterfactual).
       m1mem    M1 only, protocol(2) x density-tier(3) at the r40 rate = 6,
                APE_DATA_BACKEND=memory (serialization-isolation probe).
+      demo6    DEMO-ONLY smoke arm: protocol(2) x scenario(6), one
+               representative middle tier at r40 = 12 blocks. This proves
+               all scenario paths locally; it is not an inferential study.
 
     Rates are ABSOLUTE req/s from design/CALIBRATION.md ({40,80,120}% of the
     per-family lower protocol ceiling), stored in `concurrency` (the k6 VUS
@@ -264,8 +267,21 @@ def build_mot_grid_blocks(cfg) -> List[dict]:
                 combos.append({"protocol": protocol, "scenario": "M1", "tier": tier,
                                "caching": "off", "access_pattern": "uniform",
                                "backend": "memory", "rates": "r40"})
+    elif arm == "demo6":
+        representative_tier = {
+            "M1": "medium", "M2": "medium", "M3": "medium", "M4": "medium",
+            "M5": "w8", "M6": "k5",
+        }
+        for protocol in PROTOCOLS:
+            for scenario in MOT_SCENARIOS:
+                combos.append({"protocol": protocol, "scenario": scenario,
+                               "tier": representative_tier[scenario],
+                               "caching": "off", "access_pattern": "uniform",
+                               "backend": "sqlite", "rates": "r40"})
     else:
-        raise SystemExit(f"APE_MOT_ARM must be one of core|m6cache|m5embed|m1mem, got {arm!r}")
+        raise SystemExit(
+            f"APE_MOT_ARM must be one of core|m6cache|m5embed|m1mem|demo6, got {arm!r}"
+        )
 
     blocks = []
     idx = 0

@@ -1,38 +1,18 @@
-%% Gambar III.2 - Pemetaan variabel bebas, kontrol, dan metrik
-%% Type: Concept map.
-%% Reference basis: experiment design in orchestrator/config.py and workload.js.
+%% Gambar III.1 — Pemetaan variabel bebas, terikat, dan kontrol (layout v4c: tiga baris 3-kolom, chain rows)
+%% Type: Concept map. Reference basis: Bab III (Variabel Penelitian), design/SCENARIO_DESIGN.md,
+%% orchestrator/config.py, k6/workload_mot.js + k6/workload.js, env_snapshot/ape_env.txt.
 flowchart TB
-    subgraph IV["Independent variables"]
-        protocol[protocol]
-        caching[caching]
-        access[access_pattern]
-        entropy[entropy]
-        payload[payload_weight]
-        network[network]
-        density[density]
-        concurrency[concurrency]
+    subgraph VB["Variabel bebas"]
+        direction LR
+        proto["Jenis pendekatan API:<br/>REST API (FastAPI) |<br/>GraphQL (Strawberry)"] ~~~ mot["Faktor studi skenario MOT:<br/>skenario M1–M6 · tier ·<br/>laju r40/r80/r120"] ~~~ grid["Faktor grid inti caching:<br/>caching on/off · pola akses ·<br/>bobot payload light/heavy"]
     end
-
-    subgraph Controls["Controlled variables"]
-        db[same SQLite corpus]
-        dal[same DetectionDAL]
-        worker[single worker origin]
-        seed[fixed seed/run plan]
-        duration[same run duration]
-        caps[CPU and memory caps when enabled]
+    subgraph VK["Variabel kontrol — identik bagi kedua protokol"]
+        direction LR
+        k1["YOLO26 black-box (korpus beku) ·<br/>SQLite mot_detections.db +<br/>shared DetectionDAL"] ~~~ k2["Header cache satu fungsi shared<br/>(GraphQL via APQ-over-GET) ·<br/>HTTP/1.1 · tanpa kompresi · 1 worker"] ~~~ k3["netns + netem (lan|constrained) ·<br/>cgroup caps + CPU pinning ·<br/>seed 42 · 30 run/sel · 90 s/run"]
     end
-
-    subgraph DV["Dependent metrics"]
-        lat[latency p50/p95/p99]
-        thr[throughput rps]
-        bytes[payload bytes median]
-        hit[cache hit rate]
-        err[error rate]
-        apq[APQ registrations]
-        cpu[CPU mean/p95]
-        rss[RSS mean/p95]
+    subgraph VT["Variabel terikat"]
+        direction LR
+        t1["waktu respons p50/p95/p99 ·<br/>throughput (permintaan/detik)"] ~~~ t2["payload size ·<br/>cache-hit rate"] ~~~ t3["error rate ·<br/>CPU & memory usage (RSS)"]
     end
-
-    IV --> DV
-    Controls -. "kept constant where possible" .-> DV
-
+    mot --> t2
+    k2 -. "dijaga konstan" .-> t2

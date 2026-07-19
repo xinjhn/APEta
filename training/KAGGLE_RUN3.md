@@ -1,5 +1,17 @@
 # Kaggle run3 (official protocol) — start tonight
 
+> **FINAL STATUS (verified 2026-07-14): DO NOT RESUME.** The current Kaggle
+> notebook version is 2, and its latest session is complete after reaching the
+> protocol's terminal early-stopping condition:
+> 133 epochs in 9.844 hours, with the best result at epoch 118 and no
+> improvement for the following 15 epochs. The saved checkpoints were
+> optimizer-stripped (`epoch=-1`, `optimizer=None`), so they are final
+> inference checkpoints rather than resumable optimizer state. Outputs and
+> hashes are archived in
+> [`kaggle/run3_official_final/RUN3_FINAL.md`](kaggle/run3_official_final/RUN3_FINAL.md).
+> Starting again from `best.pt` would be a separately named extension with a
+> reset optimizer/scheduler, not a continuation of `run3_official`.
+
 > **SUPERSEDED IN PART (2026-07-09, late night):** the manual notebook workflow
 > below hit three avoidable failures (nested mirror dirs, converter path never
 > existing because `ape-training-assets` was never uploaded, DST pointed at

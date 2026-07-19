@@ -71,7 +71,7 @@ MOT_PAGE_TIERS = ("k1", "k5", "k10")
 # The overload label is load-bearing: Stage-6 sanity checks and the analysis
 # must NEVER pool r120_overload rows with the sub-saturation ones.
 MOT_RATE_LABELS = ("r40", "r80", "r120_overload")
-MOT_ARMS = ("core", "m6cache", "m5embed", "m1mem")
+MOT_ARMS = ("core", "m6cache", "m5embed", "m1mem", "demo6")
 
 
 def mot_family(scenario: str) -> str:
@@ -137,6 +137,7 @@ class Config:
     session_id: str
     results_dir: Path
     enable_pinning: bool
+    enable_netem: bool
     server_cores: Optional[str]
     k6_cores: Optional[str]
     sampler_core: Optional[str]
@@ -218,6 +219,10 @@ def get_config() -> Config:
         session_id=os.environ.get("APE_SESSION_ID", "local-pilot"),
         results_dir=Path(os.environ.get("APE_RESULTS_DIR", str(PROJECT_ROOT / "results" / "phase2"))),
         enable_pinning=_env_bool("APE_ENABLE_PINNING", False),
+        # WSL's stock Microsoft kernel may omit sch_netem entirely. This
+        # switch is demo-only: it preserves the namespace/cache topology but
+        # explicitly skips latency/rate emulation. VM experiments leave it on.
+        enable_netem=not _env_bool("APE_DISABLE_NETEM", False),
         server_cores=os.environ.get("APE_SERVER_CORES"),
         k6_cores=os.environ.get("APE_K6_CORES"),
         sampler_core=os.environ.get("APE_SAMPLER_CORE"),

@@ -1,25 +1,28 @@
-%% Gambar III.1 - Desain faktor eksperimen Phase 2
-%% Type: Factor map.
-%% Reference basis: orchestrator/config.py and make_run_plan.py.
-flowchart LR
-    cell[Experimental cell]
-    protocol["protocol\nREST | GraphQL"]
-    caching["caching\non | off"]
-    access["access_pattern\nunique | uniform | zipfian"]
-    entropy["entropy\nlow | medium | high"]
-    payload["payload_weight\nlight | heavy"]
-    network["network\nlan | constrained"]
-    density["density\nlow | medium | high"]
-    conc["concurrency\nVUs"]
-    metrics["Dependent metrics\nlat_p50/p95/p99, throughput, payload_bytes, cache_hit_rate, error_rate, APQ registrations, CPU, RSS"]
+%% Gambar (Bab III) — Desain faktor dua korpus eksperimen utama (layout v4c: panel bertumpuk, faktor per baris)
+%% Type: Factor map, dua panel (FIGURE_AUDIT.md: pecah grid MOT vs grid caching).
+%% Reference basis: orchestrator/make_run_plan.py (APE_GRID=mot), run_plan.csv kedua korpus,
+%% design/CALIBRATION.md, design/STUDY_COMPARISON.md.
+flowchart TB
+    subgraph MOT["Studi skenario MOT — 3.240 run terukur (RQ1 dan konsolidasi round-trip RQ2)"]
+        subgraph mr [" "]
+            direction LR
+            p1["protokol:<br/>REST | GraphQL"] ~~~ s1["skenario akses:<br/>M1–M6"] ~~~ t1["tier per family:<br/>densitas (M1–M4) ·<br/>window (M5) · page (M6)"] ~~~ r1["laju terkalibrasi:<br/>r40 | r80 | r120<br/>(overload, terpisah)"]
+        end
+        c1["sel eksperimen × 30 run terukur<br/>dikunci: caching=off · pola akses=uniform · jaringan=lan"]
+        s1 --> c1
+        t1 --> c1
+    end
 
-    protocol --> cell
-    caching --> cell
-    access --> cell
-    entropy --> cell
-    payload --> cell
-    network --> cell
-    density --> cell
-    conc --> cell
-    cell --> metrics
+    subgraph CG["Grid inti caching — 24 blok, 720 run terukur (pengaruh caching, pola akses, bobot payload — RQ2)"]
+        subgraph cr [" "]
+            direction LR
+            p2["protokol:<br/>REST | GraphQL"] ~~~ ca["caching:<br/>on | off (Varnish)"] ~~~ ap["pola akses:<br/>unique | uniform |<br/>zipfian"] ~~~ pw["bobot payload:<br/>light | heavy"]
+        end
+        c2["blok eksperimen × 30 run terukur<br/>dikunci: entropi=medium · densitas=medium · jaringan=constrained · concurrency=10 req/s"]
+        ca --> c2
+        ap --> c2
+    end
 
+    MOT ~~~ CG
+    style mr fill:none,stroke:none
+    style cr fill:none,stroke:none

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>APE Demo Control Room</title>
+  <style>
+    :root{--ink:#101828;--muted:#667085;--line:#d0d5dd;--panel:#fff;--bg:#f4f7f6;--green:#087b5b;--green2:#0da678;--amber:#b54708;--red:#b42318;--navy:#172b4d;--shadow:0 12px 32px rgba(16,24,40,.08)}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+    .shell{max-width:1440px;margin:auto;padding:28px}.hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#102a43 0%,#174f55 58%,#087b5b 100%);color:white;border-radius:24px;padding:32px 36px;box-shadow:var(--shadow)}
+    .hero:after{content:"";position:absolute;width:360px;height:360px;border:70px solid rgba(255,255,255,.06);border-radius:50%;right:-100px;top:-180px}.eyebrow{letter-spacing:.14em;text-transform:uppercase;font-size:11px;font-weight:800;color:#a7f3d0}.hero h1{font-size:34px;line-height:1.1;margin:8px 0}.hero p{max-width:720px;color:#d0ece5;margin:0}.badges{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}.badge{padding:6px 10px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:rgba(255,255,255,.1);font-size:12px;font-weight:700}
+    .warning{display:flex;gap:12px;align-items:flex-start;margin:18px 0;padding:14px 16px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}.warning strong{display:block}.layout{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}.panel{background:var(--panel);border:1px solid #e4e7ec;border-radius:18px;padding:20px;box-shadow:0 4px 18px rgba(16,24,40,.04);min-width:0}.panel h2{font-size:16px;margin:0 0 16px}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.subtle{color:var(--muted);font-size:12px}.readiness{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.ready{border:1px solid #eaecf0;border-radius:12px;padding:11px}.ready b{display:flex;align-items:center;gap:7px;text-transform:capitalize}.dot{width:8px;height:8px;border-radius:50%;background:var(--red)}.ok .dot{background:var(--green2)}.ready small{display:block;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px}
+    .controls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.btn{border:0;border-radius:11px;padding:11px 12px;background:#e8f5f1;color:#075e47;font-weight:800;cursor:pointer;transition:.18s}.btn:hover{transform:translateY(-1px);background:#d5eee7}.btn.primary{background:var(--green);color:white}.btn.danger{background:#fee4e2;color:var(--red)}.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .progress-wrap{margin-top:18px}.progress-meta{display:flex;justify-content:space-between;font-weight:700;margin-bottom:7px}.track{height:11px;background:#e9efed;border-radius:99px;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--green),#20c997);transition:width .4s}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.stat{padding:12px;border-radius:12px;background:#f8faf9}.stat small{color:var(--muted)}.stat b{display:block;font-size:20px;margin-top:3px}
+    .terminal{background:#0b1726;color:#cce8df;border-radius:14px;padding:15px;height:360px;overflow:auto;white-space:pre-wrap;font:12px/1.55 "Cascadia Code",Consolas,monospace}.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}.tab{border:1px solid var(--line);background:white;padding:6px 9px;border-radius:8px;cursor:pointer;font-size:12px}.tab.active{background:var(--navy);color:white;border-color:var(--navy)}
+    .profile{display:none;margin-top:18px}.profile.show{display:grid}.profile-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.profile-card{background:#f8faf9;border-radius:12px;padding:13px}.profile-card b{font-size:22px;display:block}.density-chart{margin-top:18px;padding:18px;border:1px solid #e4e7ec;border-radius:14px;background:#fbfdfc}.density-chart h3{font-size:14px;margin:0}.density-summary{color:var(--muted);font-size:12px;margin:4px 0 16px}.density{display:grid;gap:12px}.density-row{display:grid;grid-template-columns:155px minmax(140px,1fr) 125px;gap:12px;align-items:center}.density-label b,.density-value b{display:block}.density-label small,.density-value small{color:var(--muted)}.density-value{text-align:right}.density-track{height:28px;background:#e9efed;border-radius:8px;overflow:hidden}.density-bar{height:100%;min-width:3px;border-radius:8px;transition:width .45s ease}.density-bar.low{background:#79cdb5}.density-bar.medium{background:#0da678}.density-bar.high{background:#174f55}.gallery{display:grid;grid-template-columns:1fr 1fr;gap:14px}.gallery img{display:block;width:100%;border:1px solid #e4e7ec;border-radius:12px}.empty{color:var(--muted);padding:24px;text-align:center;border:1px dashed var(--line);border-radius:12px}
+    .toast{position:fixed;right:24px;bottom:24px;background:var(--navy);color:white;padding:12px 16px;border-radius:11px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:none}.status-pill{font-size:11px;padding:4px 8px;border-radius:999px;background:#f2f4f7;color:#344054;font-weight:800}.status-pill.running{background:#ecfdf3;color:#027a48}.status-pill.failed{background:#fef3f2;color:#b42318}.status-pill.passed{background:#e8f5f1;color:#087b5b}
+    @media(max-width:960px){.layout{grid-template-columns:1fr}.readiness,.controls{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:580px){.shell{padding:14px}.hero{padding:24px}.hero h1{font-size:28px}.readiness,.controls,.profile-grid,.gallery{grid-template-columns:1fr}.density-row{grid-template-columns:1fr}.density-value{text-align:left}.density-track{grid-row:2}}
+  </style>
+</head>
+<body>
+<main class="shell">
+  <section class="hero">
+    <div class="eyebrow">APE · Experiment Operations</div>
+    <h1>Demo Control Room</h1>
+    <p>Profile the MOT corpus, verify REST/GraphQL parity, run the resumable WSL experiment, and turn results into statistical evidence and figures.</p>
+    <div class="badges"><span id="armBadge" class="badge">Loading arm…</span><span id="runsBadge" class="badge">Loading repetitions…</span><span id="durationBadge" class="badge">Loading duration…</span><span id="coverageBadge" class="badge">Loading scenarios…</span><span class="badge">WSL2 local</span></div>
+  </section>
+  <div class="warning"><span>⚠</span><div><strong>Demonstration environment</strong><span id="demoWarning"> Network emulation is disabled. Do not combine these measurements with VM data.</span></div></div>
+
+  <section class="layout">
+    <div class="panel">
+      <div class="panel-head"><h2>Readiness</h2><span id="refreshTime" class="subtle">Checking…</span></div>
+      <div id="readiness" class="readiness"></div>
+      <div class="progress-wrap">
+        <div class="progress-meta"><span>Measured-run progress</span><span id="progressLabel">0 / 0</span></div>
+        <div class="track"><div id="progressBar" class="bar"></div></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><small>REST p95 median</small><b id="restP95">—</b></div>
+        <div class="stat"><small>GraphQL p95 median</small><b id="gqlP95">—</b></div>
+        <div class="stat"><small>REST throughput</small><b id="restRps">—</b></div>
+        <div class="stat"><small>GraphQL throughput</small><b id="gqlRps">—</b></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Workflow controls</h2><span id="experimentState" class="status-pill">idle</span></div>
+      <div class="controls">
+        <button class="btn" onclick="loadProfile()">1 · Profile</button>
+        <button class="btn" onclick="runAction('parity')">2 · Parity</button>
+        <button class="btn" onclick="runAction('resume')" title="Read-only preview of the real run-UID resume logic">Simulate skip</button>
+        <button class="btn primary" onclick="runAction('experiment')">3 · Start</button>
+        <button class="btn danger" onclick="stopExperiment()">Stop</button>
+        <button class="btn" onclick="runAction('validate')">4 · Validate</button>
+        <button class="btn" onclick="runAction('analyze')">5 · Analyze</button>
+        <button class="btn danger" onclick="resetResults()" title="Archive the current session into results/.trash">Reset results</button>
+      </div>
+      <p class="subtle"><strong>Simulate skip</strong> is read-only and finishes in seconds; it previews the real resume decision without starting services or workloads. Reset archives the session in <code>results/.trash</code>.</p>
+    </div>
+  </section>
+
+  <section id="profilePanel" class="panel profile">
+    <div class="panel-head"><h2>Dataset profile</h2><span class="subtle">Read-only SQLite audit</span></div>
+    <div id="profileCounts" class="profile-grid"></div>
+    <div class="density-chart">
+      <h3>Image density distribution</h3>
+      <p id="densitySummary" class="density-summary">Detections per image, grouped by the dataset's confidence-0.25 density tiers.</p>
+      <div id="density" class="density" role="img" aria-label="Image density tier distribution"></div>
+    </div>
+  </section>
+
+  <section class="panel" style="margin-top:18px">
+    <div class="panel-head"><h2>Live output</h2><span id="logState" class="status-pill">idle</span></div>
+    <div class="tabs">
+      <button class="tab active" data-log="experiment">Experiment</button>
+      <button class="tab" data-log="resume">Skip simulation</button>
+      <button class="tab" data-log="parity">Parity</button>
+      <button class="tab" data-log="validate">Validation</button>
+      <button class="tab" data-log="analyze">Analysis</button>
+    </div>
+    <pre id="terminal" class="terminal">Waiting for output…</pre>
+  </section>
+
+  <section class="panel" style="margin-top:18px">
+    <div class="panel-head"><h2>Generated evidence</h2><span class="subtle">Refreshes automatically after analysis</span></div>
+    <div id="gallery" class="gallery"><div class="empty">Run analysis to generate figures.</div></div>
+  </section>
+
+</main>
+<div id="toast" class="toast"></div>
+<script>
+  let selectedLog='experiment',gallerySignature='';
+  const fmt=v=>v==null?'—':Number(v).toLocaleString(undefined,{maximumFractionDigits:2});
+  function toast(message){const el=document.getElementById('toast');el.textContent=message;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),3200)}
+  async function json(url,options){const r=await fetch(url,options);const body=await r.json();if(!r.ok)throw new Error(body.detail||'Request failed');return body}
+  async function refresh(){try{const d=await json('/api/overview');renderOverview(d);await refreshLog()}catch(e){toast(e.message)}}
+  function renderOverview(d){
+    const ready=document.getElementById('readiness');ready.innerHTML='';
+    Object.entries(d.readiness).forEach(([name,item])=>{const el=document.createElement('div');el.className='ready '+(item.ok?'ok':'');el.innerHTML=`<b><span class="dot"></span>${name}</b><small title="${item.detail}">${item.detail}</small>`;ready.appendChild(el)});
+    document.getElementById('progressLabel').textContent=`${d.progress.done} / ${d.progress.total} · ${d.progress.percent}%`;
+    document.getElementById('progressBar').style.width=d.progress.percent+'%';
+    document.getElementById('restP95').textContent=fmt(d.metrics.rest.lat_p95)+' ms';document.getElementById('gqlP95').textContent=fmt(d.metrics.graphql.lat_p95)+' ms';
+    document.getElementById('restRps').textContent=fmt(d.metrics.rest.throughput_rps)+' rps';document.getElementById('gqlRps').textContent=fmt(d.metrics.graphql.throughput_rps)+' rps';
+    const state=d.jobs.experiment.state,pill=document.getElementById('experimentState');pill.textContent=state;pill.className='status-pill '+state;
+    const cfg=d.experiment_config;
+    document.getElementById('armBadge').textContent=cfg.arm+' arm';
+    document.getElementById('runsBadge').textContent=`${cfg.n_measured} measured · ${cfg.n_warmup} warmup`;
+    document.getElementById('durationBadge').textContent=cfg.run_duration+' windows';
+    document.getElementById('coverageBadge').textContent=cfg.scenarios.join(' · ');
+    document.getElementById('demoWarning').textContent=cfg.reduced_demo_grid?' This reduced 12-block smoke grid exercises M1–M6 but is not statistically valid. Network emulation is also disabled; do not combine it with VM data.':' Network emulation is disabled because the WSL kernel lacks sch_netem. Do not combine these measurements with VM data.';
+    document.getElementById('refreshTime').textContent='Updated '+new Date().toLocaleTimeString();
+    const signature=d.artifacts.map(a=>`${a}:${d.artifact_versions[a]}`).join('|');
+    if(signature!==gallerySignature){
+      gallerySignature=signature;
+      const gallery=document.getElementById('gallery');
+      gallery.innerHTML=d.artifacts.length?d.artifacts.map(a=>`<a href="/api/artifacts/${a}?v=${d.artifact_versions[a]}" target="_blank"><img src="/api/artifacts/${a}?v=${d.artifact_versions[a]}" alt="${a}"></a>`).join(''):'<div class="empty">Run analysis to generate figures.</div>';
+    }
+  }
+  async function loadProfile(){try{
+    const d=await json('/api/profile'),tiers=['low','medium','high'],total=tiers.reduce((sum,k)=>sum+Number(d.density[k]||0),0);
+    document.getElementById('profilePanel').classList.add('show');
+    document.getElementById('profileCounts').innerHTML=Object.entries(d.counts).map(([k,v])=>`<div class="profile-card"><small>${k}</small><b>${Number(v).toLocaleString()}</b></div>`).join('');
+    document.getElementById('densitySummary').textContent=`${total.toLocaleString()} images · detections/image: Q1 ${fmt(d.distribution.q1)}, median ${fmt(d.distribution.median)}, Q3 ${fmt(d.distribution.q3)} · tier boundaries use confidence ≥ 0.25`;
+    document.getElementById('density').innerHTML=tiers.map(k=>{const count=Number(d.density[k]||0),pct=total?100*count/total:0,range=d.density_tiers[k]?.range_conf25||[];return `<div class="density-row"><div class="density-label"><b>${k[0].toUpperCase()+k.slice(1)} density</b><small>${range.length?`${range[0]}–${range[1]} detections/image`:'Range unavailable'}</small></div><div class="density-track"><div class="density-bar ${k}" style="width:${pct.toFixed(1)}%" role="progressbar" aria-label="${k} density" aria-valuenow="${pct.toFixed(1)}" aria-valuemin="0" aria-valuemax="100" title="${pct.toFixed(1)}% of images"></div></div><div class="density-value"><b>${count.toLocaleString()} images</b><small>${pct.toFixed(1)}% of dataset</small></div></div>`}).join('');
+    toast('Dataset profile loaded')
+  }catch(e){toast(e.message)}}
+  async function runAction(name){try{const d=await json('/api/actions/'+name,{method:'POST'});selectedLog=name;selectTab(name);toast(`${name} started · pid ${d.pid}`);await refresh()}catch(e){toast(e.message)}}
+  async function stopExperiment(){try{const d=await json('/api/actions/experiment/stop',{method:'POST'});toast(d.detail);await refresh()}catch(e){toast(e.message)}}
+  async function resetResults(){
+    const token=prompt('Archive and clear the current run results? Type RESET to continue.');
+    if(token!=='RESET'){toast('Reset cancelled');return}
+    try{const d=await json('/api/actions/reset?confirm='+encodeURIComponent(token),{method:'POST'});toast(d.archive?'Results archived to '+d.archive:'Session reset; there were no results to archive');await refresh()}catch(e){toast(e.message)}
+  }
+  async function refreshLog(){try{const d=await json('/api/logs/'+selectedLog);const term=document.getElementById('terminal');const nearBottom=term.scrollHeight-term.scrollTop-term.clientHeight<80;term.textContent=d.content||'No output yet.';if(nearBottom)term.scrollTop=term.scrollHeight;const pill=document.getElementById('logState');pill.textContent=d.job.state;pill.className='status-pill '+d.job.state}catch(e){}}
+  function selectTab(name){selectedLog=name;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.log===name));refreshLog()}
+  document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>selectTab(b.dataset.log)));
+  refresh();setInterval(refresh,2500);
+</script>
+</body>
+</html>

@@ -1,19 +1,20 @@
-%% Gambar IV.8 - Aliran metrik eksperimen
+%% Gambar (Bab IV) — Aliran metrik eksperimen (revisi v4: label ringkas agar proporsional)
 %% Type: Data-flow style diagram.
-%% Reference basis: k6 workload.js, telemetry/sampler.py, run_experiment.py.
+%% Reference basis: k6/workload_mot.js + workload.js, telemetry/sampler.py,
+%% run_experiment.py. Anotasi X-Process-Time "tersedia, tidak direkam" (FIGURE_AUDIT).
 flowchart TB
-    K6["k6 execution"]
-    Server["REST/GraphQL server"]
-    Sampler["telemetry sampler"]
-    Summary["k6 summary JSON"]
-    Telemetry["telemetry CSV"]
-    Parser["run_experiment.py parser"]
-    Results["results.csv"]
+    K6["Eksekusi k6<br/>(open-loop, constant-arrival-rate)"]
+    Server["Server REST/GraphQL"]
+    Sampler["Sampler telemetri<br/>(1 Hz, per-PID, core terpisah)"]
+    Summary["Ringkasan k6 per run (JSON):<br/>waktu respons p50/p95/p99 · throughput ·<br/>payload_bytes · cache_hit_rate · error_rate ·<br/>apq_registrations · round_trip_count · page_latency"]
+    Telemetry["CSV telemetri:<br/>cpu_percent · rss_mb"]
+    Parser["run_experiment.py<br/>(gabung pada rentang waktu run)"]
+    Results["results.csv —<br/>satu baris per run terukur"]
+    XProc["Header X-Process-Time:<br/>tersedia, TIDAK direkam<br/>(keterbatasan)"]
 
-    K6 -->|"latency, throughput, payload_bytes, cache_hit_rate, apq_registrations, error_rate"| Summary
-    Server -->|"X-Process-Time header"| K6
-    Sampler -->|"cpu_percent, rss_mb sampled by PID"| Telemetry
+    Server -.-> XProc
+    K6 --> Summary
+    Sampler --> Telemetry
     Summary --> Parser
     Telemetry --> Parser
-    Parser -->|"one row per measured run"| Results
-
+    Parser --> Results

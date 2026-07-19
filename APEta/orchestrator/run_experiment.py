@@ -35,6 +35,7 @@ Subcommands:
     python orchestrator/run_experiment.py                 # execute (default)
     python orchestrator/run_experiment.py --preflight      # readiness check
     python orchestrator/run_experiment.py --status         # progress report
+    python orchestrator/run_experiment.py --simulate-resume # read-only skip preview
 """
 from __future__ import annotations
 
@@ -720,6 +721,11 @@ class Executor:
     def ensure_network(self, network: str) -> None:
         if self.current_network == network:
             return
+        if not self.cfg.enable_netem:
+            print(f"  [network] SKIP {network}: APE_DISABLE_NETEM=1 "
+                  "(demo-only; no latency/rate emulation)")
+            self.current_network = network
+            return
         print(f"  [network] apply {network}")
         apply_netem(self.cfg, network)
         self.current_network = network
@@ -736,7 +742,8 @@ class Executor:
         self.stop_block_sampler()
         self.stop_varnish()
         self.stop_server()
-        clear_netem(self.cfg)
+        if self.cfg.enable_netem:
+            clear_netem(self.cfg)
         teardown_netns_topology(self.cfg)
 
     def base_url_for(self, block: dict) -> str:
@@ -897,6 +904,10 @@ def preflight(cfg: Config) -> int:
     def check(name: str, ok: bool, detail: str = "") -> None:
         checks.append((name, ok, detail))
 
+    check("netem_mode", True,
+          "enabled" if cfg.enable_netem else
+          "DISABLED by APE_DISABLE_NETEM=1 (demo-only; results are not VM-comparable)")
+
     try:
         conn = sqlite3.connect(cfg.db_path)
         n_img = conn.execute("SELECT COUNT(*) FROM image").fetchone()[0]
@@ -993,6 +1004,57 @@ def status_cmd(cfg: Config, plan_path: Path, results_path: Path) -> int:
     return 0
 
 
+def simulate_resume_cmd(cfg: Config, plan_path: Path, results_path: Path) -> int:
+    """Show the real resume decision without starting or changing anything."""
+    if not plan_path.exists():
+        print(f"run_plan.csv not found: {plan_path}")
+        return 1
+
+    rows = load_plan(plan_path)
+    blocks = group_blocks(rows)
+    done_uids = load_done_uids(results_path)
+    measured_uids = {r["run_uid"] for b in blocks for r in b["measured_rows"]}
+    recorded_uids = done_uids & measured_uids
+    resume_idx = find_resume_index(blocks, done_uids)
+
+    print("=== RESUME / SKIP SIMULATION (READ-ONLY) ===")
+    print(f"Session: {cfg.session_id}")
+    print(f"Plan: {plan_path}")
+    print(f"Results: {results_path}")
+    print("No services, warmups, or measured workloads will be started.\n")
+
+    for index, block in enumerate(blocks):
+        block_uids = {r["run_uid"] for r in block["measured_rows"]}
+        complete = len(block_uids & done_uids)
+        total = len(block_uids)
+        if index < resume_idx:
+            state = "SKIP"
+            detail = "all measured run_uids already recorded"
+        elif index == resume_idx:
+            state = "RESUME"
+            detail = f"first incomplete block; {total - complete} measured run(s) would execute"
+        elif complete == total:
+            state = "RECORDED"
+            detail = "complete after resume point"
+        else:
+            state = "PENDING"
+            detail = f"{total - complete} measured run(s) would execute"
+        print(f"[{state:8}] block {index + 1:02d}/{len(blocks)} {block['block_id']}: "
+              f"{complete}/{total} complete -- {detail}")
+
+    pending = len(measured_uids - done_uids)
+    print("\nSimulation summary:")
+    print(f"  leading blocks skipped: {resume_idx}/{len(blocks)}")
+    print(f"  measured runs already recorded: {len(recorded_uids)}/{len(measured_uids)}")
+    print(f"  measured runs still pending: {pending}")
+    if resume_idx >= len(blocks):
+        print("  decision: ALL BLOCKS WOULD BE SKIPPED -- nothing to run")
+    else:
+        print(f"  decision: resume at block {resume_idx + 1} ({blocks[resume_idx]['block_id']})")
+    print("\nSIMULATION ONLY -- results.csv was not modified.")
+    return 0
+
+
 # --- CLI -----------------------------------------------------------------------------
 
 def main() -> int:
@@ -1002,6 +1064,8 @@ def main() -> int:
     ap.add_argument("--results", default=str(cfg.results_csv))
     ap.add_argument("--preflight", action="store_true")
     ap.add_argument("--status", action="store_true")
+    ap.add_argument("--simulate-resume", action="store_true",
+                    help="print the resume/skip decision without starting services or workloads")
     args = ap.parse_args()
 
     plan_path = Path(args.run_plan)
@@ -1011,6 +1075,8 @@ def main() -> int:
         return preflight(cfg)
     if args.status:
         return status_cmd(cfg, plan_path, results_path)
+    if args.simulate_resume:
+        return simulate_resume_cmd(cfg, plan_path, results_path)
     return run_experiment(cfg, plan_path, results_path)
 
 
